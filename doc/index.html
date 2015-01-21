@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The Micron documentation!">
+    <meta name="author" content="Almar">
+	<!--
+    <link rel="icon" href="../../favicon.ico">
+	-->
+    <title>Micron. Almar. 2014-2015</title>
+
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="starter-template.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a> <!--Micron. Almar. 2014-2015</a> <img alt="Brand" src="icon2.png"> -->
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">		  
+            <li class="active"><a href="#">Home</a></li>			
+            <li><a href="#core">Core</a></li>
+            <li><a href="#input">Input</a></li>
+            <li><a href="#camera">Camera</a></li>						
+            <li><a href="#graphics">Graphics</a></li>						
+            <li><a href="#audio">Audio</a></li>
+			<li><a href="#utils">Utils</a></li>
+            <li><a href="#entity">Entity</a></li>			
+			<li><a href="#pool">Pool</a></li>
+            <li><a href="#state">State</a></li>					
+            <li><a href="#sprite">Sprite</a></li>			
+            <li><a href="#atlas">Atlas</a></li>			
+            <li><a href="#text">Text</a></li>			
+            <li><a href="#button">Button</a></li>			
+            <li><a href="#particlebase">ParticleBase</a></li>			
+            <li><a href="#particlecircle">ParticleCircle</a></li>			
+            <li><a href="#particlesystem">ParticleSystem</a></li>			
+            <li><a href="#sound">Sound</a></li>						
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+	<!--	
+	<pre id="utils">
+		<h1>Utils</h1> <span class="label label-warning">Singleton</span>
+		Helper functions that simplify working with js.
+				
+		<b>Easing functions: linear (default), sine, quad, expo, elastic, cubic, circular, bounce, back. Example: Utils.E_ELASTIC_OUT. </b>
+		E_LINEAR_IN, E_LINEAR_OUT, E_LINEAR_INOUT, E_SINE_IN, E_SINE_OUT, E_SINE_INOUT, E_QUAD_IN, E_QUAD_OUT, E_QUAD_INOUT,
+		<span class="label label-danger">read-only</span>			
+
+		<b>Methods</b>	
+		emptyFunc()							<i>Useful for initialization of empty callbacks</i> <br>
+		tween(object, property, destination, time, easing, callback) 	<i>Example: Utils.tween(this.sprite, "x", 240.0, 0.5, Utils.E_BACK_IN, this.onSpriteMoved.bind(this));</i>
+	</pre>
+	-->
+	
+    <div class="container">
+
+      <div class="starter-template">
+	  <img alt="Brand" src="icon_big.png">
+        <h1>Welcome to Micron!</h1><span class="label label-primary">ALPHA</span>
+        <p class="lead">Micron is a minimalistic (less than 2k lines of code) 2d js game/app/experiments framework creation. 
+		It uses heavily <a href="https://github.com/ertrzyiks/basejs">basejs</a>, and it is inspired by a shitload of other frameworks and tools.<br>
+		Have Fun!</p>
+      </div>
+    </div><!-- /.container -->
+
+
+	<pre id="core">
+		<h1>Core</h1> <span class="label label-warning">Singleton</span>
+		The Core is the... core of the framework: it links all the submodules together. This is the one that controls the actual game and the state machine.
+		You won't likely have to modify this class.
+			
+		<b>Members</b>
+		currentState : State			<i>The current <b>State</b> in execution.</i>
+		width : number		<span class="label label-danger">read-only</span>
+		height : number		<span class="label label-danger">read-only</span>
+		storage : bool
+		fps : number		<span class="label label-danger">read-only</span>
+		fpsCounter : number
+		elapsed : number	<span class="label label-danger">read-only</span>
+		delta : number		<span class="label label-danger">read-only</span>
+		timeScale : number
+		date : Date
+		dateNow: Date
+		dateThen : Date
+		loaded : bool		<span class="label label-danger">read-only</span>
+		assets : object 			<i>All the assets loaded. Kept in case someone wants just to iterate through assets quickly.</i>
+		assetsMap : object
+		assetsLoaded : number
+
+		<b>Methods</b>	
+		init (width, height) 			<i>Pass the size the game should have on the screen. It will be rescaled and recentered automatically.</i>
+		update (delta)
+		draw ()
+		run ()
+		setState (state)			<i>Switch the current state. It will delete the previous one, but not the underlaying assets in Core.</i>
+		getFPS ()
+		addAsset (pathOrArray)			<i>Example: Core.addAsset([ "empty", "gfx/empty.jpg" ]); The first parameter is the <b>key</b>, the second, the path.</i>
+		loadAndRun ()				<i>Call after adding all your assets to start executing the current state.</i>
+		hasStorageSupport ()
+		saveToStorage (object, value)
+		readFromStorage (object)
+	</pre>
+	
+	<pre id="input">
+		<h1>Input</h1> <span class="label label-warning">Singleton</span>
+		The main Input module is reponsible for detecting and processing input events. On mobile devices, clicks are handled as touches (but work exactly the same).
+		You can register objects to the input system to receive "touch" events. 
+		<b>Example:</b> inside a class, do Input.addInputReceiver(this), and then override the method <i>onClickInput</i>.
+		
+		<b>Members</b>
+		isClick : bool			<span class="label label-danger">read-only</span>
+		clickPosition : object{ x, y }	<span class="label label-danger">read-only</span>
+		mousePosition : { x, y }	<span class="label label-danger">read-only</span>
+		inputObjectsRegistered : array	<span class="label label-danger">read-only</span>
+		supportsMultitouch : false	<span class="label label-danger">read-only</span>
+
+		<b>Example: Input.isKeyPressed( Input.KEY_ESC );</b>
+		KEY_BACK KEY_TAB KEY_ENTER KEY_SHIFT KEY_CTRL  KEY_ALT  KEY_PAUSE  KEY_CLOCK  KEY_ESC  KEY_SPACE KEY_PGUP KEY_PGDOWN KEY_END KEY_HOME
+		KEY_LEFT KEY_UP	KEY_RIGHT KEY_DOWN KEY_INSERT KEY_DEL KEY_0	KEY_1 KEY_2 KEY_3 KEY_4	KEY_5 KEY_6	KEY_7 KEY_8	KEY_9 KEY_A	KEY_B KEY_C	
+		KEY_D KEY_E KEY_F KEY_G	KEY_H KEY_I KEY_J KEY_K	KEY_L KEY_M	KEY_N KEY_O	KEY_P KEY_Q	KEY_R KEY_S	KEY_T KEY_U	KEY_V KEY_W	KEY_X KEY_Y		
+		KEY_Z KEY_NUM0 KEY_NUM1 KEY_NUM2 KEY_NUM3 KEY_NUM4 KEY_NUM5 KEY_NUM6 KEY_NUM7 KEY_NUM8 KEY_NUM9 KEY_MUL KEY_ADD KEY_SUB KEY_POINT KEY_DIV 
+		<span class="label label-danger">read-only</span>
+
+		<b>Methods</b>	
+		checkMulitouchSupport () : bool
+		addInputReceiver (object)			<i>When registering your object to receive touch/click input, don't forget to override in your object the method onClickInput(x, y)</i>
+								<i>Example: onClickInput : function(x, y){ if(this.isPointInRect(...){ console.log("click!"); } }; </i>
+		isKeyPressed (key) : bool
+		isMousePressed () : bool
+		isMouseReleased () : bool
+		generateClick (xpos, ypos)
+		releaseClick ()
+		mouseMoved (x, y)
+		getMousePosition () : object{x, y}
+		getMousePositionInWorld () : object{x, y}
+	</pre>
+
+	<pre id="camera">
+		<h1>Camera</h1> <span class="label label-warning">Singleton</span>
+		The main and only camera singleton. Useful for doing things on the screen, like moving around, applying FX (<b>shake, fade-in/out</b> or adding an <b>overlay tint</b>).
+		<b>NOTE:</b> if you want to replace the main camera by one of your own, just extend the Camera class and then override the Camera object. Easy!
+				
+		<b>Members</b>
+		x : number					<i>The camera's position.</i>
+		y : number
+		shaking : false
+		shakeStrength : number
+		shakeTime : number
+		fading : bool
+		overlayColor : {r,g,b,a}
+		drawOverlay : bool
+		
+		<b>Methods</b>	
+		constructor ()
+		shake (time, strength, shakeEndCallback)
+		stopShake ()
+		
+		fade ( fromColor {r,g,b,a}, toColor {r,g,b,a}, time, [easing=Utils.E_LINEAR_IN], [fadeEndCallback=Utils.emptyFunc()] )
+		<i><b>Examples:</b> 
+		- fade-out to black: Camera.fade( {0, 0, 0, 0}, {0, 0, 0, 1}, 3.5 )
+		- fade-in from white: Camera.fade( {1, 1, 1, 1}, {1, 1, 1, 0}, 3.0 )
+		- flash: Camera.fade( {0, 0, 0, 0}, {1, 1, 1, 1}, 0.3, Utils.E_BOUNCE_INOUT ) </i>
+			
+		update ( delta )
+		draw ()
+		getX () : number
+		getY () : number
+		setOverlayColor (r, g, b, a)
+		clearOverlayColor ()	
+	</pre>
+	
+	<pre id="graphics">
+		<h1>Graphics</h1> <span class="label label-warning">Singleton</span>
+		The heavy rendering part of Micron. <i>Graphics</i> groups all the drawXXX methods, as well as image loading and manipulation.
+				
+		<b>Members</b>
+		canvas : object{Canvas}					<i>The basic <b>canvas</b> object. Feel free to manipulate it directly to suit your needs.</i>
+		context : object{Canvas2DContext}	<span class="label label-danger">read-only</span>
+		initialized : bool
+		images : array
+		imagesMap : {}
+		scale : { x, y }
+		
+		<b>Methods</b>	
+		init (width, height)					<i>Called automatically by Core. No matter how big or small is your game window, you will always have <b>width,height</b> pixels in your app.</i>
+		pixelify (flag)						<i>If flag is <b>true</b>, all the textures will be displayed using nearest filtering. Useful for 8bit/pixelart games.</i>
+		getWidth ()						<i>Return the width of your virtual window (the same value you provided in init).</i>
+		getHeight ()						<i>See above and change width by height.</i>
+		loadImage (alias, path)					<i>All images loaded have an alias. The path can be any local image or link.</i>
+		getImage (pathOrAlias)					<i>Get an [Image] object previously loaded, using it's path or alias. Better use the alias (it's simpler).</i>
+		preDraw ()						<i>You shouldn't have to touch these two, but in case you need to alter the default drawing of the entire engine: here's the place to do so.</i>
+		postDraw ()	
+		drawText (text, x, y, r, g, b, a, size : number, [font=defaultFont] : string)				<i><b>Example:</b> Graphics.drawText("Hello world!", 0, 0, 1, 1, 1, 1, 32, "Arial")</i>
+		drawRect (x, y, width, height, r, g, b, a, [mode="fill"])	  					<i>For all the methods that have a "mode" parameter, it can always be either <b>"fill"</b> or <b>"stroke"</b></i>
+		drawFullScreenRect (r,g,b,a)
+		drawLine (x1, y1, x2, y2, r, g, b, a, lineWidth, [round])     						<i>If round is not empty, it will be used to define lineCap.</i>
+		drawArc (x, y, radius, startAngle, endAngle, r, g, b, a, lineWidth, [mode="fill"])
+		drawCircle (x, y, radius, r, g, b, a, [mode="fill"])
+		drawSprite (img : [Image], x, y, width, height, angle, scaleX, scaleY, alpha)      			<i>Note: if img is empty, the function will return.</i>
+		drawSpriteCropped (img:[Image], x, y, width, height, angle, scaleX, scaleY, alpha, uvX, uvY, uvW, uvH)	<i>A <b>cropped</b> sprite displays a part of the texture defined by its uv in pixels.</i>
+		drawPolygon (points : array, x, y, r, g, b, a, [mode="fill"])						<i>The <b>points</b> array must have a pair number of elements. Each succesive value is a pair (x,y).</i>
+		drawRegularPolygon (x, y, numberOfSides, size, r, g, b, a, [mode="fill"])  				<i>A regular polygon is the one which has all sides equally long. From 3 up to infinite.</i>
+	</pre>
+		
+	<pre id="audio">
+		<h1>Audio</h1> <span class="label label-warning">Singleton</span>
+		The biggest module of Micron by far. Understanding its inner workings grant you access to the Nirvana for 2 weeks.
+		
+		<b>Methods</b>	
+		hasSound ()	: bool 			<i>Returns true if the browser supports sound. Yeah.</i>
+	</pre>		
+		
+	<pre id="utils">
+		<h1>Utils</h1> <span class="label label-warning">Singleton</span>
+		Helper functions that simplify working with js.
+				
+		<b>Easing functions: linear (default), sine, quad, expo, elastic, cubic, circular, bounce, back. Example: Utils.E_ELASTIC_OUT. </b>
+		E_LINEAR_IN, E_LINEAR_OUT, E_LINEAR_INOUT, E_SINE_IN, E_SINE_OUT, E_SINE_INOUT, E_QUAD_IN, E_QUAD_OUT, E_QUAD_INOUT,
+		E_EXPO_IN, E_EXPO_OUT, E_EXPO_INOUT, E_ELASTIC_IN, E_ELASTIC_OUT, E_ELASTIC_INOUT, E_CUBIC_IN, E_CUBIC_OUT, E_CUBIC_INOUT,
+		E_CIRCULAR_IN, E_CIRCULAR_OUT, E_CIRCULAR_INOUT,E_BOUNCE_IN, E_BOUNCE_OUT, E_BOUNCE_INOUT, E_BACK_IN,  E_BACK_OUT, E_BACK_INOUT  
+		<span class="label label-danger">read-only</span>			
+		
+		One of the most important things of the Utils, are the tweens. Here is an example on how to use it:
+		<b>Example:</b> Utils.tween(this.sprite, "x", 240.0, 0.5, Utils.E_BACK_IN, this.onSpriteMoved.bind(this));
+	
+		<b>Methods</b>		
+		emptyFunc ()							<i>Useful for initialization of empty callbacks</i>
+		isEmpty (v) : bool 						<i>Check undefined and null</i>
+		copyAttributes (clone, original) : object 			<i>Copy the attributes of original into clone</i>
+		checkExtension (text, extension) : bool 			<i>Example: Utils.checkExtension(".jpg", ".png") > false</i>
+		indexToDecimal (value) : number 				<i>Convert number in range 0..1 into 0..255</i>
+		rgbaToString (r,g,b,a) : string 				<i>Each value between 0..1</i>
+		invoke (func, time)						<i>Execute function func after time miliseconds</i>
+		invokeRepeating (func, time) 					<i>Execute function func each time miliseconds</i>
+		distance (x1, y1, x2, y2) : number 				<i>Return the distance between the two points</i>
+		angle (x1, y1, x2, y2) : number					<i>Return the angle between two points</i>
+		randRange (min, max) : number 					<i>Random between min and max (both included)</i>
+		intRandRange (min, max)  : number 				<i>Same as above, but returned as int</i>
+		randSpread (range)  : number         
+		randSign () : number						<i>-1 or 1</i>
+		randFlipCoin () : bool						<i>Face or ass. Which one is which?</i>
+		scalePercentWidth (value) : number				<i>Value between 0...1 will be returned as a value between 0...screen width/height</i>
+		scalePercentHeight (value) : number 
+		clamp (min, value, max) : number 
+		lerp (initial, end, time) : number 
+		perp (initial, end, time) : number 
+		berp (initial, end, time) : number 
+		smoothStep (x) : number 
+		tween( object, property, destination, time, easing, callback) 	<i>Object: the instance. Property: string, the name. Destination: value. Time: total. Easing: function, see above.</i> 
+	</pre>
+	
+	<pre id="entity">
+		<h1>Entity</h1> <span class="label label-info">Class</span>
+		The mother of all other things in the engine. GameStates, Sprites, Atlases, Sounds (ok, maybe not sounds) but everything is an entity.
+		Entities have the most basic behavior: they are holders of entities. As such, they have <b>init, update</b> and <b>draw</b> methods. 
+		Entities also can be <b>pooled, cloned</b> or <b>destroyed</b>. 
+		If you don't know what kind of class you need but you know you will have to update it or make it a cointainer for other things, this is the class you must extend.
+		For everything else, you should extend from <i>Base</i>.
+			
+		<b>Members</b>
+		name : string
+		entities : array
+		inUse : true					<i>This is true to keep consistency with non-pooled object. And yes, this flag is used when pooling.</i>
+
+		<b>Methods</b>	
+		constructor (name) 
+		spawn ()					<i>Override when pooling.</i>
+		add (entity) 
+		remove (entity)
+		removeAll ()
+		clone ()	
+		update (delta) 
+		draw () 
+		destroy ()	
+	</pre>
+	
+	<pre id="pool">
+		<h1>Pool : Entity</h1> <span class="label label-info">Class</span>
+		Pools are extremely simple... erh... pools of <i>Entities</i>. When making a pool for your objects, they must have:
+		- a flag to determine the state of the object (<i>inUse</i>).
+		- a method to re-spawn the object when it's back to the world (<i>spawn</i>).
+			
+		<b>Methods</b>	
+		constructor () 
+		addToPool (object, amount)		<i>Before pooling objects, you must first add the "model" ones. Just put any poolable object and how many "unique" objects you want.</i>
+		spawn (amount)				<i>Determine how many death objects should be respawned. It will spawn as many as possible. If there won't be enough, it will do nothing.</i>
+		update (delta) 
+		draw () 
+	</pre>	
+	
+	<pre id="state">
+		<h1>State : Entity</h1> <span class="label label-info">Class</span>
+		State is an encapsulation of a "game" state: for example, the screens on a game. They should hold the logic for each screen and manipulate high level entities.
+		<b>IMPORTANT</b>: you must create your objects that depend on resources in your <i>init</i> method, since this is the one called when all resources are ready.
+		
+		<b>Methods</b>	
+		constructor () 
+		init () 				<i>Override to create here the objects that require fully loaded resources. Everything else can go to the constructor. </i>
+		onPause (flag)				<i>Override this method to control what happens when the application is paused or not (that's what the flag is for: it receives true when paused).</i>
+	</pre>
+	
+	<pre id="sprite">
+		<h1>Sprite : Entity</h1> <span class="label label-info">Class</span>
+		The base drawable object. Sprites are simple, single-texture images. You can draw them normally or <b>cropped</b>. You can change the [Image] the sprite uses
+		in real time, without any flops (<b>note:</b> the new image must be loaded as well).
+		
+		Sprites are good for making animations (though there is no animation system - yet), characters, elements from the scene... sprites are for everything. They have basic
+		functionality for collision detection, however it is a bit shitty.
+			
+		<b>Members</b>
+		img : [Image]
+		path : string
+		x : number 
+		y : number
+		width : number
+		height : number
+		angle : number
+		scale : {x, y}
+		uv : {u, v, s, t}
+		rect : {x, y, w, h}
+		useBoundingBox : bool			<i>When true, it will use the bounding box to calculate collisions. When false, it will calculate circle collisions.</i>
+		radius : number				<i>Used for calculation of circle based collisions.</i> 
+		center : {x, y}				<i>Useful both for circle based collisions and to get the image center.</i>
+		alpha : 1.0	
+
+		<b>Methods</b>	
+		constructor (pathOrAlias) 		<i>The path or <b>alias</b> to the already loaded image. If should survive having an empty path (however it won't draw anything).</i>
+		draw ()
+		drawDebug ()				<i>Display the object's bounding area and other info.</i>
+		update (delta)
+		recalculate ()				<i>Force recalculate the object's bounding area.</i>
+		setSource (pathOrAlias)			<i>Use this method to change the current image referenced.</i>
+		setUV (x, y, w, h)			<i>UV used for cropping.</i>
+		resetUV ()				<i>When the UV are resetted, it will point to the default {0, 0, 1, 1} - the full image.</i>
+		collides (other : Sprite) : bool 	<i>Checks whether this sprite collides with <b>other</b>.</i>
+		isPointInRect (x, y)			<i>Determine whether the point is inside the bounding rectangle of this sprite.</i>
+		isPointInCircle (x, y)			<i>Like above, but with a circle instead.</i>
+
+	</pre>	
+	
+	<pre id="atlas">
+		<h1>Atlas : Sprite</h1> <span class="label label-info">Class</span>
+		Atlases are good to pack textures together. Because canvas is not very optimized towards this kind of asset repackage, it won't change a lot in terms of
+		performance for your game. However, having atlases is always good, so here you are!
+		functionality for collision detection, however it is a bit shitty.
+			
+		<b>Methods</b>	
+		constructor (pathOrAlias) 			<i>The path or <b>alias</b> of the already loaded image.</i>
+		getImage (x, y, w, h) : Sprite			<i>Return a new up-to-date Sprite with the base texture of the atlas and the provided uv info.</i>
+		drawTile (x, y, w, h, ux, uy, uw, uh)		<i>Simple helper for drawing on the screen any part of the texture atlas.</i>		
+	</pre>	
+
+	<pre id="text">
+		<h1>Text : Sprite</h1> <span class="label label-info">Class</span>
+		Text (sometimes refered to as "label") is just a text sprite. It uses the canvas font rendering instead of a more traditional bitmap-font approach.
+		Don't forget to manually setup the values for this text object!
+		
+		<b>Members</b>	
+		str : string
+		size : number
+		r : number
+		g : number
+		b : number
+		font : string
+			
+		<b>Methods</b>	
+		constructor (str)    				<i>The initial text you would like to see on your label/text.</i>
+		draw ()
+	</pre>	
+
+	<pre id="button">
+		<h1>Button: Sprite</h1> <span class="label label-info">Class</span>
+		Click things that go boom!
+				
+		<b>Members</b>	
+		onClickFunc : function
+		text : Text
+		enabled : bool
+			
+		<b>Methods</b>	
+		constructor (img : [Image], xpos, ypos, myOnClickFunc)
+		setText (str)
+		draw ()
+		drawDebug (r,g,b)
+		onClickInput (x, y)				<i>Buttons add themselves to the Input system, and then they get the input.</i>
+	</pre>	
+	
+	<pre id="particlebase">
+		<h1>ParticleBase : Sprite [TODO]</h1> <span class="label label-info">Class</span>	
+	</pre>
+
+	<pre id="particlecircle">
+		<h1>ParticleBase : ParticleBase [TODO]</h1> <span class="label label-info">Class</span>	
+	</pre>
+
+	<pre id="particlesystem">
+		<h1>ParticleSystem : Pool [TODO]</h1> <span class="label label-info">Class</span>	
+	</pre>
+	
+	<pre id="sound">
+		<h1>Sound: Base</h1> <span class="label label-info">Class</span>
+		Unlike with Audio, this actually has something inside.
+				
+		<b>Members</b>	
+		path : string
+		loops : bool			<i>When true, it will keep looping until the end of days.</i>
+		
+		<b>Methods</b>	
+		constructor (path, loop)
+		play ()
+		pause ()
+		stop ()
+		setVolume (value)	
+
+	</pre>	
+	
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+  </body>
+</html>

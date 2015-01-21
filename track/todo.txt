@@ -1,0 +1,37 @@
+
+Micron
+
+- minify micron
+- check the old code
+- put back all the audio thing where it has to be
+- addAsset audio type
+- addAsset image as base64
+DONE - fix the loading bug with empty list (empty.jpg is always needed now!)
+- add real tracking
+DONE - commit to github
+- finish documentation
+- make automatic documentation
+DONE - make a better icon for this shit (NOTE: it's still shitty)
+- in docs: fix the header nav bar button thing
+- in docs: make sure that the text will NEVER be word wrap (or it will look like shit)
+- in docs: make colums FOR REAL.
+- in docs: add FAQ or something.
+- make demos!
+	+ platformer minecraft
+	+ some snake
+	+ some space invaders
+	+ rts like football!
+	+ clone of flappy bird / lumberjack something, for the lulz
+
+
+Editor
+
+- fix style, make this shit AWESOME
+- download zip with all the project (include already there newest base.js and micron.js!)
+- add built in image previewer / loader / cruncher
+- add built in pixel editor
+- add built in scene editor (woa!)
+- add built in particle editor
+- add animation system
+
+

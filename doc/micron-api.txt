@@ -1,0 +1,424 @@
+
+//----------------------------------------------------------------------------------------//
+
+MICRON. Almar. 2013-2015.
+
+//----------------------------------------------------------------------------------------//
+
+Overview:
+
+Core (Tween, Utils, Entity, Pool, State, Core)
+Input
+Graphics (Camera, Graphics, Sprite, Atlas, Text, Button, ParticleBase, ParticleCircle, ParticleSystem)
+Audio (Audio, Song)
+
+//----------------------------------------------------------------------------------------//
+
+TweenObject : Base 	> internal object
+Utils : Singleton 	> js enhancements, math functions, tween
+Entity : Base 		> base class. poolable. drawable. updatable.
+Pool : Entity		> a group of entities. you can create a pool of them to quickly reuse and save performance and memory.
+State : Entity		> logic encapsulation of screens
+Core : Singleton	> general game initialization, running, rescaling, asset loading, local storage management, main timer and performance (delta and fps)
+Input : Singleton	> mouse, keyboard, multitouch. Objects that should receive input can attach themselves here to receive clicks on them.
+Camera : Singleton  	> main camera. Move it, shake it, fade it, colorize its overlay.
+Graphics : Singleton	> system for drawing on the screen. Lot's of helpers.
+Sprite : Entity		> main drawable object. Image, uv, bounding box, bounding sphere, collision, check point inside.
+Atlas : Sprite		> easy way to use an atlas or get images from it. Also, quick drawTile
+Text : Sprite		> simple text object
+Button : Sprite		> simple button object
+ParticleBase : Sprite		> simple particle object
+ParticleCircle : ParticleBase 	> extended particle object
+ParticleSystem : Pool		> particle system pool
+Audio :	Singleton		> basic audio singleton entry point, does almost nothing for now
+Song : Base			> basic song file. Create a new one to play/stop/pause whatever you want
+
+//----------------------------------------------------------------------------------------//
+
+TweenObject : Base	// This is built automatically by Utils.tween.
++ object : null,
++ property : "",
++ initial : 0.0,
++ destination : 0.0,
++ time : 0.0, 
++ easing : "easeLinearIn", 
++ callback : tweenEmptyFunc,
++ currentTime : 0.0,
+> constructor : function(o,p,d,t,e,c)
+
+Utils : Singleton        
+// easing functions: linear(default), sine, quad, expo, elastic, cubic, circular, bounce, back
+// ex: Utils.E_BOUNCE_OUT
++ E_LINEAR_IN    	: "easeLinearIn", 	
++ E_LINEAR_OUT 		: "easeLinearOut", 	
++ E_LINEAR_INOUT 	: "easeLinearInOut", 
++ E_SINE_IN 		: "easeSineIn", 	
++ E_SINE_OUT      	:	"easeSineOut", 	
++ E_SINE_INOUT 		: "easeSineInOut",
++ E_QUAD_IN 		: "easeQuadIn", 	
++ E_QUAD_OUT 		: "easeQuadOut", 	
++ E_QUAD_INOUT 		: "easeQuadInOut", 
++ E_EXPO_IN 		: "easeExpoIn", 	
++ E_EXPO_OUT 		: "easeExpoOut", 	
++ E_EXPO_INOUT 		: "easeExpoInOut",
++ E_ELASTIC_IN 		: "easeElasticIn", 	
++ E_ELASTIC_OUT   	: "easeElasticOut", 
++ E_ELASTIC_INOUT 	: "easeElasticInOut",
++ E_CUBIC_IN 		: "easeCubicIn", 	
++ E_CUBIC_OUT 		: "easeCubicOut", 	
++ E_CUBIC_INOUT   	: "easeCubicInOut", 
++ E_CIRCULAR_IN 	: "easeCircularIn", 
++ E_CIRCULAR_OUT 	: "easeCircularOut",
++ E_CIRCULAR_INOUT	: "easeCircularInOut",
++ E_BOUNCE_IN 		: "easeBounceIn", 	
++ E_BOUNCE_OUT 		: "easeBounceOut", 	
++ E_BOUNCE_INOUT 	: "easeBounceInOut",
++ E_BACK_IN 		: "easeBackIn", 	
++ E_BACK_OUT 		: "easeBackOut", 	
++ E_BACK_INOUT 		: "easeBackInOut",         
+> emptyFunc : function()						// useful for initialization of empty callbacks
+> isEmpty : function(v) 						// check undefined and null 
+> copyAttributes : function(clone, original) 	// copy the attributes of original into clone
+> checkExtension : function(text, extension) 	// ex: Utils.checkExtension(".jpg", ".png") > false
+> indexToDecimal : function(value) 				// convert number in range 0..1 into 0..255
+> rgbaToString : function(r,g,b,a) 				// each value between 0..1
+> invoke : function(func, time) 				// execute function func after time miliseconds
+> invokeRepeating : function(func, time) 		// execute function func each time miliseconds
+> distance : function(x1, y1, x2, y2) 			// return the distance between the two points
+> randRange : function(min, max) 				// random between min and max (both included)
+> intRandRange : function(min, max) 			// same as above, but returned as int
+> randSpread : function(range) 
+> randSign : function() 						// -1 or 1
+> randFlipCoin : function() 					// true or false
+> scalePercentWidth : function(value)			// value between 0...1 will be returned as a value between 0...screen width/height
+> scalePercentHeight : function(value)
+> clamp : function(min, value, max)
+> lerp : function(initial, end, time)
+> perp : function(initial, end, time)
+> berp : function(initial, end, time)
+> smoothStep : function(x)
+> easeLinear : function(t, b, c, d) 			// note: you should better use Utils.tween, but you can access them here if you need to
+> easeSineIn : function(t, b, c, d) 
+> easeSineOut : function(t, b, c, d) 
+> easeSineInOut : function(t, b, c, d) 
+> easeQuadIn : function(t, b, c, d) 
+> easeQuadOut : function(t, b, c, d) 
+> easeQuadInOut : function(t, b, c, d) 
+> easeExpoIn : function(t, b, c, d) 
+> easeExpoOut : function(t, b, c, d) 
+> easeExpoInOut : function(t, b, c, d) 
+> easeElasticIn : function(t, b, c, d) 
+> easeElasticOut : function(t, b, c, d) 
+> easeElasticInOut : function(t, b, c, d) 
+> easeCubicIn : function(t, b, c, d) 
+> easeCubicOut : function(t, b, c, d) 
+> easeCubicInOut : function(t, b, c, d) 
+> easeCircularIn : function(t, b, c, d) 
+> easeCircularOut : function(t, b, c, d) 
+> easeCircularInOut : function(t, b, c, d) 
+> easeBounceOut : function(t, b, c, d) 
+> easeBounceIn : function(t, b, c, d) 
+> easeBounceInOut : function(t, b, c, d) 
+> easeBackIn : function(t, b, c, d) 
+> easeBackOut : function(t, b, c, d) 
+> easeBackInOut : function(t, b, c, d) 
+> tween : function(object, property, destination, time, easing, callback) // ex: Utils.tween(this.sprite, "x", 240.0, 0.5, Utils.E_BACK_IN, this.onSpriteMoved.bind(this));
+
+Entity : Base
++ name : "", 
++ entities : [],
++ inUse : true, // this is true to keep consistency with non-pooled objects
+> constructor : function(name) 
+> spawn : function()
+> add : function(ent) 
+> remove : function(ent)
+> removeAll : function()
+> clone : function()	
+> update : function(delta) 
+> draw : function() 
+> destroy : function() 
+
+Pool : Entity
+> constructor : function()
+> addToPool : function(object, amount)
+> spawn : function(amount)
+> update : function(delta)
+> draw : function()
+
+State : Entity
+> constructor : function(name) 
+> init : function() // Use this method to load/create objects that require assets fully loaded.
+
+Core : Singleton
++ currentState : null,
++ width : 0,
++ height : 0,
++ storage : false,
++ fps : 0,
++ fpsCounter : 0,
++ elapsed : 0,
++ delta : 0.016,
++ timeScale : 1.0,
++ date : null,
++ dateNow: null,
++ dateThen : null,
++ loaded : false,
++ assets : null, // keep it in case someone wants just to iterate through assets quickly
++ assetsMap : null,
++ assetsLoaded : 0, 
+> constructor : function()
+> init : function(width, height) 	// Pass the size the game should have on the screen. It will be rescaled and recentered automatically.
+> update : function(delta)
+> draw : function()
+> run : function()
+> setState : function(state)
+> getFPS : function()
+> addAsset : function(pathOrArray)
+> loadAndRun : function()
+> hasStorageSupport : function()
+> saveToStorage : function(object, value)
+> readFromStorage : function(object)
+
+//----------------------------------------------------------------------------------------//
+
+Input : Singleton
++ keysDown : {},
++ isClick : false,
++ clickPosition : { x:0, y:0 },
++ mousePosition : { x:0, y:0 },	
++ inputObjectsRegistered : [],
++ supportsMultitouch : false,
++ scale : { x:1, x:1 },
++ offset : { x:0, y:0 },
+// ex: Input.isKeyPressed( Input.KEY_ESC );
++ KEY_BACK : 8,	
++ KEY_TAB	: 9,	
++ KEY_ENTER : 13,	
++ KEY_SHIFT : 16,	
++ KEY_CTRL : 17,	
++ KEY_ALT : 18,	
++ KEY_PAUSE : 19,	
++ KEY_CLOCK : 20,	
++ KEY_ESC : 27,	
++ KEY_SPACE : 32,
++ KEY_PGUP : 33,
++ KEY_PGDOWN : 34,
++ KEY_END	: 35,	
++ KEY_HOME : 36,	
++ KEY_LEFT : 37,	
++ KEY_UP : 38,	
++ KEY_RIGHT : 39,	
++ KEY_DOWN : 40,	
++ KEY_INSERT : 45,
++ KEY_DEL : 46,
++ KEY_0	: 48,	
++ KEY_1	: 49,	
++ KEY_2	: 50,	
++ KEY_3	: 51,	
++ KEY_4	: 52,	
++ KEY_5	: 53,	
++ KEY_6	: 54,	
++ KEY_7	: 55,	
++ KEY_8	: 56,	
++ KEY_9	: 57,
++ KEY_A	: 65,	
++ KEY_B	: 66,	
++ KEY_C	: 67,	
++ KEY_D	: 68,	
++ KEY_E : 69,	
++ KEY_F : 70,	
++ KEY_G	: 71,	
++ KEY_H	: 72,	
++ KEY_I	: 73,	
++ KEY_J	: 74,
++ KEY_K	: 75,	
++ KEY_L	: 76,	
++ KEY_M	: 77,	
++ KEY_N	: 78,	
++ KEY_O	: 79,	
++ KEY_P	: 80,	
++ KEY_Q	: 81,	
++ KEY_R	: 82,	
++ KEY_S	: 83,	
++ KEY_T	: 84,
++ KEY_U	: 85,	
++ KEY_V	: 86,	
++ KEY_W	: 87,	
++ KEY_X	: 88,	
++ KEY_Y	: 89,	
++ KEY_Z	: 90,	
++ KEY_NUM0 : 96,	
++ KEY_NUM1 : 97,	
++ KEY_NUM2 : 98,	
++ KEY_NUM3 : 99,
++ KEY_NUM4 : 100,
++ KEY_NUM5 : 101,
++ KEY_NUM6 : 102,	
++ KEY_NUM7 : 103,	
++ KEY_NUM8 : 104,	
++ KEY_NUM9 : 105,	
++ KEY_MUL : 106,	
++ KEY_ADD : 107,	
++ KEY_SUB : 109,	
++ KEY_POINT : 110, 
++ KEY_DIV : 111,		
+> constructor : function()
+> checkMulitouchSupport : function()
+> addInputReceiver : function(object)
+> isKeyPressed : function(key)			// true or false
+> isMousePressed : function()			// true or false
+> isMouseReleased : function()			// true or false
+> generateClick : function(xpos, ypos)
+> releaseClick : function()
+> mouseMoved : function(x, y)
+> getMousePosition : function()			// return the mouse position as {x,y}
+> getMousePositionInWorld : function()	// return the mouse position in the world as {x,y}
+
+//----------------------------------------------------------------------------------------//	
+
+Camera : Singleton // The default camera. If you want, you can make another Camera object and override this one. ex: Camera = new MyCamera();
+
+Camera : Entity
++ x : 0,
++ y : 0,
++ shaking : false,
++ shakeStrength : 1.0,
++ shakeTime : 0,
++ shakeOffset : null,
++ onShakeEndCallback : Utils.emptyFunc,
++ fading : false,
++ overlayColor : null,
++ drawOverlay : false,	
++ onFadeEndCallback : Utils.emptyFunc,
+> constructor : function()
+> shake : function(time, strength, shakeEndCallback)
+> stopShake : function()
+> fade : function( fromColor, toColor, time, easing, fadeEndCallback )
+> update : function( delta )
+> draw : function()
+> getX : function()
+> getY : function()
+> setOverlayColor : function(r, g, b, a)
+> clearOverlayColor : function()
+
+Graphics : Singleton
++ canvas : null,
++ context : null,
++ initialized : false,
++ images : [],	
++ imagesMap : {},
++ scale : { x:1, y:1 },
++ screenRect : null, // real screen size
+> init : function(width, height)
+> rescale : function(width, height)
+> reposition : function( x, y )
+> pixelify : function(flag)
+> getCanvasOffset : function()
+> getWidth : function()
+> getHeight : function()
+> onImageLoaded : function()
+> loadImage : function(alias, path)
+> getImage : function(path)
+> update : function(delta)
+> preDraw : function()
+> postDraw : function()	
+> drawText : function(text, x, y, r, g, b, a, size, font)
+> drawRect : function(x, y, width, height, r, g, b, a, mode)	//  mode: "fill" or "stroke". Fill by default.
+> drawFullScreenRect : function(r,g,b,a)
+> drawLine : function(x1, y1, x2, y2, r, g, b, a, lineWidth, round)
+> drawArc : function(x, y, radius, startAngle, endAngle, r, g, b, a, lineWidth, mode)
+> drawCircle : function(x, y, radius, r, g, b, a, mode)
+> drawSprite : function(img, x, y, width, height, angle, scaleX, scaleY, alpha)
+> drawSpriteCropped : function(img, x, y, width, height, angle, scaleX, scaleY, alpha, uvX, uvY, uvW, uvH)
+> drawPolygon : function(points, x, y, r, g, b, a, mode)	
+> drawRegularPolygon : function(x, y, numberOfSides, size, r, g, b, a, mode) 
+
+Sprite : Entity
++ img : null,
++ path : "",
++ x : 0, 
++ y : 0,
++ width : 0,
++ height : 0,
++ angle : 0.0,	
++ scale : {x, y},
++ uv : {u, v, s, t},
++ rect : {x, y, w, h},
++ useBoundingBox : true,
++ radius : 0.0, 
++ center : {x, y},
++ alpha : 1.0,	
+> constructor : function(path) 
+> draw : function()
+> drawDebug : function()
+> update : function(delta)
+> recalculate : function()
+> setSource : function(path)		// use this method to change the current image referenced 
+> setUV : function(x, y, w, h)
+> resetUV : function()
+> collides : function(other)
+> isPointInRect : function(x, y)
+> isPointInCircle : function(x, y)
+
+Atlas : Sprite
+> constructor : function(path)
+> getImage : function(x, y, w, h)
+> drawTile : function(x, y, w, h, ux, uy, uw, uh)
+
+Text : Sprite
++ str : "",
++ size : 16,
++ r : 1.0,
++ g : 1.0,
++ b : 1.0,
++ font : "Times",	
+> constructor : function(str)
+> draw : function()
+
+Button : Sprite
++ onClickFunc : null, 
++ text : null,
++ enabled : true,
+> constructor : function(img, xpos, ypos, myOnClickFunc) // dafuq, simplify this shit!
+> setText : function(str)
+> draw : function()
+> drawDebug : function(r,g,b)
+> onClickInput : function(x, y)
+
+ParticleBase : Sprite
++ radius : 10,
++ wander : 3.15,
++ theta : Math.random(6.28), // 2 * pi
++ drag : 0.92,
++ vx : 0.0,
++ vy : 0.0,
++ r : 1, 
++ g : 1,
++ b : 1, 
+> constructor : function(path, x, y, radius)
+> update : function(delta) 
+> draw : function()
+> spawn : function()
+> clone : function()
+
+ParticleCircle : ParticleBase
+> constructor : function(path, x, y, radius)
+> draw : function()
+
+ParticleSystem : Pool
+> constructor : function()
+> spawn : function(x, y, amount)
+
+//----------------------------------------------------------------------------------------//
+
+Audio : Singleton
+> hasSound : function()
+
+Sound : Base
++ path : "",
++ loops : false,
+> constructor : function(path, loop)
+> play : function()
+> pause : function()
+> stop : function()
+> setVolume : function(value)
