@@ -32,19 +32,19 @@
             <li><a href="#input">Input</a></li>
             <li><a href="#camera">Camera</a></li>						
             <li><a href="#graphics">Graphics</a></li>						
-            <li><a href="#audio">Audio</a></li>
+            <li><a href="#sound">Sound</a></li>
 			<li><a href="#utils">Utils</a></li>
             <li><a href="#entity">Entity</a></li>			
 			<li><a href="#pool">Pool</a></li>
             <li><a href="#state">State</a></li>					
             <li><a href="#sprite">Sprite</a></li>			
             <li><a href="#atlas">Atlas</a></li>			
-            <li><a href="#text">Text</a></li>			
+            <li><a href="#label">Label</a></li>			
             <li><a href="#button">Button</a></li>			
             <li><a href="#particlebase">ParticleBase</a></li>			
             <li><a href="#particlecircle">ParticleCircle</a></li>			
             <li><a href="#particlesystem">ParticleSystem</a></li>			
-            <li><a href="#sound">Sound</a></li>						
+            <li><a href="#song">Song</a></li>						
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -149,7 +149,7 @@
 	</pre>
 
 	<pre id="camera">
-		<h1>Camera</h1> <span class="label label-warning">Singleton</span>
+		<h1>Camera</h1> <span class="label label-warning">Singleton</span><span class="label label-info">Class</span>
 		The main and only camera singleton. Useful for doing things on the screen, like moving around, applying FX (<b>shake, fade-in/out</b> or adding an <b>overlay tint</b>).
 		<b>NOTE:</b> if you want to replace the main camera by one of your own, just extend the Camera class and then override the Camera object. Easy!
 				
@@ -215,8 +215,8 @@
 		drawRegularPolygon (x, y, numberOfSides, size, r, g, b, a, [mode="fill"])  				<i>A regular polygon is the one which has all sides equally long. From 3 up to infinite.</i>
 	</pre>
 		
-	<pre id="audio">
-		<h1>Audio</h1> <span class="label label-warning">Singleton</span>
+	<pre id="Sound">
+		<h1>Sound</h1> <span class="label label-warning">Singleton</span>
 		The biggest module of Micron by far. Understanding its inner workings grant you access to the Nirvana for 2 weeks.
 		
 		<b>Methods</b>	
@@ -363,10 +363,10 @@
 		drawTile (x, y, w, h, ux, uy, uw, uh)		<i>Simple helper for drawing on the screen any part of the texture atlas.</i>		
 	</pre>	
 
-	<pre id="text">
-		<h1>Text : Sprite</h1> <span class="label label-info">Class</span>
-		Text (sometimes refered to as "label") is just a text sprite. It uses the canvas font rendering instead of a more traditional bitmap-font approach.
-		Don't forget to manually setup the values for this text object!
+	<pre id="label">
+		<h1>Label: Sprite</h1> <span class="label label-info">Class</span>
+		Labels are just a text sprite. Not like a bitmap font. Just a text. Sprite. It uses the canvas font rendering instead of a more traditional bitmap-font approach.
+		Don't forget to manually setup the values for this object!
 		
 		<b>Members</b>	
 		str : string
@@ -377,7 +377,7 @@
 		font : string
 			
 		<b>Methods</b>	
-		constructor (str)    				<i>The initial text you would like to see on your label/text.</i>
+		constructor (str)    				<i>The initial text you would like to see on your label.</i>
 		draw ()
 	</pre>	
 
@@ -399,20 +399,53 @@
 	</pre>	
 	
 	<pre id="particlebase">
-		<h1>ParticleBase : Sprite [TODO]</h1> <span class="label label-info">Class</span>	
+		<h1>ParticleBase : Sprite </h1> <span class="label label-info">Class</span>	
+		The ParticleBase class shows how to make a basic and simple particle. Its draw method has no body - because you must provide a way to draw them. This is just
+		a very basic physic simulation for a not very impressive particle. Still, useful to build on top.
+		
+		<b>Members</b>
+		wander : number				<i>Don't ask me, I'm just passing by here to say hi.</i>
+		theta : number				<i>Angle.</i>
+		drag : number				<i>Decceleration of sorts.</i>
+		vx : number				<i>Speed factor for each axis.</i>
+		vy : number
+		r : number
+		g : number
+		b : number
+	
+		<b>Methods</b>
+		constructor (path, x, y, radius)	<i>Path to the image, just in case you want to get fancy.</i>
+		update (delta) 
+		draw ()
+		spawn ()
+		clone ()		
 	</pre>
 
 	<pre id="particlecircle">
-		<h1>ParticleBase : ParticleBase [TODO]</h1> <span class="label label-info">Class</span>	
+		<h1>ParticleCircle : ParticleBase</h1> <span class="label label-info">Class</span>	
+		An small sample about how to extend the ParticleBase and provide a render method.
+		
+		<b>Methods</b>
+		constructor (path, x, y, radius)
+		draw ()		
 	</pre>
 
 	<pre id="particlesystem">
-		<h1>ParticleSystem : Pool [TODO]</h1> <span class="label label-info">Class</span>	
+		<h1>ParticleSystem : Pool</h1> <span class="label label-info">Class</span>	
+		The ParticleSystem is the class controlling a bunch of particles: it decides how, when and how many particles spawn. 
+		Actually, that's you.
+		As you see, the ParticleSystem is a Pool object, in order to reuse the same particles as much as possible.
+		<b>IMPORTANT</b>: remember adding a base object to pool (<i>addToPool</i>) BEFORE spawning. Just like any other pool.
+		
+		<b>Methods</b>
+		constructor ()
+		spawn (x, y, amount)				
 	</pre>
 	
-	<pre id="sound">
-		<h1>Sound: Base</h1> <span class="label label-info">Class</span>
-		Unlike with Audio, this actually has something inside.
+	<pre id="song">
+		<h1>Song: Base</h1> <span class="label label-info">Class</span>
+		Unlike with Sound, this actually has something inside.
+		Also, this is like the shittiest name ever made. But hey, Audio was picked, so, what can we do?
 				
 		<b>Members</b>	
 		path : string

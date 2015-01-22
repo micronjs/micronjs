@@ -1,15 +1,17 @@
 
 Micron
 
-- minify micron
-- check the old code
+- minify micron (https://github.com/terinjokes/gulp-uglify)
+DONE - install and setup tools (jshint, jscs, gulp, etc)
+- check the old code - why? :D
+DONE - split the source in several files
 - put back all the audio thing where it has to be
 - addAsset audio type
 - addAsset image as base64
 DONE - fix the loading bug with empty list (empty.jpg is always needed now!)
 - add real tracking
 DONE - commit to github
-- finish documentation
+DONE - finish documentation
 - make automatic documentation
 DONE - make a better icon for this shit (NOTE: it's still shitty)
 - in docs: fix the header nav bar button thing
@@ -20,6 +22,8 @@ DONE - make a better icon for this shit (NOTE: it's still shitty)
 	+ platformer minecraft
 	+ some snake
 	+ some space invaders
+	+ tetris
+	+ fps!
 	+ rts like football!
 	+ clone of flappy bird / lumberjack something, for the lulz
 
