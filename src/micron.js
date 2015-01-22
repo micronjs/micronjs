@@ -798,15 +798,12 @@ Core = Base.extend({
             Utils.update(delta * this.timeScale);
             Graphics.update(delta * this.timeScale);
         }
-        else
-        {
-            if(Input.isMousePressed())
+        else if(Input.isMousePressed())
+		{
+            this.pause = false;
+            if(this.currentState !== null)
             {
-                this.pause = false;
-                if(this.currentState !== null)
-                {
-                    this.currentState.onPause(false);
-                }
+                this.currentState.onPause(false);
             }
         }
     },
@@ -903,19 +900,16 @@ Core = Base.extend({
         var empty = true;
         for(var key in this.assetsMap)
         {
-            if(this.assetsMap.hasOwnProperty(key))
+            if(
+                this.assetsMap.hasOwnProperty(key) &&
+                (Utils.checkExtension(path, ".jpg") ||
+                Utils.checkExtension(path, ".png") ||
+                Utils.checkExtension(path, ".svg"))
+            )
             {
                 empty = false;
-
                 path = this.assetsMap[key];
-                if(
-                    Utils.checkExtension(path, ".jpg") ||
-                    Utils.checkExtension(path, ".png") ||
-                    Utils.checkExtension(path, ".svg")
-                )
-                {
-                    Graphics.loadImage(key, path);
-                }
+                Graphics.loadImage(key, path);
             }
         }
         // hackity hackity hack!
@@ -1830,7 +1824,7 @@ var Atlas = Sprite.extend({
 });
 
 //-----------------------------------------------------------------------
-Text = Sprite.extend({
+var Label = Sprite.extend({
 
     str : "",
     size : 16,
@@ -1841,7 +1835,7 @@ Text = Sprite.extend({
 
     constructor : function(str)
     {
-        this.callParent("Text_" + str);
+        this.callParent("Label_" + str);
         this.str = str;
         this.x = 0;
         this.y = 0;
@@ -2013,7 +2007,7 @@ var ParticleSystem = Pool.extend({
 
 // todo: check for specific supported types
 // todo: integrate with asset loader and pause sounds when the app is paused (and such other things)
-var Audio = Base.extend({
+var SoundDef = Base.extend({
 
     soundSupported : false,
 
@@ -2028,7 +2022,7 @@ var Audio = Base.extend({
     }
 });
 
-var Audio = new Audio();
+var Sound = new SoundDef();
 
 // mp3, wav, etc
 var Song = Base.extend({
