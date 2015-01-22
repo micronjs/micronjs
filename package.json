@@ -1,0 +1,27 @@
+{
+  "name": "micronjs",
+  "version": "0.0.1",
+  "description": "Awesome js framework for 2d games/apps/experiments and more.",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "`npm bin`/gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/micronjs/micronjs.git"
+  },
+  "author": "wololoa <almar.suarez@almar.suarez@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micronjs/micronjs/issues"
+  },
+  "homepage": "https://github.com/micronjs/micronjs",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-jscs": "^1.4.0",
+    "gulp-jshint": "^1.9.0"
+  }
+}
