@@ -1,4 +1,4 @@
-# Micron. 
+# Micron. [![Build Status](https://travis-ci.org/micronjs/micronjs.svg?branch=master)](https://travis-ci.org/micronjs/micronjs)
 By Almar (c) 2014-2015.
 
 Micron is a minimalistic (around 2k lines of code) 2d js game/app/experiments framework creation. 
