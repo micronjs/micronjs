@@ -17,3 +17,17 @@ Just check what is here! The doc should give you an overall idea and the hello w
 
 More demos coming!
 
+# Building
+
+If you need to rebuild distribution versions run
+
+    npm run build
+    
+or start watcher, which run build script on each change in src/ folder by
+
+    npm start
+
+To test code run 
+
+    npm test
+
