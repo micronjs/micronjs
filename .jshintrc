@@ -76,6 +76,14 @@
     // Custom Globals
     "globals"       : {
         "Base": false,
-        "console": false
+        "console": false,
+		"Graphics" : true,
+		"Core" : true,
+		"Input" : true,
+		"Sound" : true,
+		"Utils" : true,
+		"Camera" : true,
+		"Entity" : true,
+		"Pool" : true
     }
 }
