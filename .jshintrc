@@ -61,9 +61,9 @@
     // Environments
     "browser"       : true,     // Web Browser (window, document, etc)
     "couch"         : false,    // CouchDB
-    "devel"         : false,     // Development/debugging (alert, confirm, etc)
+    "devel"         : false,    // Development/debugging (alert, confirm, etc)
     "dojo"          : false,    // Dojo Toolkit
-    "jquery"        : true,    // jQuery
+    "jquery"        : true,     // jQuery
     "mootools"      : false,    // MooTools
     "node"          : false,    // Node.js
     "nonstandard"   : false,    // Widely adopted globals (escape, unescape, etc)
@@ -77,13 +77,13 @@
     "globals"       : {
         "Base": false,
         "console": false,
-		"Graphics" : true,
-		"Core" : true,
-		"Input" : true,
-		"Sound" : true,
-		"Utils" : true,
-		"Camera" : true,
-		"Entity" : true,
-		"Pool" : true
+        "Graphics" : true,
+        "Core" : true,
+        "Input" : true,
+        "Sound" : true,
+        "Utils" : true,
+        "Camera" : true,
+        "Entity" : true,
+        "Pool" : true
     }
 }
