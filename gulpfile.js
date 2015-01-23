@@ -13,5 +13,6 @@ gulp.task('jscs', function() {
 gulp.task('jshint', function() {
     return gulp.src('./src/*.js')
         .pipe(jshint())
-        .pipe(jshint.reporter('default', { verbose: true }));
+        .pipe(jshint.reporter('default', { verbose: true }))
+        .pipe(jshint.reporter('fail'));
 });
