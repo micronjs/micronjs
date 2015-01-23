@@ -7,7 +7,9 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "./node_modules/.bin/gulp test"
+    "test": "./node_modules/.bin/gulp test",
+    "build": "./node_modules/.bin/gulp build",
+    "start": "./node_modules/.bin/gulp start"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,7 @@
   "devDependencies": {
     "gulp": "^3.8.10",
     "gulp-jscs": "^1.4.0",
-    "gulp-jshint": "^1.9.0"
+    "gulp-jshint": "^1.9.0",
+    "gulp-uglifyjs": "^0.5.0"
   }
 }
