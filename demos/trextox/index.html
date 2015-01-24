@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>TREXTOX</title>
+        <title>TREXTROX</title>
         <style>
             body {background-color:black}
         </style>
@@ -12,18 +12,14 @@
     <body>
         <script type="text/javascript">
 
-//--------------------------------------------------------------------------------------
-//var linesDone = 0;
-//var pointsDone = 0;
-//var level = 1;
-//var isGameOver = false;
-//var isHighScore = false;
 
 var MAP_WIDTH 	= 8;
 var MAP_HEIGHT 	= 18;
 var BLOCK_SIZE 	= 32;
 var APP_WIDTH 	= BLOCK_SIZE * MAP_WIDTH;
-var APP_HEIGHT 	= BLOCK_SIZE * (MAP_HEIGHT + 2);
+var APP_HEIGHT 	= BLOCK_SIZE * (MAP_HEIGHT + 1);
+var LEVEL_SPEED = 0.1; // NOTE: this should be inside a global Object. since this is a minimal game, we can afford breaking the rules with this.
+var TOTAL_LINES	= 0;
 
 // simple shitty helper
 function MakeColor(_r, _g, _b, _a)
@@ -50,9 +46,8 @@ var Block = Entity.extend({
 
 	draw : function()
 	{
-		//Graphics.drawRect((this.x * 32), (this.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, this.color.a); // original
-		Graphics.drawRect((this.x * 32), (this.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, 0.5);		
-		Graphics.drawRegularPolygon ((this.x * 32)+16, (this.y * 32)+16, 5, 16, this.color.r, this.color.g, this.color.b, this.color.a);
+		Graphics.drawRect((this.x * BLOCK_SIZE), (this.y * BLOCK_SIZE), BLOCK_SIZE, BLOCK_SIZE, this.color.r, this.color.g, this.color.b, 0.5);
+		Graphics.drawRegularPolygon ((this.x * BLOCK_SIZE)+BLOCK_SIZE/2, (this.y * BLOCK_SIZE)+BLOCK_SIZE/2, 5, BLOCK_SIZE/2, this.color.r, this.color.g, this.color.b, this.color.a);
 	},
 
 	setPosition : function(x, y)
@@ -145,7 +140,7 @@ var Piece = Entity.extend({
 
 			auxBlock = this.map.getBlock(auxVector.x, auxVector.y);
 
-			if(auxBlock != null || auxVector.y >= MAP_HEIGHT/*this.map.height*/ || auxVector.x < 0 || auxVector.x >= MAP_WIDTH) //this.map.width)
+			if(auxBlock != null || auxVector.y >= MAP_HEIGHT || auxVector.x < 0 || auxVector.x >= MAP_WIDTH)
 			{
 				return false;
 			}
@@ -153,10 +148,9 @@ var Piece = Entity.extend({
 		return true;
 	},
 
-	// TODO: do a callback to the game instead of this!
 	setBlockOnArena : function()
-	{	
-		Camera.shake(0.3, 2.0);
+	{
+		Camera.shake(0.3, 1.0);
 
 		var auxVector = {x:0, y:0};
 		for(var i=0;i<4;i++)
@@ -164,11 +158,9 @@ var Piece = Entity.extend({
 			auxVector = this.blockToVector(this.blocks[this.rotation][i]);
 			auxVector.x = this.x + auxVector.x;
 			auxVector.y = this.y + auxVector.y;
-			this.map.setBlock(new Block(this.color.r, this.color.g, this.color.b, auxVector.x, auxVector.y)); // DAFUQ SEND THE FUCKING COLOR
+			this.map.setBlock(new Block(this.color.r, this.color.g, this.color.b, auxVector.x, auxVector.y));
 		}
 
-		// Add one point per piece set on the arena
-		//pointsDone++;
 		this.map.spawnNewPiece();
 		this.map.checkNewLines();
 	},
@@ -223,30 +215,26 @@ var Piece = Entity.extend({
 
 	update : function(delta)
 	{
-		//if(!isGameOver) // lol
-		//{
-			this.timeLastMovement += delta;
-			this.timeLastFall += delta;
+		this.timeLastMovement += delta;
+		this.timeLastFall += delta;
 
-			// TODO: add level back to the game!!!
-			if(this.timeLastFall > (1.0 / 1.0)) //level))
+		LEVEL_SPEED += delta;
+		if(this.timeLastFall > (1.0 / LEVEL_SPEED))
+		{
+			this.timeLastFall = 0;
+			if(this.checkDestinationBlock(this.x, this.y + 1))
 			{
-				this.timeLastFall = 0;
-				if(this.checkDestinationBlock(this.x, this.y + 1))
-				{
-					this.y++;
-				}
-				else
-				{
-					this.setBlockOnArena(); // do game callback!
-				}
+				this.y++;
 			}
-		//}
+			else
+			{
+				this.setBlockOnArena(); // do game callback!
+			}
+		}
 	},
 
 	draw : function()
 	{
-		//this.callParent();
 		var auxVector = { x : 0, y : 0 };
 
 		// we only need to draw 4 blocks per piece
@@ -254,12 +242,11 @@ var Piece = Entity.extend({
 		for(var i=0;i<4;i++)
 		{
 			auxVector = this.blockToVector(this.blocks[this.rotation][i]);
-			Graphics.drawRect((this.x * 32) + (auxVector.x * 32), (this.y * 32) + (auxVector.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, this.color.a);
+			Graphics.drawRect((this.x * BLOCK_SIZE) + (auxVector.x * BLOCK_SIZE), (this.y * BLOCK_SIZE) + (auxVector.y * BLOCK_SIZE), 
+								BLOCK_SIZE, BLOCK_SIZE, this.color.r, this.color.g, this.color.b, this.color.a);
 		}
 	}
-
 });
-
 
 //-----------------------------------------
 // Map. Where the action happens.
@@ -271,6 +258,7 @@ var Map = Entity.extend({
 	height : 0,
 	timeLastUpdate : 0.0,
 	onSpawnNewPiece : Utils.emptyFunc(),
+	onGameOver : Utils.emptyFunc(),
 
 	constructor : function(w, h)
 	{
@@ -295,14 +283,11 @@ var Map = Entity.extend({
 
 	setBlock : function(block)
 	{
-		//block.color.a = 0.7;
 		this.blocks[block.x][block.y] = block;
 
 		if(block.y == 1)
 		{
-			console.log("GAME OVER");
-			//isGameOver = true;  // do callback
-			//this.checkHighScore();
+			this.onGameOver();
 		}
 	},
 
@@ -326,17 +311,13 @@ var Map = Entity.extend({
 		{
 			this.blocks[i][line] = null;
 		}
-		// todo: do callback to game
-		//linesDone++;	// ???
-		//newLineSound.play();				// play the "new line" sound
-		//if(linesDone % 10 == 0) level++; 	// add a new level each 10 lines
-		//pointsDone += 10;					// add 10 points per line
 		this.moveLinesDown(line);
 	},
 
 	checkNewLines : function()
 	{
 		var count = 0;
+		var linesRemoved = 0;
 		for(var i=0;i<this.height;i++)
 		{
 			for(var j=0;j<this.width;j++)
@@ -347,9 +328,42 @@ var Map = Entity.extend({
 			// this means that the line is filled so we can remove it
 			if(count == this.width)
 			{
+				linesRemoved++;
 				this.removeLine(i);
+				LEVEL_SPEED = 0.1;
+				TOTAL_LINES++;
+				this.checkHighScore();
 			}
 			count = 0;
+		}
+
+		if(linesRemoved > 0)
+		{
+			Utils.invoke(this.onRepositionBlocks.bind(this), 0.4);
+		}
+	},
+
+	checkHighScore : function()
+	{
+		var highScore = Core.readFromStorage("Trextrox.highScore");
+		if(TOTAL_LINES > highScore)
+		{
+			Core.saveToStorage("Trextrox.highScore", TOTAL_LINES);
+		}
+	},
+	
+	onRepositionBlocks : function()
+	{
+		for(var i=0;i<this.width;i++)
+		{
+			for(var j=0;j<this.height;j++)
+			{
+				if(this.blocks[i][j] !== null)
+				{
+					this.blocks[i][j].y -= (i / 8) * 2;
+					Utils.tween(this.blocks[i][j], "y", j, i/8, Utils.E_BOUNCE_OUT);
+				}
+			}
 		}
 	},
 
@@ -363,9 +377,7 @@ var Map = Entity.extend({
 				this.blocks[j][i] = this.blocks[j][i-1];
 				if(this.blocks[j][i] != null)
 				{
-					//this.blocks[j][i].setPosition(j, i+1);
-					// note: when deleting more than 1 line, this looks bad. fix it.
-					Utils.tween(this.blocks[j][i], "y", i, 0.5, Utils.E_BOUNCE_OUT);
+					Utils.tween(this.blocks[j][i], "y", i, 0.3, Utils.E_BOUNCE_OUT);
 				}
 				this.blocks[j][i-1] = null;
 			}
@@ -392,31 +404,13 @@ var Map = Entity.extend({
 	{
 		this.callParent(delta);
 		this.timeLastUpdate += delta;
-
-		/*
-		if(isGameOver && this.timeLastUpdate > 0.05)
-		{
-			this.timeLastUpdate = 0.0;
-			for(var i=this.width-1;i>-1;i--)
-			{
-				for(var j=this.height-1;j>-1;j--)
-				{
-					if(this.blocks[i][j] == null)
-					{
-						//this.blocks[i][j] = this.endBlock;
-						break;
-					}
-				}
-			}
-		}
-		*/
 	}
 });
 
 
 //-----------------------------------------------------------------------------------
 
-StateGame = State.extend({
+var StateGame = State.extend({
 
 	// Pieces definition
 	LPiece : null,
@@ -430,11 +424,19 @@ StateGame = State.extend({
 	pieces : null,
 	colors : null,
 	map : null,
-
+	isGameOver : false,
+	gameOverCounter : 0,
+	
     constructor : function()
     {
         this.callParent();
         Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 1);
+		this.removeAll();
+
+		if(Utils.isEmpty(Core.readFromStorage("Trextrox.highScore")))
+		{
+			Core.saveToStorage("Trextrox.highScore", 0);
+		}
     },
 
 	// initialize whatever has to be initialized
@@ -445,16 +447,17 @@ StateGame = State.extend({
 		// make the background
 		for(var i = 0; i < MAP_WIDTH; i++)
 		{
-			for(var j = 0; j < MAP_HEIGHT; j++)
+			for(var j = 0; j < MAP_HEIGHT + 2; j++)
 			{
-				var color = Utils.randRange(0.0, 0.25);
+				var color = Utils.randRange(0.0, 0.05);
 				var block = new Block(color, color, color, i, j);
 				this.add(block);
 			}
 		}
-
+		
     	this.map = new Map(MAP_WIDTH, MAP_HEIGHT);
     	this.map.onSpawnNewPiece = this.spawnPiece.bind(this);
+		this.map.onGameOver = this.gameOver.bind(this);
 
 		// Initialize pieces
 		this.LPiece = new Piece(this.map);
@@ -502,19 +505,11 @@ StateGame = State.extend({
 		this.SPiece.setConfiguration(3, 1, 5, 6, 10);
 
 		this.pieces = [ this.LPiece , this.JPiece, this.OPiece, this.IPiece, this.TPiece, this.SPiece, this.ZPiece ];
-		this.colors = [ MakeColor(1, 0, 0, 1), MakeColor(0, 1, 0, 1), MakeColor(0, 0, 1, 1), MakeColor(1, 1, 0, 1), MakeColor(1, 1, 1, 1) ];
+		this.colors = [ MakeColor(1, 0, 0, 1),
+						MakeColor(0, 1, 0, 1),
+						MakeColor(0, 0, 1, 1),
+						MakeColor(1, 1, 0, 1) ];
 		this.spawnPiece();
-	},
-
-	// Reset the game when the player catches a monster
-	reset : function ()
-	{
-		this.map = new Map(MAP_WIDTH, MAP_HEIGHT);
-		//linesDone = 0;
-		//pointsDone = 0;
-		//level = 1;
-		//isGameOver = false;
-		//isHighScore = false;
 	},
 
 	spawnPiece : function()
@@ -523,42 +518,126 @@ StateGame = State.extend({
 		var colorIndex = Utils.intRandRange(0, this.colors.length);
 		var color = this.colors[colorIndex];
 		this.currentPiece = this.pieces[pieceIndex];
-		this.currentPiece.setPosition(0, 0);
+		this.currentPiece.setPosition(MAP_WIDTH / 2 - 2, -1);
 		this.currentPiece.setColor(color.r, color.g, color.b, 1.0);
 	},
 
-	// Update game objects
+	gameOver : function()
+	{
+		this.isGameOver = true;
+		Camera.fade( {r:0, g:0, b:0, a:0}, {r:0, g:0, b:0, a:1}, 6, Utils.E_LINEAR_IN, this.onFadeOutGameOver.bind(this));
+	},
+
+	onFadeOutGameOver : function()
+	{
+		LEVEL_SPEED = 0.1;
+		TOTAL_LINES = 0;
+		Core.setState(new StateGame());
+	},
+
 	update : function (delta)
 	{
 		this.callParent(delta);
-		if(Input.isKeyPressed(Input.KEY_UP)) 		this.currentPiece.rotate();
-		else if(Input.isKeyPressed(Input.KEY_LEFT)) this.currentPiece.move(false);
-		else if(Input.isKeyPressed(Input.KEY_RIGHT))this.currentPiece.move(true);
-		else if(Input.isKeyPressed(Input.KEY_DOWN)) this.currentPiece.fall();
 
-		this.map.update(delta);
-		this.currentPiece.update(delta);
+		if(!this.isGameOver)
+		{
+			if(Input.isKeyPressed(Input.KEY_UP)) 		this.currentPiece.rotate();
+			else if(Input.isKeyPressed(Input.KEY_LEFT)) this.currentPiece.move(false);
+			else if(Input.isKeyPressed(Input.KEY_RIGHT))this.currentPiece.move(true);
+			else if(Input.isKeyPressed(Input.KEY_DOWN)) this.currentPiece.fall();
 
-		//if(isGameOver && InputSystem.isKeyPressed(13)) // enter
-		//{
-		//	isGameOver = false;
-		//	reset();
-		//}
+			this.map.update(delta);
+			this.currentPiece.update(delta);
+		}
 	},
 
-	// Draw everything
 	draw : function ()
 	{
-		//Graphics.drawText('Hello world!', 101, 10, 1, 1, 1, 1, 16, 'Arial');
 		this.callParent();
 		this.map.draw();
 		this.currentPiece.draw();
+
+		Graphics.drawText('LINES: ' + TOTAL_LINES, 10, Graphics.height - 26, 1, 1, 1, 1, 18, 'monospace');
+		Graphics.drawText('HI: ' + Core.readFromStorage("Trextrox.highScore"), APP_WIDTH / 2, Graphics.height - 26, 1, 1, 1, 1, 18, 'monospace');
+        Graphics.drawLine(0, MAP_HEIGHT * BLOCK_SIZE, Graphics.width, MAP_HEIGHT * BLOCK_SIZE, 0.5, 0.5, 0.5, 1, 2);
+
+		if(this.isGameOver)
+		{
+			this.gameOverCounter++;
+			var counter = 0;
+			for(var i=MAP_WIDTH-1;i>-1;i--)
+			{
+				for(var j=MAP_HEIGHT-1;j>-1;j--)
+				{
+					counter++;
+					if(counter <= this.gameOverCounter)
+					{
+						var grey = Utils.randRange(0.0, 0.25);
+						Graphics.drawRect((i * BLOCK_SIZE), (j * BLOCK_SIZE), 
+											BLOCK_SIZE, BLOCK_SIZE, grey, grey, grey, 1.0);
+					}
+				}
+			}
+		}
+	}
+
+});
+
+//---------------------------------------------------------------------------------------------
+
+var StateMenu = State.extend({
+
+	mainLabel : null, // Label example
+	
+    constructor : function()
+    {
+        this.callParent();
+        Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
+    },
+
+	// initialize whatever has to be initialized
+	init : function ()
+	{
+		this.callParent();
+		
+		this.mainLabel = new Label(' T  R  E  X  T  R  O  X');
+		this.mainLabel.size = 19;
+		this.mainLabel.y = APP_HEIGHT / 2 + 19;
+		this.mainLabel.font = 'monospace';
+		this.add(this.mainLabel);
+	},
+
+	update : function (delta)
+	{
+		this.callParent(delta);
+
+		if(Input.isKeyPressed(Input.KEY_ENTER))
+		{ 
+			Core.setState(new StateGame());
+		} 
+	},
+
+	draw : function ()
+	{
+		// callParent is moved down to draw the label after the background
+		for(var i=MAP_WIDTH-1;i>-1;i--)
+		{
+			for(var j=MAP_HEIGHT+2;j>-1;j--)
+			{
+				var grey = Utils.randRange(0.0, 0.13);
+				Graphics.drawRegularPolygon((i * BLOCK_SIZE) + BLOCK_SIZE/2, (j * BLOCK_SIZE) + BLOCK_SIZE/2, 6, 
+											BLOCK_SIZE/2 + Math.sin(Core.totalTime) * Utils.randRange(0.3, 5), grey, grey, grey, 1.0);									
+			}
+		}
+		
+		this.callParent();
+		Graphics.drawText('Press ENTER to begin', APP_WIDTH * 0.1, APP_HEIGHT * 0.9, 0.7, 0.6, 0.67, 0.6, 18, 'monospace');		
 	}
 
 });
 
 Core.init(APP_WIDTH, APP_HEIGHT);
-Core.setState(new StateGame());
+Core.setState(new StateMenu());
 //Core.addAsset([	'empty', 'img/empty.jpg' ]);
 Core.loadAndRun();
 
