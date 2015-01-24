@@ -360,8 +360,8 @@ var Map = Entity.extend({
 			{
 				if(this.blocks[i][j] !== null)
 				{
-					this.blocks[i][j].y -= (i / 8) * 2;
-					Utils.tween(this.blocks[i][j], "y", j, i/8, Utils.E_BOUNCE_OUT);
+					this.blocks[i][j].y -= (i / 8) * 5;
+					Utils.tween(this.blocks[i][j], "y", j, (i/8), Utils.E_BOUNCE_OUT);
 				}
 			}
 		}
