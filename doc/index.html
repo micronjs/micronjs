@@ -86,12 +86,13 @@
 		currentState : State			<i>The current <b>State</b> in execution.</i>
 		width : number		<span class="label label-danger">read-only</span>
 		height : number		<span class="label label-danger">read-only</span>
-		storage : bool
-		fps : number		<span class="label label-danger">read-only</span>
+		storage : bool				<i>If localStorage is available, this flag is true.</i>
+		fps : number		<span class="label label-danger">read-only</span>	<i>Mean of frames per second in the last second.</i>
 		fpsCounter : number
-		elapsed : number	<span class="label label-danger">read-only</span>
-		delta : number		<span class="label label-danger">read-only</span>
-		timeScale : number
+		totalTime : number	<span class="label label-danger">read-only</span>	<i>Total time elapsed since the game started. Only counts when the game is not paused.</i>
+		delta : number		<span class="label label-danger">read-only</span>	<i>The delta time between this frame and the previous one.</i>
+		timeScale : number			<i>This value controls how fast or slow things are updated. 1 is the default value.</i>
+							<i><b>NOTE:</b>Bigger values will make things move faster, smaller values will make it move slower. 0 is totally paused.</i>
 		date : Date
 		dateNow: Date
 		dateThen : Date
