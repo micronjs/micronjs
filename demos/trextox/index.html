@@ -553,6 +553,7 @@ var StateGame = State.extend({
 
 	draw : function ()
 	{
+		Graphics.drawFullScreenRect(0, 0, 0, 1.0);			
 		this.callParent();
 		this.map.draw();
 		this.currentPiece.draw();
@@ -619,6 +620,8 @@ var StateMenu = State.extend({
 
 	draw : function ()
 	{
+		Graphics.drawFullScreenRect(0, 0, 0, 1);
+	
 		// callParent is moved down to draw the label after the background
 		for(var i=MAP_WIDTH-1;i>-1;i--)
 		{
