@@ -94,8 +94,9 @@ var UtilsDef = Base.extend({
     update: function(delta) {
         var value;
         for (var i = 0; i < this._tweens.length; i++) {
+            var index = 0;
             if (this.isEmpty(this._tweens[i].object) || this.isEmpty(this._tweens[i].object[this._tweens[i].property])) {
-                var index = this._tweens.indexOf(this._tweens[i]);
+                this._tweens.indexOf(this._tweens[i]);
                 this._tweens.splice(index, 1);
             }
             this._tweens[i].currentTime += delta;
@@ -104,7 +105,7 @@ var UtilsDef = Base.extend({
             if (this._tweens[i].currentTime >= this._tweens[i].time) {
                 this._tweens[i].object[this._tweens[i].property] = this._tweens[i].destination;
                 this._tweens[i].callback();
-                var index = this._tweens.indexOf(this._tweens[i]);
+                this._tweens.indexOf(this._tweens[i]);
                 this._tweens.splice(index, 1);
             }
         }
@@ -129,6 +130,9 @@ var UtilsDef = Base.extend({
         return clone;
     },
     checkExtension: function(text, extension) {
+        if (this.isEmpty(text)) {
+            return false;
+        }
         return text.indexOf(extension) !== -1;
     },
     indexToDecimal: function(value) {

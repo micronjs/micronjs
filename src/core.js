@@ -111,14 +111,14 @@ var UtilsDef = Base.extend({
         for(var i = 0;i < this._tweens.length; i++)
 		{
             var index = 0;
-			
+
             if(this.isEmpty(this._tweens[i].object) || this.isEmpty(this._tweens[i].object[this._tweens[i].property]))
 			{
 				// I assume that if the object was deleted, we shouldn't execute the tween.
                 this._tweens.indexOf(this._tweens[i]); // note: this might fuck up all, be careful
-                this._tweens.splice(index, 1);				
+                this._tweens.splice(index, 1);
             }
-		
+
             this._tweens[i].currentTime += delta;
             value = this._execTween(this._tweens[i].currentTime,
                                     this._tweens[i].initial,
@@ -172,6 +172,10 @@ var UtilsDef = Base.extend({
 
     checkExtension : function(text, extension)
     {
+        if(this.isEmpty(text))
+        {
+            return false;
+        }
         return (text.indexOf(extension) !== -1);
     },
 
