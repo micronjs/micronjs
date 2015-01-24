@@ -218,7 +218,7 @@ var Piece = Entity.extend({
 		this.timeLastMovement += delta;
 		this.timeLastFall += delta;
 
-		LEVEL_SPEED += delta;
+		LEVEL_SPEED += delta * 0.1;
 		if(this.timeLastFall > (1.0 / LEVEL_SPEED))
 		{
 			this.timeLastFall = 0;
