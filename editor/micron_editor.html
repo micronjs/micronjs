@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <head>
 		<title>Micron Editor ALPHA</title>
-		
+
 		<!-- hello, things taken from esprima! -->
 		<!-- BTW: all this entire thing was inspired by mr. doob's three.js html editor. go check it! -->
 		<meta name="viewport" content="width=device-width"/>
 		<link rel="stylesheet" type="text/css" href="js/orion/built-editor.css"/>
 		<link rel="stylesheet" type="text/css" href="js/style.css"/>
 		<link rel="stylesheet" href="js/foundation/foundation.min.css">
-			
+
 		<style>
-			#toolbar 
+			#toolbar
 			{
 				position: relative;
 				top: 15px;
 				right: -10px;
 				text-align: left;
-				background-color: #dfdfdf;				
+				background-color: #dfdfdf;
 			}
-			
-			#popup 
+
+			#popup
 			{
 				position: fixed;
 				color: rgb(235,235,235);
 				padding: 20px 20px 20px 20px;
-				background-color: rgb(80,80,80);				
+				background-color: rgb(80,80,80);
 				top:0;
 				width:25%;
-				z-index:100;				
-			}			
+				z-index:100;
+			}
 		</style>
-	
+
 		<script src="js/base.js"></script>
 		<script src="js/micron.js"></script>
-				
+
 </head>
 <body>
 
@@ -44,7 +44,7 @@ StateGame = State.extend({
 
 	constructor : function()
 	{
-		this.callParent();				
+		this.callParent();
 		Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 1);
 	},
 
@@ -57,17 +57,17 @@ StateGame = State.extend({
 		this.callParent(delta);
 		if(Input.isKeyPressed(Input.KEY_A)) console.log("a!");
 	},
-	
+
 	draw : function()
 	{
-		this.callParent();	
-		Graphics.drawFullScreenRect(0.2, 0, 0.4, 1.0);		
-		Graphics.drawText("Hello world!", 500, 500, 1, 1, 1, 1, 76, "Arial"); 		
-	}		
-});			
+		this.callParent();
+		Graphics.drawFullScreenRect(0.2, 0, 0.4, 1.0);
+		Graphics.drawText("Hello world!", 500, 500, 1, 1, 1, 1, 76, "Arial");
+	}
+});
 
 Core.init(2000, 1000);
-Core.setState(new StateGame()); 
+Core.setState(new StateGame());
 Core.addAsset([	"empty", "img/empty.jpg" ]);
 Core.loadAndRun();
 
@@ -76,37 +76,37 @@ Core.loadAndRun();
 		<div id="popup"></div>
 		<div id="toolbar"></div>
 
-		<input id="runBtn" type="image" src="img/play.png" style="width: 24px" value="run">		
+		<input id="runBtn" type="image" src="img/play.png" style="width: 24px" value="run">
 		<input id="saveBtn" type="image" src="img/save.png" style="width: 24px" value="save">
 		<input id="downloadBtn" type="image" src="img/download.png" style="width: 24px" value="download">
 		<input id="clearBtn" type="image" src="img/console.png" style="width: 24px" value="clear">
 		<input id="newBtn" type="image" src="img/restart.png" style="width: 24px" value="new">
 		<input id="helpBtn" type="image" src="img/help.png" style="width: 24px" value="help">
-		
-				
+
+
 		<textarea id="nameArea" rows="1" cols="100">MyGame</textarea>
-		
+
 		<script src="js/orion/built-editor.min.js"></script>
 		<script src="js/orion/contentassist/doctrine.js"></script>
 		<script src="js/orion/contentassist/esprima.js"></script>
 		<script src="js/orion/contentassist/types.js"></script>
 		<script src="js/orion/contentassist/esprimaJsContentAssist.js"></script>
 		<script src="js/orion/contentassist/esprimaVisitor.js"></script>
-		<script src="js/orion/contentassist/proposalUtils.js"></script>	
+		<script src="js/orion/contentassist/proposalUtils.js"></script>
 		<script src="js/orion/customeditor.js"></script>
 
 <script>
 
 // todo: clean up all this shit, pretty please
-require(['custom/editor'], function (editor) 
+require(['custom/editor'], function (editor)
 {
     var e = editor({ parent: 'editor', lang: 'js', contentassist: true });
     e.onGotoLine(9, 0);
-	
+
 	// Resize the editor
 	var editorDiv = document.getElementById( 'editor' );
 	editorDiv.style.height = "" + (window.innerHeight - 110) + "px";
-	
+
 	var toolbar = document.getElementById( 'toolbar' );
 	var runBtn = document.getElementById( 'runBtn' );
 	var saveBtn = document.getElementById( 'saveBtn' );
@@ -114,20 +114,20 @@ require(['custom/editor'], function (editor)
 	var downloadBtn = document.getElementById( 'downloadBtn' );
 	var newBtn = document.getElementById( 'newBtn' );
 	var helpBtn = document.getElementById( 'helpBtn' );
-	
+
 	var nameArea = document.getElementById( 'nameArea' );
 	nameArea.style.width = "200px";
-	
+
 	if(localStorage.micronCode != "")
 	{
 		e.setText(localStorage.micronCode);
 	}
-	
+
 	if(localStorage.micronGameName !== null)
 	{
 		nameArea.value = localStorage.micronGameName;
 	}
-	
+
 	toolbar.appendChild( nameArea );
 	toolbar.appendChild( runBtn );
 	toolbar.appendChild( saveBtn );
@@ -135,7 +135,7 @@ require(['custom/editor'], function (editor)
 	toolbar.appendChild( clearBtn );
 	toolbar.appendChild( newBtn );
 	toolbar.appendChild( helpBtn );
-	
+
 	var isCtrl = false;
 	document.onkeyup=function(e)
 	{
@@ -143,8 +143,8 @@ require(['custom/editor'], function (editor)
 	}
 
 	GetFullGameCode = function()
-	{	
-		var gameName = nameArea.value;	
+	{
+		var gameName = nameArea.value;
 
 		// this shit is lame. really. I know.
 		var PRE_HTML="";
@@ -160,26 +160,29 @@ require(['custom/editor'], function (editor)
 		PRE_HTML += "        <script src=\"js\/micron.js\"><\/script>\n";
 		PRE_HTML += "    <\/head>\n";
 		PRE_HTML += "    <body>\n";
-		PRE_HTML += "        <script type=\"text\/javascript\">\n\n";	
-		
+		PRE_HTML += "        <script type=\"text\/javascript\">\n\n window.onerror = function (errorMsg, url, lineNumber) { alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber); } \n\n";
+
 		var POST_HTML="";
 		POST_HTML += "        <\/script>\n";
 		POST_HTML += "    <\/body>\n";
-		POST_HTML += "<\/html>";	
-		
+		POST_HTML += "<\/html>";
+
+		//POST_HTML += "\n\n(function(){ var oldLog = console.log; console.log = function (message) { \n";
+		//POST_HTML += "if(message.indexOf('Error') > -1) alert('ERROR! ' + message); oldLog.apply(console, arguments); }; })();\n";
+
 		return PRE_HTML + e.getText() + POST_HTML;
 	};
-	
+
 	//------------------------------------------------------------
 	// todo: use FileSaver.js or someshit
 	// thank you, unkown developer from stackoverflow!
-	var SaveData = (function () 
+	var SaveData = (function ()
 	{
 		var a = document.createElement("a");
 		document.body.appendChild(a);
 		a.style = "display: none";
-		
-		return function (data, fileName) 
+
+		return function (data, fileName)
 		{
 			var json = data, //JSON.stringify(data),
 				blob = new Blob([json], {type: "plain/text"}),
@@ -192,44 +195,44 @@ require(['custom/editor'], function (editor)
 	}());
 
 	//------------------------------------------------------------
-	
+
 	OnSave = function()
 	{
 		localStorage.micronCode = e.getText();
 		localStorage.micronGameName = nameArea.value;
-		console.log("Game saved!");	// todo: use http://fabien-d.github.io/alertify.js/ or something	
+		console.log("Game saved!");	// todo: use http://fabien-d.github.io/alertify.js/ or something
 	};
-	
+
 	OnDownload = function()
 	{
 		SaveData( GetFullGameCode(), nameArea.value + ".html");
 	};
-	
+
 	OnRun = function()
 	{
 		var params = [
 			'width='+ window.innerWidth,
 			'height='+ window.innerHeight,
-			'scrollbars=no',
-			'toolbar=no',
-			'menubar=no',
-			'location=no',
-			'status=no'
+			'scrollbars=no'
+			//'toolbar=no',
+			//'menubar=no',
+			//'location=no',
+			//'status=no'
 		].join(',');
-			
-		var newWindow = window.open("", "", params); 
-		newWindow.document.write(GetFullGameCode()); 
+
+		var newWindow = window.open("", "", params);
+		newWindow.document.write(GetFullGameCode());
 	};
-	
+
 	// TODO: fix this shit! because now we cannot do ctrl+c/v :'(
 	document.onkeydown=function(e)
 	{
 		if(e.keyCode == 17) isCtrl = true;
-	
+
 		if(isCtrl === true)
 		{
 			// CTRL-S: save the shit on the local storage
-			if(e.keyCode == 83) 
+			if(e.keyCode == 83)
 			{
 				e.preventDefault();
 				OnSave();
@@ -244,12 +247,12 @@ require(['custom/editor'], function (editor)
 			else if(e.keyCode == 78)
 			{
 				// TODO
-			}		
-		}		
-	};	
-		
+			}
+		}
+	};
+
 	runBtn.onclick = function()
-	{ 
+	{
 		OnRun();
 	};
 
@@ -257,17 +260,17 @@ require(['custom/editor'], function (editor)
 	{
 		OnSave();
 	};
-	
+
 	downloadBtn.onclick = function()
 	{
 		OnDownload();
 	};
-	
+
 	clearBtn.onclick = function()
 	{
 		console.clear();
 	};
-	
+
 	newBtn.onclick = function()
 	{
 		//localStorage.micronCode = "";
@@ -304,7 +307,7 @@ require(['custom/editor'], function (editor)
 					"Core.loadAndRun();\n");
 		OnSave();
 	};
-	
+
 	// NOTE: the next 2 functions were heavily "inspired" (again) by three.js html live editor. Yeah.
 	helpBtn.onclick = function()
 	{
@@ -344,7 +347,7 @@ require(['custom/editor'], function (editor)
 		buttonClose.style.top = '5px';
 		buttonClose.style.right = '5px';
 		buttonClose.style.cursor = 'pointer';
-		buttonClose.addEventListener( 'click', function ( event ) 
+		buttonClose.addEventListener( 'click', function ( event )
 		{
 			scope.hide();
 		}, false );
@@ -353,7 +356,7 @@ require(['custom/editor'], function (editor)
 		var content = document.createElement( 'div' );
 		element.appendChild( content );
 
-		var update = function () 
+		var update = function ()
 		{
 			element.style.left = ( ( window.innerWidth - element.offsetWidth ) / 2 ) + 'px';
 			element.style.top = ( ( window.innerHeight - element.offsetHeight ) / 2 ) + 'px';
@@ -362,18 +365,18 @@ require(['custom/editor'], function (editor)
 		window.addEventListener( 'load', update, false );
 		window.addEventListener( 'resize', update, false );
 
-		this.show = function () 
+		this.show = function ()
 		{
 			element.style.display = '';
 			update();
 		};
 
-		this.hide = function () 
+		this.hide = function ()
 		{
 			element.style.display = 'none';
 		};
 
-		this.set = function ( value ) 
+		this.set = function ( value )
 		{
 			while ( content.children.length > 0 ) {
 				content.removeChild( content.firstChild );
@@ -383,7 +386,7 @@ require(['custom/editor'], function (editor)
 		return this;
 	})();
 	//----------------------------------------------------
-	
+
 });
 </script>
 

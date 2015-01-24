@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>TREXTOX</title>
+        <style>
+            body {background-color:black}
+        </style>
+        <script src="js/base.js"></script>
+        <script src="js/micron.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+
+//--------------------------------------------------------------------------------------
+//var linesDone = 0;
+//var pointsDone = 0;
+//var level = 1;
+//var isGameOver = false;
+//var isHighScore = false;
+
+var MAP_WIDTH 	= 8;
+var MAP_HEIGHT 	= 18;
+var BLOCK_SIZE 	= 32;
+var APP_WIDTH 	= BLOCK_SIZE * MAP_WIDTH;
+var APP_HEIGHT 	= BLOCK_SIZE * (MAP_HEIGHT + 2);
+
+// simple shitty helper
+function MakeColor(_r, _g, _b, _a)
+{
+	var color = { r: _r, g: _g, b: _b, a: _a };
+	return color;
+}
+
+//---------------------------------------------------
+// Block. A basic square.
+var Block = Entity.extend({
+
+	color : null,
+	x : 0,
+	y : 0,
+
+	constructor : function(_r, _g, _b, x, y)
+	{
+		this.callParent();
+		this.color = { r: _r, g: _g, b: _b, a: 1.0 };
+		this.x = x;
+		this.y = y;
+	},
+
+	draw : function()
+	{
+		//Graphics.drawRect((this.x * 32), (this.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, this.color.a); // original
+		Graphics.drawRect((this.x * 32), (this.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, 0.5);		
+		Graphics.drawRegularPolygon ((this.x * 32)+16, (this.y * 32)+16, 5, 16, this.color.r, this.color.g, this.color.b, this.color.a);
+	},
+
+	setPosition : function(x, y)
+	{
+		this.x = x;
+		this.y = y;
+	}
+});
+
+//----------------------------------------------------
+// Piece. The thing that you control. It is made of blocks (kinda).
+var Piece = Entity.extend({
+
+	x : 0,
+	y : 0,
+	blocks : null,
+	color : null,
+	rotation : 0,					// from 0 to 4
+	timeLastFall : 0,				// when was the last time the piece fell?
+	timeLastMovement : 0, 			// defines how fast it can rotate
+	map : null,
+
+	constructor : function(map)
+	{
+		this.rotation = 0;
+		this.x = 0;
+		this.y = 0;
+		this.timeLastFall = 0.0;
+		this.timeLastMovement = 0.0;
+		this.map = map;
+
+		// little 4x4 array
+		// defines a configuration on one possible rotation, 4 configurations per piece (4x4 elements)
+		// note: some rotations for some objects are exactly the same, it makes no sense to store them as well, we could optimize this by storing only the required rotations
+		this.blocks = new Array(4);
+		for(var i=0;i<this.blocks.length;i++)
+		{
+			this.blocks[i] = new Array(4);
+		}
+
+		this.color = { r: 1, g: 1, b: 1, a: 1.0 };
+	},
+
+	setColor : function(r, g, b, a)
+	{
+		this.color.r = r;
+		this.color.g = g;
+		this.color.b = b;
+		this.color.a = a;
+	},
+
+	setPosition : function(x, y)
+	{
+		this.x = x;
+		this.y = y;
+	},
+
+	// for the current rotation and the given tile (from 0 to 4) convert to an (x,y) position inside the map (not offseted by this piece's position - although it could be)
+	blockToVector : function(tile)
+	{
+		// note: write a vector class if this vector thing needs more functionality
+		var auxVector = {x:0, y:0};
+		auxVector.x = tile % 4;
+		auxVector.y = Math.floor(tile / 4);
+		return auxVector;
+	},
+
+	// configure this piece for one rotation: set the 4 elements inside a 4x4 matrix that define the shape for this figure within this rotation
+	setConfiguration : function(rotation, t1, t2, t3, t4)
+	{
+		this.blocks[rotation][0] = t1;
+		this.blocks[rotation][1] = t2;
+		this.blocks[rotation][2] = t3;
+		this.blocks[rotation][3] = t4;
+	},
+
+	// Set an offset to check for the entire Piece
+	// returns true if the destination block is empty (ie the piece can be moved there), otherwise return false
+	checkDestinationBlock : function(xoffset, yoffset)
+	{
+		var auxVector 	= {x:0, y:0};
+		var auxBlock 	= null;
+
+		// Check the four blocks that compose this piece.
+		for(var i=0;i<4;i++)
+		{
+			auxVector = this.blockToVector(this.blocks[this.rotation][i]);
+			auxVector.x += xoffset;
+			auxVector.y += yoffset;
+
+			auxBlock = this.map.getBlock(auxVector.x, auxVector.y);
+
+			if(auxBlock != null || auxVector.y >= MAP_HEIGHT/*this.map.height*/ || auxVector.x < 0 || auxVector.x >= MAP_WIDTH) //this.map.width)
+			{
+				return false;
+			}
+		}
+		return true;
+	},
+
+	// TODO: do a callback to the game instead of this!
+	setBlockOnArena : function()
+	{	
+		Camera.shake(0.3, 2.0);
+
+		var auxVector = {x:0, y:0};
+		for(var i=0;i<4;i++)
+		{
+			auxVector = this.blockToVector(this.blocks[this.rotation][i]);
+			auxVector.x = this.x + auxVector.x;
+			auxVector.y = this.y + auxVector.y;
+			this.map.setBlock(new Block(this.color.r, this.color.g, this.color.b, auxVector.x, auxVector.y)); // DAFUQ SEND THE FUCKING COLOR
+		}
+
+		// Add one point per piece set on the arena
+		//pointsDone++;
+		this.map.spawnNewPiece();
+		this.map.checkNewLines();
+	},
+
+	// move the piece left or right
+	move : function(right)
+	{
+		if(right && this.timeLastMovement > 0.05 && this.checkDestinationBlock(this.x + 1, this.y))
+		{
+			this.timeLastMovement = 0;
+			this.x++;
+		}
+		else if(!right && this.timeLastMovement > 0.05 && this.checkDestinationBlock(this.x - 1, this.y))
+		{
+			this.timeLastMovement = 0;
+			this.x--;
+		}
+	},
+
+	// force fall
+	fall : function()
+	{
+		if(this.timeLastFall > 0.05)
+		{
+			this.timeLastFall = 0;
+
+			// If you cannot keep falling, we regenerate a new piece and set it on the arena
+			if(this.checkDestinationBlock(this.x, this.y + 1))
+			{
+				this.y++;
+			}
+			else
+			{
+				this.setBlockOnArena();
+			}
+		}
+	},
+
+	rotate : function()
+	{
+		if(this.timeLastMovement > 0.10)
+		{
+			this.timeLastMovement = 0;
+			this.rotation++;
+			if(this.rotation > 3) this.rotation = 0;
+
+			// if it's a forbidden position to rotate, we simply go back to the previous rotation.
+			if(this.checkDestinationBlock(this.x, this.y) == false) this.rotation--;
+			if(this.rotation < 0) this.rotation = 3;
+		}
+	},
+
+	update : function(delta)
+	{
+		//if(!isGameOver) // lol
+		//{
+			this.timeLastMovement += delta;
+			this.timeLastFall += delta;
+
+			// TODO: add level back to the game!!!
+			if(this.timeLastFall > (1.0 / 1.0)) //level))
+			{
+				this.timeLastFall = 0;
+				if(this.checkDestinationBlock(this.x, this.y + 1))
+				{
+					this.y++;
+				}
+				else
+				{
+					this.setBlockOnArena(); // do game callback!
+				}
+			}
+		//}
+	},
+
+	draw : function()
+	{
+		//this.callParent();
+		var auxVector = { x : 0, y : 0 };
+
+		// we only need to draw 4 blocks per piece
+		// just before disappearing from the arena/map/whatever, we set there the blocks for this block type
+		for(var i=0;i<4;i++)
+		{
+			auxVector = this.blockToVector(this.blocks[this.rotation][i]);
+			Graphics.drawRect((this.x * 32) + (auxVector.x * 32), (this.y * 32) + (auxVector.y * 32), 32, 32, this.color.r, this.color.g, this.color.b, this.color.a);
+		}
+	}
+
+});
+
+
+//-----------------------------------------
+// Map. Where the action happens.
+var Map = Entity.extend({
+
+	endBlock : null,
+	blocks : null,
+	width : 0,
+	height : 0,
+	timeLastUpdate : 0.0,
+	onSpawnNewPiece : Utils.emptyFunc(),
+
+	constructor : function(w, h)
+	{
+		this.callParent();
+		this.width = w;
+		this.height = h;
+		this.timeLastUpdate = 0.0;
+
+		this.blocks = new Array(this.width);
+		for(var i=0;i<this.blocks.length;i++)
+		{
+			this.blocks[i] = new Array(this.height);
+		}
+		for(var i=0;i<this.width;i++)
+		{
+			for(var j=0;j<this.height;j++)
+			{
+				this.blocks[i][j] = null;
+			}
+		}
+	},
+
+	setBlock : function(block)
+	{
+		//block.color.a = 0.7;
+		this.blocks[block.x][block.y] = block;
+
+		if(block.y == 1)
+		{
+			console.log("GAME OVER");
+			//isGameOver = true;  // do callback
+			//this.checkHighScore();
+		}
+	},
+
+	spawnNewPiece : function()
+	{
+		this.onSpawnNewPiece();
+	},
+
+	getBlock : function(x, y)
+	{
+		if(x < 0 || x >= this.width || y < 0 || y >= this.height)
+		{
+			return null;
+		}
+		return this.blocks[x][y];
+	},
+
+	removeLine : function(line)
+	{
+		for(var i=0;i<this.width;i++)
+		{
+			this.blocks[i][line] = null;
+		}
+		// todo: do callback to game
+		//linesDone++;	// ???
+		//newLineSound.play();				// play the "new line" sound
+		//if(linesDone % 10 == 0) level++; 	// add a new level each 10 lines
+		//pointsDone += 10;					// add 10 points per line
+		this.moveLinesDown(line);
+	},
+
+	checkNewLines : function()
+	{
+		var count = 0;
+		for(var i=0;i<this.height;i++)
+		{
+			for(var j=0;j<this.width;j++)
+			{
+				if(this.blocks[j][i] != null) count++;
+			}
+
+			// this means that the line is filled so we can remove it
+			if(count == this.width)
+			{
+				this.removeLine(i);
+			}
+			count = 0;
+		}
+	},
+
+	// shift all lines down from the erased line to the 1st.
+	moveLinesDown : function(line)
+	{
+		for(var i=line;i>0;i--)
+		{
+			for(var j=0;j<this.width;j++)
+			{
+				this.blocks[j][i] = this.blocks[j][i-1];
+				if(this.blocks[j][i] != null)
+				{
+					//this.blocks[j][i].setPosition(j, i+1);
+					// note: when deleting more than 1 line, this looks bad. fix it.
+					Utils.tween(this.blocks[j][i], "y", i, 0.5, Utils.E_BOUNCE_OUT);
+				}
+				this.blocks[j][i-1] = null;
+			}
+		}
+	},
+
+	draw : function()
+	{
+		this.callParent();
+
+		for(var i=0;i<this.width;i++)
+		{
+			for(var j=0;j<this.height;j++)
+			{
+				if(this.blocks[i][j] !== null)
+				{
+					this.blocks[i][j].draw();
+				}
+			}
+		}
+	},
+
+	update : function(delta)
+	{
+		this.callParent(delta);
+		this.timeLastUpdate += delta;
+
+		/*
+		if(isGameOver && this.timeLastUpdate > 0.05)
+		{
+			this.timeLastUpdate = 0.0;
+			for(var i=this.width-1;i>-1;i--)
+			{
+				for(var j=this.height-1;j>-1;j--)
+				{
+					if(this.blocks[i][j] == null)
+					{
+						//this.blocks[i][j] = this.endBlock;
+						break;
+					}
+				}
+			}
+		}
+		*/
+	}
+});
+
+
+//-----------------------------------------------------------------------------------
+
+StateGame = State.extend({
+
+	// Pieces definition
+	LPiece : null,
+	JPiece : null,
+	OPiece : null,
+	IPiece : null,
+	TPiece : null,
+	SPiece : null,
+	ZPiece : null,
+	currentPiece : null,
+	pieces : null,
+	colors : null,
+	map : null,
+
+    constructor : function()
+    {
+        this.callParent();
+        Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 1);
+    },
+
+	// initialize whatever has to be initialized
+	init : function ()
+	{
+		this.callParent();
+
+		// make the background
+		for(var i = 0; i < MAP_WIDTH; i++)
+		{
+			for(var j = 0; j < MAP_HEIGHT; j++)
+			{
+				var color = Utils.randRange(0.0, 0.25);
+				var block = new Block(color, color, color, i, j);
+				this.add(block);
+			}
+		}
+
+    	this.map = new Map(MAP_WIDTH, MAP_HEIGHT);
+    	this.map.onSpawnNewPiece = this.spawnPiece.bind(this);
+
+		// Initialize pieces
+		this.LPiece = new Piece(this.map);
+		this.LPiece.setConfiguration(0, 1, 5, 9, 10);
+		this.LPiece.setConfiguration(1, 5, 6, 7,  9);
+		this.LPiece.setConfiguration(2, 1, 2, 6, 10);
+		this.LPiece.setConfiguration(3, 4, 5, 6,  2);
+
+		this.JPiece = new Piece(this.map);
+		this.JPiece.setConfiguration(0, 2, 6, 10,  9);
+		this.JPiece.setConfiguration(1, 1, 5,  6,  7);
+		this.JPiece.setConfiguration(2, 1, 2,  5,  9);
+		this.JPiece.setConfiguration(3, 4, 5,  6, 10);
+
+		this.TPiece = new Piece(this.map);
+		this.TPiece.setConfiguration(0, 1, 5,  9, 6);
+		this.TPiece.setConfiguration(1, 1, 2,  3, 6);
+		this.TPiece.setConfiguration(2, 2, 6, 10, 5);
+		this.TPiece.setConfiguration(3, 5, 6,  7, 2);
+
+		// yeah this could be optimized
+		this.OPiece = new Piece(this.map);
+		this.OPiece.setConfiguration(0, 5, 6, 9, 10);
+		this.OPiece.setConfiguration(1, 5, 6, 9, 10);
+		this.OPiece.setConfiguration(2, 5, 6, 9, 10);
+		this.OPiece.setConfiguration(3, 5, 6, 9, 10);
+
+		// This others too
+		this.IPiece = new Piece(this.map);
+		this.IPiece.setConfiguration(0, 1, 5, 9, 13);
+		this.IPiece.setConfiguration(1, 4, 5, 6,  7);
+		this.IPiece.setConfiguration(2, 1, 5, 9, 13);
+		this.IPiece.setConfiguration(3, 4, 5, 6,  7);
+
+		this.ZPiece = new Piece(this.map);
+		this.ZPiece.setConfiguration(0, 4, 5, 9, 10);
+		this.ZPiece.setConfiguration(1, 2, 6, 5,  9);
+		this.ZPiece.setConfiguration(2, 4, 5, 9, 10);
+		this.ZPiece.setConfiguration(3, 2, 6, 5,  9);
+
+		this.SPiece = new Piece(this.map);
+		this.SPiece.setConfiguration(0, 6, 7, 9, 10);
+		this.SPiece.setConfiguration(1, 1, 5, 6, 10);
+		this.SPiece.setConfiguration(2, 6, 7, 9, 10);
+		this.SPiece.setConfiguration(3, 1, 5, 6, 10);
+
+		this.pieces = [ this.LPiece , this.JPiece, this.OPiece, this.IPiece, this.TPiece, this.SPiece, this.ZPiece ];
+		this.colors = [ MakeColor(1, 0, 0, 1), MakeColor(0, 1, 0, 1), MakeColor(0, 0, 1, 1), MakeColor(1, 1, 0, 1), MakeColor(1, 1, 1, 1) ];
+		this.spawnPiece();
+	},
+
+	// Reset the game when the player catches a monster
+	reset : function ()
+	{
+		this.map = new Map(MAP_WIDTH, MAP_HEIGHT);
+		//linesDone = 0;
+		//pointsDone = 0;
+		//level = 1;
+		//isGameOver = false;
+		//isHighScore = false;
+	},
+
+	spawnPiece : function()
+	{
+		var pieceIndex = Utils.intRandRange(0, this.pieces.length);
+		var colorIndex = Utils.intRandRange(0, this.colors.length);
+		var color = this.colors[colorIndex];
+		this.currentPiece = this.pieces[pieceIndex];
+		this.currentPiece.setPosition(0, 0);
+		this.currentPiece.setColor(color.r, color.g, color.b, 1.0);
+	},
+
+	// Update game objects
+	update : function (delta)
+	{
+		this.callParent(delta);
+		if(Input.isKeyPressed(Input.KEY_UP)) 		this.currentPiece.rotate();
+		else if(Input.isKeyPressed(Input.KEY_LEFT)) this.currentPiece.move(false);
+		else if(Input.isKeyPressed(Input.KEY_RIGHT))this.currentPiece.move(true);
+		else if(Input.isKeyPressed(Input.KEY_DOWN)) this.currentPiece.fall();
+
+		this.map.update(delta);
+		this.currentPiece.update(delta);
+
+		//if(isGameOver && InputSystem.isKeyPressed(13)) // enter
+		//{
+		//	isGameOver = false;
+		//	reset();
+		//}
+	},
+
+	// Draw everything
+	draw : function ()
+	{
+		//Graphics.drawText('Hello world!', 101, 10, 1, 1, 1, 1, 16, 'Arial');
+		this.callParent();
+		this.map.draw();
+		this.currentPiece.draw();
+	}
+
+});
+
+Core.init(APP_WIDTH, APP_HEIGHT);
+Core.setState(new StateGame());
+//Core.addAsset([	'empty', 'img/empty.jpg' ]);
+Core.loadAndRun();
+
+        </script>
+    </body>
+</html>
