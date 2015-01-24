@@ -94,6 +94,10 @@ var UtilsDef = Base.extend({
     update: function(delta) {
         var value;
         for (var i = 0; i < this._tweens.length; i++) {
+            if (this.isEmpty(this._tweens[i].object) || this.isEmpty(this._tweens[i].object[this._tweens[i].property])) {
+                var index = this._tweens.indexOf(this._tweens[i]);
+                this._tweens.splice(index, 1);
+            }
             this._tweens[i].currentTime += delta;
             value = this._execTween(this._tweens[i].currentTime, this._tweens[i].initial, this._tweens[i].destination - this._tweens[i].initial, this._tweens[i].time, this._tweens[i].easing);
             this._tweens[i].object[this._tweens[i].property] = value;
