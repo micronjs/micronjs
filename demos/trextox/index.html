@@ -140,7 +140,7 @@ var Piece = Entity.extend({
 
 			auxBlock = this.map.getBlock(auxVector.x, auxVector.y);
 
-			if(auxBlock != null || auxVector.y >= MAP_HEIGHT || auxVector.x < 0 || auxVector.x >= MAP_WIDTH)
+			if(auxBlock !== null || auxVector.y >= MAP_HEIGHT || auxVector.x < 0 || auxVector.x >= MAP_WIDTH)
 			{
 				return false;
 			}
@@ -208,7 +208,7 @@ var Piece = Entity.extend({
 			if(this.rotation > 3) this.rotation = 0;
 
 			// if it's a forbidden position to rotate, we simply go back to the previous rotation.
-			if(this.checkDestinationBlock(this.x, this.y) == false) this.rotation--;
+			if(this.checkDestinationBlock(this.x, this.y) === false) this.rotation--;
 			if(this.rotation < 0) this.rotation = 3;
 		}
 	},
@@ -250,7 +250,7 @@ var Piece = Entity.extend({
 
 //-----------------------------------------
 // Map. Where the action happens.
-var Map = Entity.extend({
+var MapGame = Entity.extend({
 
 	endBlock : null,
 	blocks : null,
@@ -268,11 +268,13 @@ var Map = Entity.extend({
 		this.timeLastUpdate = 0.0;
 
 		this.blocks = new Array(this.width);
-		for(var i=0;i<this.blocks.length;i++)
+      
+        var i;
+		for(i=0;i<this.blocks.length;i++)
 		{
 			this.blocks[i] = new Array(this.height);
 		}
-		for(var i=0;i<this.width;i++)
+		for(i=0;i<this.width;i++)
 		{
 			for(var j=0;j<this.height;j++)
 			{
@@ -322,7 +324,7 @@ var Map = Entity.extend({
 		{
 			for(var j=0;j<this.width;j++)
 			{
-				if(this.blocks[j][i] != null) count++;
+				if(this.blocks[j][i] !== null) count++;
 			}
 
 			// this means that the line is filled so we can remove it
@@ -375,7 +377,7 @@ var Map = Entity.extend({
 			for(var j=0;j<this.width;j++)
 			{
 				this.blocks[j][i] = this.blocks[j][i-1];
-				if(this.blocks[j][i] != null)
+				if(this.blocks[j][i] !== null)
 				{
 					Utils.tween(this.blocks[j][i], "y", i, 0.3, Utils.E_BOUNCE_OUT);
 				}
@@ -455,7 +457,7 @@ var StateGame = State.extend({
 			}
 		}
 		
-    	this.map = new Map(MAP_WIDTH, MAP_HEIGHT);
+    	this.map = new MapGame(MAP_WIDTH, MAP_HEIGHT);
     	this.map.onSpawnNewPiece = this.spawnPiece.bind(this);
 		this.map.onGameOver = this.gameOver.bind(this);
 
