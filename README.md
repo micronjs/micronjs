@@ -1,5 +1,4 @@
 # Micron. [![Build Status](https://travis-ci.org/micronjs/micronjs.svg?branch=master)](https://travis-ci.org/micronjs/micronjs)
-By Almar (c) 2014-2015.
 
 Micron is a minimalistic (around 2k lines of code) 2d js game/app/experiments framework creation. 
 
@@ -17,17 +16,29 @@ Just check what is here! The doc should give you an overall idea and the hello w
 
 More demos coming!
 
+# Documentation 
+
+There is a finely handcrafted documentation page [here](http://micronjs.github.io/). And more stuff will be coming soon(tm) to our very own wiki! 
+
 # Building
 
-If you need to rebuild distribution versions run
+If you need to rebuild distribution versions (micron lib, editor, docs, etc) you can run:
 
     npm run build
     
-or start watcher, which run build script on each change in src/ folder by
+or start The Watcher, which will run the build scripts on each change in src/ folder by:1
 
     npm start
 
-To test code run 
+To test the code and see the evil hints of errors (and not only), run:
 
     npm test
+
+# LICENSE
+
+All the magic of Micron is contained within an small bottle, sustained by the MIT License. 
+Almar (c) 2014-2015.
+
+Html/Js/git/tools/counter-strike guru: [ertrzyiks](https://github.com/ertrzyiks/).
+Gfx/art/magic guru: Mat.
 
