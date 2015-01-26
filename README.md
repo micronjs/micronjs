@@ -26,7 +26,7 @@ If you need to rebuild distribution versions (micron lib, editor, docs, etc) you
 
     npm run build
     
-or start The Watcher, which will run the build scripts on each change in src/ folder by:1
+or start The Watcher, which will run the build scripts on each change in src/ folder by:
 
     npm start
 
