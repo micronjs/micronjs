@@ -36,9 +36,12 @@ To test the code and see the evil hints of errors (and not only), run:
 
 # LICENSE
 
-All the magic of Micron is contained within an small bottle, sustained by the MIT License. 
+All the magic of Micron is contained within an small bottle, sustained by the MIT License, which you can fully review in our lovely LICENSE file.
+
 Almar (c) 2014-2015.
 
+
 Html/Js/git/tools/counter-strike guru: [ertrzyiks](https://github.com/ertrzyiks/).
+
 Gfx/art/magic guru: Mat.
 
