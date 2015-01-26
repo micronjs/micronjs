@@ -61,7 +61,7 @@
 			document.write(texts[what]);
 		</script>
 		</h1><span class="label label-primary">ALPHA</span>
-        <p class="lead">Micron is a minimalistic (less than 2k lines of code) 2d js game/app/experiments framework creation. 
+        <p class="lead">Micron is a minimalistic (around 2k lines of code) 2d js game/app/experiments framework creation. 
 		It uses heavily <a href="https://github.com/ertrzyiks/basejs">basejs</a>, and it is inspired by a shitload of other frameworks and tools.<br>
 		Have Fun!</p>
       </div>
@@ -185,6 +185,7 @@
 		images : array
 		imagesMap : {}
 		scale : { x, y }
+		autoClearScreen : bool					<i>When true (which it is, by default), it will clear the screen automatically before drawing. If false, the user will have to do it manually.</i>
 		
 		<b>Methods</b>	
 		init (width, height)					<i>Called automatically by Core. No matter how big or small is your game window, you will always have <b>width,height</b> pixels in your app.</i>
