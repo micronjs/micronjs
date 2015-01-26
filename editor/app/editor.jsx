@@ -10,10 +10,12 @@ var Col = Bootstrap.Col;
 var Error = require('./error.jsx');
 
 var CodeMirror = require('../vendor/codemirror.js');
+var esprima = require('esprima');
 var preview = require('./preview.jsx');
 
 var JSHINT = require('jshint').JSHINT;
 var jshintrc = require('./jshintrc.js');
+var humane = require('humane-js');
 
 var helloDemo = require('raw!../demo/hello.js');
 
@@ -31,29 +33,39 @@ module.exports = React.createClass({
         return document.getElementById('app-name').textContent;
     },
 
+    doValidate: function () {
+        var error = {};
+
+        try {
+            esprima.parse(this.value);
+        }
+        catch (e) {
+            error.reason = e.description;
+            error.line = e.lineNumber - 1;
+            error.character = e.column;
+
+            this.setState({ errors: [error] })
+            return false;
+        }
+
+        this.setState({ errors: [] });
+        return true;
+    },
+
     doJsHint: function () {
+        if (!this.doValidate()) {
+            return false;
+        }
+
         var editor = this.editor,
             result = JSHINT(this.value, jshintrc),
             currentErrors = this.state.errors,
             i = 0,
             error;
 
-        for (i = 0; i < currentErrors.length; i ++) {
-            error = currentErrors[i];
-
-            if (!error.runtime) {
-                editor.removeLineClass(error.line - 1, 'background', 'errors');
-            }
-        }
-
         if (result) {
             this.setState({ errors: [] });
             return true;
-        }
-
-        for (i = 0; i < JSHINT.errors.length; i ++) {
-            error = JSHINT.errors[i];
-            editor.addLineClass(error.line - 1, 'background', 'errors');
         }
 
         this.setState({ errors: JSHINT.errors });
@@ -64,7 +76,7 @@ module.exports = React.createClass({
         var appName = this.getAppName(),
             value = this.value;
 
-        if (this.doJsHint()) {
+        if (this.doValidate()) {
             setTimeout(function () {
                 preview(appName, value, element);
             }, 0);
@@ -80,12 +92,37 @@ module.exports = React.createClass({
         this.run();
     },
 
+    onHint: function () {
+        if (this.doJsHint()) {
+            humane.log('Hint: no issues!');
+        }
+    },
+
     onPreviewRuntimeError: function (e) {
         this.setState({ errors: [e] });
     },
 
-    shouldComponentUpdate: function () {
-        return true;
+    componentWillUpdate: function (nextProps, nextState) {
+        var editor = this.editor,
+            currentErrors = this.state.errors,
+            error,
+            i;
+
+        for (i = 0; i < currentErrors.length; i ++) {
+            error = currentErrors[i];
+
+            if (!error.runtime) {
+                editor.removeLineClass(error.line - 1, 'background', 'errors');
+            }
+        }
+
+        for (i = 0; i < nextState.errors.length; i ++) {
+            error = nextState.errors[i];
+
+            if ('undefined' !== typeof error.line) {
+                editor.addLineClass(error.line - 1, 'background', 'errors');
+            }
+        }
     },
 
     componentDidMount: function () {
@@ -135,6 +172,10 @@ module.exports = React.createClass({
 
                                 <Button bsStyle="primary" onClick={this.onRunInNewWindow}>
                                     Run in new window <Glyphicon glyph="play" />
+                                </Button>
+
+                                <Button bsStyle="warning" onClick={this.onHint}>
+                                    JSHint <Glyphicon glyph="check" />
                                 </Button>
                             </ButtonToolbar>
                         </Col>
