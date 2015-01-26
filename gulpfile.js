@@ -17,7 +17,7 @@ var paths = {
 
 gulp.task('default', ['test']);
 gulp.task('test', ['jscs', 'jshint']);
-gulp.task('build', ['compress']);
+gulp.task('build', ['compress', 'build-editor']);
 gulp.task('start', ['watch']);
 
 gulp.task('jscs', function() {
