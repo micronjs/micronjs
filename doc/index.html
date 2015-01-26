@@ -9,7 +9,7 @@
 	<!--
     <link rel="icon" href="../../favicon.ico">
 	-->
-    <title>Micron. Almar. 2014-2015</title>
+    <title>Micron. Almar. (c) 2014-2015</title>
 
     <link href="bootstrap.min.css" rel="stylesheet">
     <link href="starter-template.css" rel="stylesheet">
@@ -49,27 +49,18 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-
-	<!--	
-	<pre id="utils">
-		<h1>Utils</h1> <span class="label label-warning">Singleton</span>
-		Helper functions that simplify working with js.
-				
-		<b>Easing functions: linear (default), sine, quad, expo, elastic, cubic, circular, bounce, back. Example: Utils.E_ELASTIC_OUT. </b>
-		E_LINEAR_IN, E_LINEAR_OUT, E_LINEAR_INOUT, E_SINE_IN, E_SINE_OUT, E_SINE_INOUT, E_QUAD_IN, E_QUAD_OUT, E_QUAD_INOUT,
-		<span class="label label-danger">read-only</span>			
-
-		<b>Methods</b>	
-		emptyFunc()							<i>Useful for initialization of empty callbacks</i> <br>
-		tween(object, property, destination, time, easing, callback) 	<i>Example: Utils.tween(this.sprite, "x", 240.0, 0.5, Utils.E_BACK_IN, this.onSpriteMoved.bind(this));</i>
-	</pre>
-	-->
 	
     <div class="container">
 
       <div class="starter-template">
 	  <img alt="Brand" src="icon_big.png">
-        <h1>Welcome to Micron!</h1><span class="label label-primary">ALPHA</span>
+        <h1>
+		<script>
+			var texts = ["Welcome my friend!", "Happiness awaits!", "A good day to make good games.", "Dragonporn!", "HODOR!", "Sit down and enjoy.", "A good coffee, a pair of glasses and...", "3d anyone?", "The princess is in da house."];
+			var what = parseInt(Math.random() * texts.length);
+			document.write(texts[what]);
+		</script>
+		</h1><span class="label label-primary">ALPHA</span>
         <p class="lead">Micron is a minimalistic (less than 2k lines of code) 2d js game/app/experiments framework creation. 
 		It uses heavily <a href="https://github.com/ertrzyiks/basejs">basejs</a>, and it is inspired by a shitload of other frameworks and tools.<br>
 		Have Fun!</p>
