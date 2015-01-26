@@ -196,6 +196,8 @@
 		getImage (pathOrAlias)					<i>Get an [Image] object previously loaded, using it's path or alias. Better use the alias (it's simpler).</i>
 		preDraw ()						<i>You shouldn't have to touch these two, but in case you need to alter the default drawing of the entire engine: here's the place to do so.</i>
 		postDraw ()	
+		enableBlur (size, r, g, b, a)				<i>Start drawing "blur". It will create a blurry halo around everything you draw. It can kill performance.</i>
+		disableBlur()						<i>Stop using blur.</i>
 		drawText (text, x, y, r, g, b, a, size : number, [font=defaultFont] : string)				<i><b>Example:</b> Graphics.drawText("Hello world!", 0, 0, 1, 1, 1, 1, 32, "Arial")</i>
 		drawRect (x, y, width, height, r, g, b, a, [mode="fill"])	  					<i>For all the methods that have a "mode" parameter, it can always be either <b>"fill"</b> or <b>"stroke"</b></i>
 		drawFullScreenRect (r,g,b,a)
