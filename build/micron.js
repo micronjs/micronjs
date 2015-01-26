@@ -920,6 +920,7 @@ Graphics = Base.extend({
         y: 1
     },
     screenRect: null,
+    autoClearScreen: true,
     constructor: function() {
         this.images = [];
         this.imagesMap = {};
@@ -991,7 +992,9 @@ Graphics = Base.extend({
         Camera.update(delta);
     },
     preDraw: function() {
-        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (this.autoClearScreen) {
+            this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
         this.context.save();
         this.context.translate(-Camera.getX(), -Camera.getY());
         this.context.scale(this.scaleRatio, this.scaleRatio);

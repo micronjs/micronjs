@@ -145,6 +145,7 @@ Graphics = Base.extend({
     imagesMap : null,
     scale : { x:1, y:1 },
     screenRect : null, // real screen size. used?
+    autoClearScreen : true,
 
     constructor : function()
     {
@@ -261,7 +262,10 @@ Graphics = Base.extend({
 
     preDraw : function()
     {
-        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if(this.autoClearScreen)
+        {
+            this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }		
         this.context.save();
         this.context.translate(-Camera.getX(), -Camera.getY());
         this.context.scale(this.scaleRatio, this.scaleRatio);
