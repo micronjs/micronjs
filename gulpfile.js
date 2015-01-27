@@ -8,6 +8,7 @@ var minifyCss = require('gulp-minify-css');
 var git = require('gulp-git');
 var clean = require('gulp-clean');
 var runSequence = require('run-sequence');
+var rename = require('gulp-rename');
 var Q = require('q');
 
 var paths = {
@@ -24,14 +25,23 @@ var paths = {
 gulp.task('default', ['test']);
 gulp.task('test', ['jscs', 'jshint']);
 gulp.task('build', ['compress', 'build-editor']);
+
+gulp.task('build-editor', function () {
+    return runSequence(
+        'browserify',
+        'usemin',
+        'copy-glyphicons'
+    );
+});
+
 gulp.task('publish-docs', function () {
     return runSequence(
         'clean-clone',
         'clone',
         'clean-clone-content',
         'copy-doc',
+        'build-editor',
         'copy-editor',
-        'usemin',
         'commit'
     );
 });
@@ -71,7 +81,7 @@ gulp.task('watch', function() {
     gulp.watch(paths.editor, ['build-editor']);
 });
 
-gulp.task('build-editor', function() {
+gulp.task('browserify', function() {
     return gulp.src('./editor/app/bootstrap.jsx')
         .pipe(webpack({
             module: {
@@ -90,11 +100,12 @@ gulp.task('build-editor', function() {
 });
 
 gulp.task('usemin', function () {
-    return gulp.src('./editor/index.html')
+    return gulp.src('./editor/index_dev.html')
+        .pipe(rename('index.html'))
         .pipe(usemin({
             css: [minifyCss(), 'concat']
         }))
-        .pipe(gulp.dest('micronjs.github.io/editor/'));
+        .pipe(gulp.dest('./editor'));
 });
 
 gulp.task('clean-clone-content', function () {
@@ -150,6 +161,11 @@ gulp.task('copy-doc', function () {
 });
 
 gulp.task('copy-editor', function () {
-    return gulp.src('editor/**')
+    return gulp.src(['editor/**', '!editor/index_dev.html'])
         .pipe(gulp.dest('micronjs.github.io/editor'));
+});
+
+gulp.task('copy-glyphicons', function () {
+    return gulp.src('node_modules/bootstrap/fonts/**')
+        .pipe(gulp.dest('editor/fonts'));
 });
