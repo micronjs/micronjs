@@ -145,7 +145,7 @@ gulp.task('commit', function () {
 });
 
 gulp.task('copy-doc', function () {
-    return gulp.src('doc/*')
+    return gulp.src('doc/**')
         .pipe(gulp.dest('micronjs.github.io'));
 });
 
