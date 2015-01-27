@@ -42,6 +42,8 @@ gulp.task('publish-docs', function () {
         'copy-doc',
         'build-editor',
         'copy-editor',
+        'copy-build',
+        'copy-demos',
         'commit'
     );
 });
@@ -158,6 +160,16 @@ gulp.task('commit', function () {
 gulp.task('copy-doc', function () {
     return gulp.src('doc/**')
         .pipe(gulp.dest('micronjs.github.io'));
+});
+
+gulp.task('copy-build', function () {
+    return gulp.src(['build/**'])
+        .pipe(gulp.dest('micronjs.github.io/build'));
+});
+
+gulp.task('copy-demos', function () {
+    return gulp.src(['demos/**'])
+        .pipe(gulp.dest('micronjs.github.io/demos'));
 });
 
 gulp.task('copy-editor', function () {
