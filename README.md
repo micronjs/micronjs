@@ -12,13 +12,17 @@ Have fun!
 
 # Getting started
 
-Just check what is here! The doc should give you an overall idea and the hello world (I know: it is not enough) shows you how to... just... write hello world :)
+Making games with Micron is quite simple, however instead of showing boring code, we give you a [full playground to test your games](http://micronjs.github.io/editor/)! Change the code, see how it's done, clic **run** and enjoy! 
 
-More demos coming!
+The editor uses the magic of [esprima](http://esprima.org/) together with the toughness of [jshint](http://jshint.com/) to help you catching your errors and also improving your Javascript-fu along the way. We will keep improving it and adding more and more features, to make sure that learning and playing with Micron is as nice as possible.
+
+The docs (see below) should give you an overall idea about the API, and if you want to learn more, check the demos folder! 
+
+And yes, more demos and full blown wiki coming soon(tm)!
 
 # Documentation 
 
-There is a finely handcrafted documentation page [here](http://micronjs.github.io/). And more stuff will be coming soon(tm) to our very own wiki! 
+There is a finely handcrafted documentation page [here](http://micronjs.github.io/).
 
 # Building
 
@@ -38,7 +42,7 @@ To test the code and see the evil hints of errors (and not only), run:
 
 All the magic of Micron is contained within an small bottle, sustained by the MIT License, which you can fully review in our lovely LICENSE file.
 
-Almar (c) 2014-2015.
+Micron (c) Almar. 2014-2015.
 
 # Friends
 
@@ -47,4 +51,3 @@ Because you are just as good as the people working with you, Micron wouldn't be 
 Html/Js/git/tools/counter-strike guru: [ertrzyiks](https://github.com/ertrzyiks/).
 
 Gfx/art/magic guru: [Mat](http://spaceshipblue.com/).
-
