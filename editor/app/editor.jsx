@@ -10,11 +10,10 @@ var Col = Bootstrap.Col;
 var Error = require('./error.jsx');
 
 var CodeMirror = require('../vendor/codemirror.js');
-var esprima = require('esprima');
+var validate = require('./validate.js');
+var hints = require('./hints.js');
 var preview = require('./preview.jsx');
 
-var JSHINT = require('jshint').JSHINT;
-var jshintrc = require('./jshintrc.js');
 var humane = require('humane-js');
 
 var helloDemo = require('raw!../demo/hello.js');
@@ -25,6 +24,8 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return {
+            running: false,
+            runningInWindow: false,
             errors: []
         };
     },
@@ -34,22 +35,15 @@ module.exports = React.createClass({
     },
 
     doValidate: function () {
-        var error = {};
+        var result = validate(this.value);
 
-        try {
-            esprima.parse(this.value);
-        }
-        catch (e) {
-            error.reason = e.description;
-            error.line = e.lineNumber - 1;
-            error.character = e.column;
-
-            this.setState({ errors: [error] })
-            return false;
+        if (result === true) {
+            this.setState({ errors: [] });
+            return true;
         }
 
-        this.setState({ errors: [] });
-        return true;
+        this.setState({ errors: result });
+        return false;
     },
 
     doJsHint: function () {
@@ -57,35 +51,53 @@ module.exports = React.createClass({
             return false;
         }
 
-        var editor = this.editor,
-            result = JSHINT(this.value, jshintrc),
-            currentErrors = this.state.errors,
-            i = 0,
-            error;
+        var result = hints(this.value);
 
-        if (result) {
+        if (result === true) {
             this.setState({ errors: [] });
             return true;
         }
 
-        this.setState({ errors: JSHINT.errors });
+        this.setState({ errors: result });
         return false;
     },
 
     run: function (element) {
         var appName = this.getAppName(),
-            value = this.value;
+            value = this.value,
+            stop = this.stop,
+            onPreviewStop = this.onPreviewStop;
 
-        if (this.doValidate()) {
-            setTimeout(function () {
-                preview(appName, value, element);
-            }, 0);
+        stop();
+
+        if (!this.doValidate()) {
+            return;
         }
+
+        setTimeout(function () {
+            preview.start(appName, value, element, onPreviewStop);
+        }, 0);
+
+        this.setState({
+            running: true,
+            runningInWindow: !element
+        });
+    },
+
+    stop: function () {
+        var el = document.getElementById('preview');
+        preview.stop(el);
+
+        this.setState({ running: false });
     },
 
     onRun: function () {
         var el = document.getElementById('preview');
         this.run(el);
+    },
+
+    onStop: function () {
+        this.stop();
     },
 
     onRunInNewWindow: function () {
@@ -96,6 +108,10 @@ module.exports = React.createClass({
         if (this.doJsHint()) {
             humane.log('Hint: no issues!');
         }
+    },
+
+    onPreviewStop: function () {
+        this.stop();
     },
 
     onPreviewRuntimeError: function (e) {
@@ -120,6 +136,7 @@ module.exports = React.createClass({
             error = nextState.errors[i];
 
             if ('undefined' !== typeof error.line) {
+                console.log(error.line);
                 editor.addLineClass(error.line - 1, 'background', 'errors');
             }
         }
@@ -146,6 +163,7 @@ module.exports = React.createClass({
 
     render: function() {
         window.onPreviewError = this.onPreviewRuntimeError;
+        window.onAbort = this.onStop;
 
         var errors = [], error;
         for (var i=0; i < this.state.errors.length; i++) {
@@ -168,13 +186,19 @@ module.exports = React.createClass({
 
                         <Col xs={12} md={9}>
                             <ButtonToolbar>
-                                <Button bsStyle="primary" onClick={this.onRun}>Run <Glyphicon glyph="play" /></Button>
+                                <Button bsStyle="primary" onClick={this.onRun}>
+                                    Run <Glyphicon glyph="play" />
+                                </Button>
 
                                 <Button bsStyle="primary" onClick={this.onRunInNewWindow}>
                                     Run in new window <Glyphicon glyph="play" />
                                 </Button>
 
-                                <Button bsStyle="warning" onClick={this.onHint}>
+                                <Button bsStyle="danger" disabled={!this.state.running} onClick={this.onStop}>
+                                    Stop <Glyphicon glyph="stop" />
+                                </Button>
+
+                                <Button onClick={this.onHint}>
                                     JSHint <Glyphicon glyph="check" />
                                 </Button>
                             </ButtonToolbar>

@@ -33,7 +33,7 @@ function doPreview(doc, appName, code) {
     doc.write(html);
 }
 
-module.exports = function (appName, code, iframe) {
+exports.start = function (appName, code, iframe, onClosed) {
     var params = [
         'width='+ window.innerWidth,
         'height='+ window.innerHeight,
@@ -44,18 +44,33 @@ module.exports = function (appName, code, iframe) {
         'status=no'
     ].join(',');
 
+    onClosed = onClosed || function () {};
+
     var doc;
 
     if (iframe) {
         doc = iframe.contentDocument;
     } else {
-        if (lastWindow) {
-            lastWindow.close();
-        }
-
         lastWindow = window.open('', '', params);
         doc = lastWindow.document;
     }
 
     doPreview(doc, appName, code);
-}
+
+    if (lastWindow) {
+        lastWindow.onbeforeunload = function () {
+            onClosed();
+        };
+    }
+};
+
+exports.stop = function (iframe) {
+    if (iframe) {
+        iframe.src = "about:blank";
+    }
+
+    if (lastWindow) {
+        lastWindow.close();
+        lastWindow = null;
+    }
+};
