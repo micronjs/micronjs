@@ -40,8 +40,11 @@ All the magic of Micron is contained within an small bottle, sustained by the MI
 
 Almar (c) 2014-2015.
 
+# Friends
+
+Because you are just as good as the people working with you, Micron wouldn't be as awesome as it is without:
 
 Html/Js/git/tools/counter-strike guru: [ertrzyiks](https://github.com/ertrzyiks/).
 
-Gfx/art/magic guru: Mat.
+Gfx/art/magic guru: [Mat](http://spaceshipblue.com/).
 
