@@ -9,6 +9,7 @@
 	<!--
     <link rel="icon" href="../../favicon.ico">
 	-->
+	<!-- Note: most of this thing was done by the poor wololoa, who has no fucking idea about html. Paradoxically, he made a js game engine. Stranger things happen in this world. -->
     <title>Micron. Almar. (c) 2014-2015</title>
 
     <link href="bootstrap.min.css" rel="stylesheet">
@@ -16,6 +17,7 @@
   </head>
 
   <body>
+    
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -51,22 +53,14 @@
     </nav>
 	
     <div class="container">
-
       <div class="starter-template">
 	  <img alt="Brand" src="icon_big.png">
-        <h1>
-		<script>
-			var texts = ["Welcome my friend!", "Happiness awaits!", "A good day to make good games.", "Dragonporn!", "HODOR!", "Sit down and enjoy.", "A good coffee, a pair of glasses and...", "3d anyone?", "The princess is in da house."];
-			var what = parseInt(Math.random() * texts.length);
-			document.write(texts[what]);
-		</script>
-		</h1><span class="label label-primary">ALPHA</span>
+        <h1> <span id='super_msg'></span> </h1> <span class="label label-primary">ALPHA</span>
         <p class="lead">Micron is a minimalistic (around 2k lines of code) 2d js game/app/experiments framework creation. 
 		It uses heavily <a href="https://github.com/ertrzyiks/basejs">basejs</a>, and it is inspired by a shitload of other frameworks and tools.<br>
 		Have Fun!</p>
       </div>
     </div><!-- /.container -->
-
 
 	<pre id="core">
 		<h1>Core</h1> <span class="label label-warning">Singleton</span>
@@ -457,5 +451,6 @@
 	
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="bootstrap.min.js"></script>
+    <script src="js/main.js"></script>  	
   </body>
 </html>
