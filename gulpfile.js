@@ -121,9 +121,14 @@ gulp.task('clean-clone', function () {
 });
 
 gulp.task('clone', function () {
-    var deferred = Q.defer();
+    var deferred = Q.defer(),
+        baseUrl = 'https://github.com/micronjs';
 
-    git.clone('git@github.com:micronjs/micronjs.github.io.git', function (err) {
+    if (process.env.GH_TOKEN) {
+        baseUrl = 'https://' + process.env.GH_TOKEN + '@github.com';
+    }
+
+    git.clone(baseUrl + '/micronjs.github.io.git', function (err) {
         if (err) {
             return deferred.reject(err);
         }

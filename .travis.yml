@@ -3,3 +3,8 @@ before_script:
 - npm install
 script:
 - npm test
+after_success:
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && npm run publish-docs
+env:
+  matrix:
+    secure: Hhew9xgz9LXBZ3N+ef3+CW7oK0upQkkgA5WxdkIIYFtRnbh72+4BkARDNLzfsahLbnFJl+VtRd/09k+JK/pQfWOyZ/B+LOV0Z+hC0hlUGw078J3T6UNOEaqGwwIGqPav9No4CdDNngJJa/y37PswLGY6JgH/xrtpKkcZFHjtT6k=
