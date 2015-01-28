@@ -6,3 +6,9 @@ window.onerror = function (e) {
         reason: e
     });
 };
+
+window.abort = function () {
+    var onAbort = window.top.onAbort || window.opener.onAbort || function(){};
+    onAbort();
+};
+

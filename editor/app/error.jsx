@@ -14,7 +14,7 @@ module.exports = React.createClass({
 
         return (
             <div>
-            line {error.line-1}, character {error.character}: <em>{error.reason}</em>
+            line {error.line}, character {error.character}: <em>{error.reason}</em>
             </div>
         )
 
