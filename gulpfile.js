@@ -125,7 +125,7 @@ gulp.task('clone', function () {
         baseUrl = 'https://github.com/micronjs';
 
     if (process.env.GH_TOKEN) {
-        baseUrl = 'https://' + process.env.GH_TOKEN + '@github.com';
+        baseUrl = 'https://' + process.env.GH_TOKEN + '@github.com/micronjs';
     }
 
     git.clone(baseUrl + '/micronjs.github.io.git', function (err) {

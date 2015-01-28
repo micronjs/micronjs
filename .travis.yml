@@ -4,7 +4,7 @@ before_script:
 script:
 - npm test
 after_success:
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && npm run publish-docs
+- test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && npm run publish-docs > /dev/null 2>&1
 env:
   matrix:
-    secure: Hhew9xgz9LXBZ3N+ef3+CW7oK0upQkkgA5WxdkIIYFtRnbh72+4BkARDNLzfsahLbnFJl+VtRd/09k+JK/pQfWOyZ/B+LOV0Z+hC0hlUGw078J3T6UNOEaqGwwIGqPav9No4CdDNngJJa/y37PswLGY6JgH/xrtpKkcZFHjtT6k=
+    secure: UcjRmrsjVQnnaiEsKfuXZGPCX1MCxh7Ih2z7f+bFF7EI8rR28Nv1t+vPKK5MH7+rrYHtJq3HO4RMVIx6VNuSKjJbMvBO7V8e7Z26Ig5UYqW5KYdy6XAACQlXEPx05ib+32ia9BXrYDyb07kwwqwSt33qYy56hHzX+PqDegMvfWM=
