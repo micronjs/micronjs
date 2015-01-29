@@ -1,6 +1,11 @@
 language: nodejs
 before_script:
 - npm install
+- sudo apt-get -y install python-software-properties
+- sudo add-apt-repository -y ppa:fkrull/deadsnakes
+- sudo apt-get update
+- sudo apt-get -y install python2.7 python-pip python-dev build-essential
+- sudo pip install mkdocs
 script:
 - npm test
 after_success:
