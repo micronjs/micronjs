@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>ARENA: a simple FPS.</title>
+        <style>
+            body {background-color:black}
+        </style>
+        <script src="js/base.js"></script>
+        <script src="js/micron.js"></script>
+		<script src="js/sylvester.js"></script>
+    </head>
+    <body>
+	
+        <script type="text/javascript">
+
+// Based on this: http://www.playfuljs.com/a-first-person-engine-in-265-lines/
+// And this: http://nicmendoza.github.io/playfuljs-demos/raycaster
+var CIRCLE = Math.PI * 2;
+	  	  
+var Player = Entity.extend({
+
+	x : 0,
+	y : 0,
+	direction : 0,
+	weapon : null,
+	steps : 0,
+	map : null,
+	
+	constructor : function(x, y, direction, map)
+	{
+		this.x = x;
+		this.y = y;		
+		this.direction = direction;
+		this.map = map;
+    },
+	
+    rotate : function(angle) 
+	{
+		this.direction = (this.direction + angle + CIRCLE) % (CIRCLE);
+	},
+	
+	walk : function(distance, direction) 
+	{
+		var dx = Math.cos(direction) * distance;
+		var dy = Math.sin(direction) * distance;
+		if (this.map.get(this.x + dx, this.y) <= 0) this.x += dx;
+		if (this.map.get(this.x, this.y + dy) <= 0) this.y += dy;
+		this.paces += distance;
+	},
+
+	update : function(delta)
+	{
+		if (Input.isKeyPressed(Input.KEY_LEFT)) 	this.rotate(-Math.PI * delta);
+		if (Input.isKeyPressed(Input.KEY_RIGHT)) 	this.rotate(Math.PI * delta);
+		if (Input.isKeyPressed(Input.KEY_W)) 		this.walk(3 * delta, this.direction);
+		if (Input.isKeyPressed(Input.KEY_S)) 		this.walk(-3 * delta, this.direction);
+		if (Input.isKeyPressed(Input.KEY_A)) 		this.walk(3 * delta, this.direction - Math.PI/2);
+		if (Input.isKeyPressed(Input.KEY_D)) 		this.walk(3 * delta, this.direction + Math.PI/2);
+	},
+	
+	draw : function()
+	{
+		// todo: hud
+	}
+});
+	
+
+var Map = Entity.extend({
+
+	size : 0,
+	wallGrid : null,
+	skybox : null,
+	wallTexture : null,
+	light : 0,
+
+	constructor : function(size)
+	{
+		this.size = size;
+		this.wallGrid = new Uint8Array(size * size);      
+	},
+
+	get : function(x, y) 
+	{
+		x = Math.floor(x);
+		y = Math.floor(y);
+		if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
+		return this.wallGrid[y * this.size + x];
+	},
+
+  	set : function(x, y, value)
+  	{    
+    	if(x >= 0 && x <= this.size && y >= 0 && y <= this.size) this.wallGrid[y * this.size + x] = value;
+    },
+  
+	randomize : function() 
+	{
+		/*
+      	for (var i = 0; i < this.size * this.size; i++) 
+		{
+			this.wallGrid[i] = Math.random() < 0.3 ? 1 : 0;
+		}
+        */
+            
+      	for(var i = 0; i < this.size; i++)
+      	{
+       		for(var j = 0; j < this.size; j++)
+       		{
+      			if(i == 0 || i == this.size-1 || j == 0 || j == this.size-1) this.wallGrid[i*this.size+j] = 1;
+       		}       
+      	}       
+      
+        this.set(2, 2, 1);
+        this.set(this.size - 3, 2, 1);      
+
+        this.set(7, 4, 1);
+        this.set(3, 11, 1);
+        this.set(3, 12, 1);
+        this.set(4, 8, 1);
+        this.set(5, 9, 1);
+	},
+
+	cast : function(point, angle, range)
+	{
+		var self = this;
+		var sin = Math.sin(angle);
+		var cos = Math.cos(angle);
+		var noWall = { length2: Infinity };
+
+		return ray({ x: point.x, y: point.y, height: 0, distance: 0 });
+
+		function ray(origin) 
+		{
+			var stepX = step(sin, cos, origin.x, origin.y, false);
+			var stepY = step(cos, sin, origin.y, origin.x, true);
+			var nextStep = stepX.length2 < stepY.length2 
+						? inspect(stepX, 1, 0, origin.distance, stepX.y)
+						: inspect(stepY, 0, 1, origin.distance, stepY.x);
+
+			if (nextStep.distance > range) return [origin];
+			return [origin].concat(ray(nextStep));
+		}
+
+		function step(rise, run, x, y, inverted) 
+		{
+			if (run === 0) return noWall;
+			var dx = run > 0 ? Math.floor(x + 1) - x : Math.ceil(x - 1) - x;
+			var dy = dx * (rise / run);
+			return {
+						x: inverted ? y + dy : x + dx,
+						y: inverted ? x + dx : y + dy,
+						length2: dx * dx + dy * dy
+					};
+		}
+
+		function inspect(step, shiftX, shiftY, distance, offset) 
+		{
+			var dx = cos < 0 ? shiftX : 0;
+			var dy = sin < 0 ? shiftY : 0;
+			step.height = self.get(step.x - dx, step.y - dy);
+			step.distance = distance + Math.sqrt(step.length2);
+			if (shiftX) step.shading = cos < 0 ? 2 : 0;
+			else step.shading = sin < 0 ? 2 : 1;
+			step.offset = offset - Math.floor(offset);
+			return step;
+		}
+	},
+
+	update : function(delta) 
+	{
+		//this.callParent(delta);
+		if (this.light > 0) 
+		{
+			this.light = Math.max(this.light - 10 * delta, 0);
+		}
+		else if (Math.random() * 5 < delta) 
+		{
+			this.light = 2;
+		}
+	},
+	
+	draw : function()
+	{
+		this.callParent();
+		// ?
+	}
+});
+
+
+var Renderer = Entity.extend({ 
+
+	resolution : 0,
+	focalLength : 0.8,
+	spacing : 0,
+	range : 20,
+	lightRange : 1,
+	scale : 1.0,
+	width : 0,
+	height : 0,
+
+	constructor : function(resolution, focalLength) 
+	{
+		this.resolution = resolution;
+		this.focalLength = focalLength;
+		this.spacing = Graphics.width / resolution;
+		this.scale = (Graphics.width + Graphics.height) / 1200;		
+		this.width = Graphics.width;
+		this.height = Graphics.height;
+	},
+
+	draw : function(player, map) 
+	{
+		//this.drawSky(player.direction, map.skybox, map.light); // SHADED
+		this.drawColumns(player, map);
+		this.drawWeapon(player.weapon, player.paces);
+	},
+
+	drawSky : function(direction, sky, ambient) 
+	{
+		//var width = sky.width * (this.height / sky.height) * 2;
+		//var left = (direction / CIRCLE) * -width;
+		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
+		//if (left < width - this.width) 
+		//{
+		//	this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
+		//}
+        //Graphics.enableBlur(200, 0, 0, 0, 1);
+      	Graphics.drawRect(0, 0, Graphics.width, Graphics.height/2, 0.63, 0.63, 0.63, 0.97);
+        //Graphics.disableBlur();
+	},
+
+	drawColumns : function(player, map) 
+	{
+		for (var column = 0; column < this.resolution; column++) 
+		{
+			var x = column / this.resolution - 0.5;
+			var angle = Math.atan2(x, this.focalLength);			
+			var ray = map.cast(player, player.direction + angle, this.range);
+          
+          	//Graphics.enableBlur(5, 1, 0.8, 0, 1);
+			this.drawColumn(column, ray, angle, map);
+          	//Graphics.disableBlur();
+		}
+	},
+
+	drawWeapon : function(weapon, paces) 
+	{
+		var bobX = Math.cos(paces * 2) * this.scale * 6;
+		var bobY = Math.sin(paces * 4) * this.scale * 6;
+		var left = this.width * 0.66 + bobX;
+		var top = this.height * 0.6 + bobY;
+		//his.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
+	},
+
+	drawColumn : function(column, ray, angle, map) 
+	{
+		var ctx = this.ctx;
+		var texture = map.wallTexture;
+		var left = Math.floor(column * this.spacing);
+		var width = Math.ceil(this.spacing);
+		var hit = -1;
+	
+		while (++hit < ray.length && ray[hit].height <= 0);
+
+		for (var s = ray.length - 1; s >= 0; s--) 
+		{
+			var step = ray[s];
+			var rainDrops = Math.pow(Math.random(), 1) * s;
+			var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance);
+
+			if (s === hit) 
+			{
+				//var textureX = Math.floor(texture.width * step.offset);
+				var textureX = Math.floor(32 * step.offset);				
+				var wall = this.project(step.height, angle, step.distance);
+
+				//Graphics.context.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
+				//Graphics.drawRect(left, wall.top, width, wall.height, 0.95, 0.95, 0.95, 
+                //                 1 - Math.max((step.distance + step.shading) / this.lightRange - map.light, 0));					
+              	//Graphics.drawRect(left, wall.top, 5, 5, 0, 0, 0, 1);
+              
+              // SHADED
+              /*
+              	Graphics.enableBlur(10, 0, 0, 0, 1);
+      			Graphics.drawRect(left, wall.top+wall.height, 2, 2, 0, 0, 0, 1);
+              	Graphics.disableBlur();
+              	Graphics.drawRect(left, wall.top, width+2, wall.height+2, 0.79, 0.79, 0.79, 1);              
+                */
+              
+              	Graphics.enableBlur(20, 1, 0, 0, 1);
+      			Graphics.drawRect(left, wall.top, 2, Math.sin(Core.totalTime*12), 1, 0, 0, 1);
+              	//Graphics.drawRect(left, wall.top, width+2, wall.height+2, 1, 0, 0, 1);              
+              	Graphics.drawRect(left, wall.top+wall.height, 2, 12, 1, 0, 0, 1);              
+              	Graphics.disableBlur();
+			}
+		}
+	},
+
+	project : function(height, angle, distance) 
+	{
+		var z = distance * Math.cos(angle);
+		var wallHeight = this.height * height / z;
+		var bottom = this.height / 2 * (1 + 1 / z);
+				
+		return {
+				top: bottom - wallHeight,
+				height: wallHeight
+		};
+	}
+});
+		  
+//------------------------------------------------------------------------
+
+
+var StateGame = State.extend({
+	
+	renderer : null,
+	map : null,
+	player : null,
+		
+    constructor : function()
+    {
+        this.callParent();
+        //Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
+		//Graphics.autoClearScreen = false;
+    },
+
+	init : function ()
+	{
+		this.callParent();
+		this.renderer = new Renderer(160, 0.8);
+		this.map = new Map(16);
+		this.map.randomize();
+		this.player = new Player(8.3, 8.2, Math.PI - 0.3);		
+		this.player.map = this.map;
+	},
+	
+	update : function (delta)
+	{
+		this.callParent(delta);		
+		
+		this.player.update(delta);
+      	this.map.update(delta);		
+	},
+	
+	draw : function()
+	{
+		this.callParent();		
+		Graphics.drawFullScreenRect(0, 0, 0, 1);
+		//Graphics.drawFullScreenRect(1, 1, 1, 1);      // SHADED
+		this.renderer.draw(this.player, this.map);	
+	}
+	
+});
+
+Core.init(320, 480); 
+Core.setState(new StateGame());
+Core.loadAndRun();
+
+        </script>
+    </body>
+</html>
