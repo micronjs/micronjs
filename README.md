@@ -22,7 +22,7 @@ And yes, more demos and full blown wiki coming soon(tm)!
 
 # Documentation 
 
-There is a finely handcrafted documentation page [here](http://micronjs.github.io/).
+There is a finely handcrafted (ok: semi-automatically generated) documentation page [here](http://micronjs.github.io/).
 
 # Building
 
