@@ -4,7 +4,7 @@
 
 The main Input module is reponsible for detecting and processing input events. On mobile devices, clicks are handled as touches (but work exactly the same).
 You can register objects to the input system to receive "touch" events. 
-**Example:** inside a class, do Input.addInputReceiver(this), and then override the method <i>onClickInput</i>.
+**Example:** inside a class, do Input.addInputReceiver(this), and then override the method _onClickInput_.
     
 ## Members
 
