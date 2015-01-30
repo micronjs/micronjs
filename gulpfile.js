@@ -112,8 +112,8 @@ gulp.task('usemin', function () {
         .pipe(gulp.dest('./editor'));
 });
 
-gulp.task('mkdocs', function () {
-    exec('mkdocs build', function (err, stdout, stderr) {
+gulp.task('mkdocs', function (cb) {
+    exec('mkdocs build --clean', function (err, stdout, stderr) {
         cb(err);
     })
 });
