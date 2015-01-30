@@ -9,6 +9,7 @@ var git = require('gulp-git');
 var clean = require('gulp-clean');
 var runSequence = require('run-sequence');
 var rename = require('gulp-rename');
+var exec = require('gulp-exec');
 var Q = require('q');
 
 var paths = {
@@ -39,6 +40,7 @@ gulp.task('publish-docs', function () {
         'clean-clone',
         'clone',
         'clean-clone-content',
+        'mkdocs',
         'copy-doc',
         'build-editor',
         'copy-editor',
@@ -110,6 +112,12 @@ gulp.task('usemin', function () {
         .pipe(gulp.dest('./editor'));
 });
 
+gulp.task('mkdocs', function () {
+    exec('mkdocs build', function (err, stdout, stderr) {
+        cb(err);
+    })
+});
+
 gulp.task('clean-clone-content', function () {
     return gulp.src('micronjs.github.io/*', {read: false})
         .pipe(clean());
@@ -163,7 +171,7 @@ gulp.task('commit', function () {
 });
 
 gulp.task('copy-doc', function () {
-    return gulp.src('doc/**')
+    return gulp.src('site/**')
         .pipe(gulp.dest('micronjs.github.io'));
 });
 

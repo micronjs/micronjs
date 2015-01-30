@@ -1,0 +1,24 @@
+site_name: MicronJS
+repo_url: https://github.com/micronjs/micronjs
+pages:
+- [index.md, Home]
+- [reference/core/core.md, Core, Core]
+- [reference/core/state.md, Core, State]
+- [reference/core/entity.md, Core, Entity]
+- [reference/core/pool.md, Core, Pool]
+- [reference/input.md, Input]
+- [reference/graphics/graphics.md, Graphics, Graphics]
+- [reference/graphics/camera.md, Graphics, Camera]
+- [reference/graphics/sprite.md, Graphics, Sprite]
+- [reference/graphics/atlas.md, Graphics, Atlas]
+- [reference/graphics/label.md, Graphics, Label]
+- [reference/graphics/button.md, Graphics, Button]
+- [reference/graphics/particlebase.md, Graphics, Pariclebase]
+- [reference/graphics/particlecircle.md, Graphics, ParticleCircle]
+- [reference/graphics/particlesystem.md, Graphics, ParticleSystem]
+- [reference/sound/sound.md, Sound, Sound]
+- [reference/sound/song.md, Sound, Song]
+- [reference/utils.md, Utils]
+
+theme: cosmo
+theme_dir: docs/theme

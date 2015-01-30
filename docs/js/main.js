@@ -1,5 +1,4 @@
 (function () {
-
 	// Small and not very good code to change the secret/super/happy message text.
 	var texts = [	"Welcome my friend!",
 					"Happiness awaits!",
@@ -14,7 +13,10 @@
 					" :D ",
 					"I AM YOUR..."];
 
-	var what = parseInt(Math.random() * texts.length);
-	document.getElementById('super_msg').innerHTML = texts[what];
+	var what = parseInt(Math.random() * texts.length),
+        superMsg = document.getElementById('super_msg');
+    if (!superMsg.innerHTML) {
+        superMsg.innerHTML = texts[what];
+    }
 
 })();
