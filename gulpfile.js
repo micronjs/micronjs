@@ -9,7 +9,7 @@ var git = require('gulp-git');
 var clean = require('gulp-clean');
 var runSequence = require('run-sequence');
 var rename = require('gulp-rename');
-var exec = require('gulp-exec');
+var exec = require('child_process').exec;
 var Q = require('q');
 
 var paths = {
