@@ -1,5 +1,3 @@
-# Input
-
 <span class="label label-warning">Singleton</span> 
 
 The main Input module is reponsible for detecting and processing input events. On mobile devices, clicks are handled as touches (but work exactly the same).
