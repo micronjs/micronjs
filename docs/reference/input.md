@@ -14,7 +14,7 @@ You can register objects to the input system to receive "touch" events.
 
 ---
 
-    clickPosition : object{ x, y }	
+### clickPosition : object{ x, y }	
 
 <span class="label label-danger">read-only</span>
 
