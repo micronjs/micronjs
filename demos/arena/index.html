@@ -8,7 +8,6 @@
         </style>
         <script src="js/base.js"></script>
         <script src="js/micron.js"></script>
-		<script src="js/sylvester.js"></script>
     </head>
     <body>
 	
@@ -29,6 +28,8 @@ var Player = Entity.extend({
 	
 	constructor : function(x, y, direction, map)
 	{
+		this.callParent();
+	
 		this.x = x;
 		this.y = y;		
 		this.direction = direction;
@@ -49,6 +50,11 @@ var Player = Entity.extend({
 		this.paces += distance;
 	},
 
+	shoot : function()
+	{
+		//this.map.onPlayerShoot(this.x, this.y, this.direction);
+	},
+	
 	update : function(delta)
 	{
 		if (Input.isKeyPressed(Input.KEY_LEFT)) 	this.rotate(-Math.PI * delta);
@@ -57,6 +63,7 @@ var Player = Entity.extend({
 		if (Input.isKeyPressed(Input.KEY_S)) 		this.walk(-3 * delta, this.direction);
 		if (Input.isKeyPressed(Input.KEY_A)) 		this.walk(3 * delta, this.direction - Math.PI/2);
 		if (Input.isKeyPressed(Input.KEY_D)) 		this.walk(3 * delta, this.direction + Math.PI/2);
+		if (Input.isKeyPressed(Input.KEY_SPACE))	this.shoot();
 	},
 	
 	draw : function()
@@ -65,19 +72,48 @@ var Player = Entity.extend({
 	}
 });
 	
+	
+var MapObject = Base.extend({
 
-var Map = Entity.extend({
+	object : null,
+	x : 0, 
+	y : 0,
+	
+	constructor : function(object, x, y)
+	{
+		for(var prop in object)
+		{
+			this[prop] = object[prop];
+		}
+		this.object = object;
+		this.x = x;
+		this.y = y;
+	}
+});
 
-	size : 0,
+//-----------------------------------------------------------------------------------------------
+
+var Map = Entity.extend({		  
+
+	size : 16,
 	wallGrid : null,
-	skybox : null,
-	wallTexture : null,
+	//skybox
+	//wallTexture
+	//floorTexture
 	light : 0,
-
+	objects : null,
+	
 	constructor : function(size)
 	{
+		this.callParent();
+	
 		this.size = size;
-		this.wallGrid = new Uint8Array(size * size);      
+		this.wallGrid = new Uint8Array(size * size);
+		//this.skybox = new Bitmap('img/deathvalley_panorama.jpg', 4000, 1290);
+		//this.wallTexture = new Bitmap('img/wall_texture.jpg', 1024, 1024);
+		//this.floorTexture = new Bitmap('img/floor_texture.jpg', 391,392);
+		this.light = 0;
+		this.objects = [];
 	},
 
 	get : function(x, y) 
@@ -87,57 +123,74 @@ var Map = Entity.extend({
 		if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
 		return this.wallGrid[y * this.size + x];
 	},
+	
+	getObject : function(x,y) 
+	{
+		x = Math.floor(x);
+		y = Math.floor(y);
+		if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return null;		
+		return this.objects[y * this.size + x];
+	},	
 
   	set : function(x, y, value)
   	{    
     	if(x >= 0 && x <= this.size && y >= 0 && y <= this.size) this.wallGrid[y * this.size + x] = value;
     },
   
+	addObject : function(object, x, y)
+	{
+		this.objects.push( new MapObject(object, x, y) );
+	},
+
 	randomize : function() 
 	{
 		/*
-      	for (var i = 0; i < this.size * this.size; i++) 
+		for (var i = 0; i < this.size * this.size; i++) 
 		{
 			this.wallGrid[i] = Math.random() < 0.3 ? 1 : 0;
 		}
-        */
-            
+		*/
+
       	for(var i = 0; i < this.size; i++)
       	{
        		for(var j = 0; j < this.size; j++)
        		{
       			if(i == 0 || i == this.size-1 || j == 0 || j == this.size-1) this.wallGrid[i*this.size+j] = 1;
        		}       
-      	}       
+      	}     
       
         this.set(2, 2, 1);
         this.set(this.size - 3, 2, 1);      
-
         this.set(7, 4, 1);
         this.set(3, 11, 1);
         this.set(3, 12, 1);
         this.set(4, 8, 1);
-        this.set(5, 9, 1);
+        this.set(5, 9, 1);		
 	},
 
-	cast : function(point, angle, range)
+	cast : function(point, angle, range, objects) 
 	{
-		var self = this;
-		var sin = Math.sin(angle);
-		var cos = Math.cos(angle);
-		var noWall = { length2: Infinity };
+		var self = this,
+			sin = Math.sin(angle),
+			cos = Math.cos(angle),
+			noWall = {
+				length2: Infinity
+			};
 
-		return ray({ x: point.x, y: point.y, height: 0, distance: 0 });
+		return ray({
+			x: point.x,
+			y: point.y,
+			height: 0,
+			distance: 0
+		});
 
 		function ray(origin) 
 		{
-			var stepX = step(sin, cos, origin.x, origin.y, false);
+			var stepX = step(sin, cos, origin.x, origin.y);
 			var stepY = step(cos, sin, origin.y, origin.x, true);
-			var nextStep = stepX.length2 < stepY.length2 
-						? inspect(stepX, 1, 0, origin.distance, stepX.y)
-						: inspect(stepY, 0, 1, origin.distance, stepY.x);
+			var nextStep = stepX.length2 < stepY.length2 ? inspect(stepX, 1, 0, origin.distance, stepX.y) : inspect(stepY, 0, 1, origin.distance, stepY.x);
 
-			if (nextStep.distance > range) return [origin];
+			if (nextStep.distance > range) return [origin];    
 			return [origin].concat(ray(nextStep));
 		}
 
@@ -147,10 +200,10 @@ var Map = Entity.extend({
 			var dx = run > 0 ? Math.floor(x + 1) - x : Math.ceil(x - 1) - x;
 			var dy = dx * (rise / run);
 			return {
-						x: inverted ? y + dy : x + dx,
-						y: inverted ? x + dx : y + dy,
-						length2: dx * dx + dy * dy
-					};
+				x: inverted ? y + dy : x + dx,
+				y: inverted ? x + dx : y + dy,
+				length2: dx * dx + dy * dy
+			};
 		}
 
 		function inspect(step, shiftX, shiftY, distance, offset) 
@@ -159,6 +212,7 @@ var Map = Entity.extend({
 			var dy = sin < 0 ? shiftY : 0;
 			step.height = self.get(step.x - dx, step.y - dy);
 			step.distance = distance + Math.sqrt(step.length2);
+			step.object = self.getObject(step.x - dx, step.y - dy);
 			if (shiftX) step.shading = cos < 0 ? 2 : 0;
 			else step.shading = sin < 0 ? 2 : 1;
 			step.offset = offset - Math.floor(offset);
@@ -166,134 +220,403 @@ var Map = Entity.extend({
 		}
 	},
 
-	update : function(delta) 
+	update : function(seconds) 
 	{
-		//this.callParent(delta);
-		if (this.light > 0) 
-		{
-			this.light = Math.max(this.light - 10 * delta, 0);
-		}
-		else if (Math.random() * 5 < delta) 
-		{
-			this.light = 2;
-		}
+		if (this.light > 0) this.light = Math.max(this.light - 10 * seconds, 0);
+		else if (Math.random() * 5 < seconds) this.light = 2;
 	},
 	
 	draw : function()
 	{
-		this.callParent();
-		// ?
 	}
+
 });
+	
 
 
+	
 var Renderer = Entity.extend({ 
 
-	resolution : 0,
-	focalLength : 0.8,
-	spacing : 0,
-	range : 20,
-	lightRange : 1,
-	scale : 1.0,
-	width : 0,
-	height : 0,
+	resolution : 320,
+	fov : 1.2, // in radians
+	range : 18,
+	lightRange : 5,
+	isTarget : false,
 
-	constructor : function(resolution, focalLength) 
+	constructor : function(resolution, fov)
 	{
+		this.callParent();	
+		this.width = Graphics.width; //canvas.width = window.innerWidth;
+		this.height = Graphics.height; //canvas.height = window.innerHeight;
 		this.resolution = resolution;
-		this.focalLength = focalLength;
-		this.spacing = Graphics.width / resolution;
-		this.scale = (Graphics.width + Graphics.height) / 1200;		
-		this.width = Graphics.width;
-		this.height = Graphics.height;
+		this.spacing = this.width / resolution;
+		this.fov = fov;
+		//this.range = 14; //MOBILE ? 8 : 14;
+		//this.lightRange = 5;
+		this.scale = (this.width + this.height) / 1200; // 1200????
+		
+		this.ctx = Graphics.context;
 	},
 
-	draw : function(player, map) 
+	//Camera.prototype.onKey = function(val,e){
+	//if(e.keyCode === 70){
+	//	this.toggleFullscreen();
+	//}
+	//}
+
+	draw : function(player, map/*, objects*/) 
 	{
-		//this.drawSky(player.direction, map.skybox, map.light); // SHADED
-		this.drawColumns(player, map);
+		this.drawSky(player.direction, map.skybox, map.light);
+		this.drawColumns(player, map/*, objects*/);
 		this.drawWeapon(player.weapon, player.paces);
+		//this.drawMiniMap(map, player);
+		this.drawCrosshair();
 	},
-
+	
 	drawSky : function(direction, sky, ambient) 
 	{
-		//var width = sky.width * (this.height / sky.height) * 2;
-		//var left = (direction / CIRCLE) * -width;
+		var width = this.width * (CIRCLE / this.fov);
+		var left = -width * direction / CIRCLE;
+		
+		this.ctx.save();
 		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
-		//if (left < width - this.width) 
-		//{
-		//	this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
-		//}
-        //Graphics.enableBlur(200, 0, 0, 0, 1);
-      	Graphics.drawRect(0, 0, Graphics.width, Graphics.height/2, 0.63, 0.63, 0.63, 0.97);
-        //Graphics.disableBlur();
+		if (left < width - this.width) 
+		{
+			//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
+		}
+		if (ambient > 0) 
+		{
+			this.ctx.fillStyle = '#ffffff';
+			this.ctx.globalAlpha = ambient * 0.1;
+			this.ctx.fillRect(0, this.height * 0.5, this.width, this.height * 0.5);
+		}
+		this.ctx.restore();
+		
+		//Graphics.drawFullScreenRect(0.3, 0.3, 0.3, 1.0);
 	},
 
-	drawColumns : function(player, map) 
+	drawColumns : function(player, map/*, objects*/) 
 	{
-		for (var column = 0; column < this.resolution; column++) 
-		{
-			var x = column / this.resolution - 0.5;
-			var angle = Math.atan2(x, this.focalLength);			
+		this.ctx.save();
+		var allObjects = [];
+		for (var column = 0; column < this.resolution; column++) {
+			var angle = this.fov * (column / this.resolution - 0.5);
 			var ray = map.cast(player, player.direction + angle, this.range);
-          
-          	//Graphics.enableBlur(5, 1, 0.8, 0, 1);
-			this.drawColumn(column, ray, angle, map);
-          	//Graphics.disableBlur();
+			var columnProps = this.drawColumn(column, ray, angle, map);
+
+			allObjects.push(columnProps);
 		}
+		this.ctx.restore();
+		this.ctx.save();
+		this.drawSprites(player,map,allObjects);
+		this.ctx.restore();
 	},
 
 	drawWeapon : function(weapon, paces) 
 	{
 		var bobX = Math.cos(paces * 2) * this.scale * 6;
 		var bobY = Math.sin(paces * 4) * this.scale * 6;
-		var left = this.width * 0.66 + bobX;
+		var left = this.width * 0.55 + bobX;
 		var top = this.height * 0.6 + bobY;
-		//his.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
+		//this.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
+	},
+	
+	drawCrosshair : function()
+	{
+		var size = Utils.scalePercentHeight(2);
+		var centerX = Graphics.width/2;
+		var centerY = Graphics.height/2;
+		var color = { r:1, g:1, b:1, a:1 };
+		
+		if(this.isTarget)
+		{
+			color.g = color.b = 0;
+			//color.r = 0.0;
+			//color.g = 0.0;
+			//color.b = 0.0;
+			//color.r = 0;
+			//color = { r:1, g:0, b:0, a:1 };
+			size *= 1.5;
+			//console.log("looool");
+		}
+		
+		Graphics.drawLine(centerX, centerY - size, centerX, centerY + size, color.r, color.g, color.b, color.a, 1);
+		Graphics.drawLine(centerX - size, centerY, centerX + size, centerY, color.r, color.g, color.b, color.a, 1);		
+	},
+	
+	drawSpriteColumn : function(player,map,column,columnProps,sprites) 
+	{	
+		var ctx = this.ctx,
+			left = Math.floor(column * this.spacing),
+			width = Math.ceil(this.spacing),
+			angle = this.fov * (column / this.resolution - 0.5),
+			columnWidth = this.width / this.resolution,
+			sprite,props,obj,textureX,height,projection, mappedColumnObj,spriteIsInColumn,top;
+
+		//todo: make rays check for objects, and return those that it actually hit
+		//check if ray hit an object
+		//if(!columnProps.objects.length){return;}
+		sprites = sprites.filter(function(sprite)
+		{
+			return !columnProps.hit || sprite.distanceFromPlayer < columnProps.hit;
+		});
+
+		for(var i = 0; i < sprites.length; i++)
+		{
+			sprite = sprites[i];
+			//mappedColumnObj = columnProps.objects.filter(function(obj){
+			//	return sprite === obj.object;
+			//})[0];
+			//if(!mappedColumnObj)return;
+
+			//sprite.render.width =20;
+			
+			//determine if sprite should be drawn based on current column position and sprite width
+			spriteIsInColumn =  left > sprite.render.cameraXOffset - ( sprite.render.width / 2 ) && left < sprite.render.cameraXOffset + ( sprite.render.width / 2 );
+
+			//console.log(spriteIsInColumn, left, sprite.render);//cameraXOffset, sprite.render.width, sprite.render.height);
+			//console.log(sprite.render); asd
+			//console.log(spriteIsInColumn);
+			
+			if(spriteIsInColumn)
+			{
+				textureX = 1; //Math.floor( sprite.texture.width / sprite.render.numColumns * ( column - sprite.render.firstColumn ) );
+
+				this.ctx.fillStyle = 'blue';
+				this.ctx.globalAlpha = 1;
+				this.ctx.fillRect(left, top , 10, sprite.render.height);
+
+				var brightness = Math.max(sprite.distanceFromPlayer / this.lightRange - map.light, 0) * 100;
+				
+				Graphics.drawRect(left, sprite.render.top, columnWidth, sprite.render.height, 1, 1, 1, 1);	// ORIGINAL WORKING				
+								
+				// TODO: PUT THAT 3 AS A PARAMETER
+				if(Math.abs(Graphics.width/2 - left) < 3)
+				{
+					this.isTarget = true; 
+				}
+				//sprite.texture.image.style.webkitFilter = 'brightness(' + brightness + '%)';
+				//sprite.texture.image.style.filter = 'brightness(' + brightness  + '%)';				
+				//console.log(left, sprite.render.top, columnWidth, sprite.render.height);
+				//Graphics.drawRect(
+				//ctx.drawImage(sprite.texture.image, textureX, 0, 1, sprite.texture.height, left, sprite.render.top, width, sprite.render.height);						
+				//debugger;
+				//ctx.fillRect(left, sprite.render.top, columnWidth, sprite.render.height);
+				//debugger;
+			}			
+		};
+	},
+
+	drawSprites : function(player,map,columnProps)
+	{
+		var screenWidth = this.width,
+			screenHeight = this.height,
+			screenRatio = screenWidth / this.fov,
+			resolution = this.resolution;
+
+		//probably should get these and pass them in, but modifying originals for now
+		// also this limits size of world
+
+		// calculate each sprite distance to player
+		this.setSpriteDistances(map.objects, player);
+
+		var sprites = Array.prototype.slice.call(map.objects).map(function(sprite)
+		{
+			var distX = sprite.x - player.x,
+				distY = sprite.y - player.y,
+				width = sprite.width * screenWidth / sprite.distanceFromPlayer,
+				height = sprite.height * screenHeight /  sprite.distanceFromPlayer,
+				renderedFloorOffset = sprite.floorOffset / sprite.distanceFromPlayer,
+				angleToPlayer = Math.atan2(distY,distX),
+				angleRelativeToPlayerView = player.direction - angleToPlayer,
+				top = (screenHeight / 2) * (1 + 1 / sprite.distanceFromPlayer) - height;
+
+			if(angleRelativeToPlayerView >= CIRCLE / 2)
+			{
+				angleRelativeToPlayerView -= CIRCLE;    
+			}
+
+			var cameraXOffset = ( Graphics.width / 2 ) - (screenRatio * angleRelativeToPlayerView),
+				numColumns = width / screenWidth * resolution,
+				firstColumn = Math.floor( (cameraXOffset - width/2 ) / screenWidth * resolution);
+
+			sprite.distanceFromPlayer = Math.sqrt( Math.pow( distX, 2) + Math.pow( distY, 2) );
+			sprite.render = {
+				width: width,
+				height: height,
+				angleToPlayer: angleRelativeToPlayerView,
+				cameraXOffset: cameraXOffset,
+				distanceFromPlayer: sprite.distanceFromPlayer,
+				numColumns: numColumns,
+				firstColumn: firstColumn,
+				top: top
+			};
+			// temp render red dot at item position
+			//camera.ctx.fillStyle = 'red';
+			//camera.ctx.fillRect(sprite.render.cameraXOffset, camera.height / 2, 3, 3);
+
+			return sprite;
+		})
+		// sort sprites in distance order
+		.sort(function(a,b)
+		{
+			if(a.distanceFromPlayer < b.distanceFromPlayer)
+			{
+				return 1;
+			}
+			if(a.distanceFromPlayer > b.distanceFromPlayer)
+			{
+				return -1;
+			}
+			return 0;
+		});
+
+		//if(sprites.length > 1 )
+		//{
+		//	//debugger;
+		//}
+
+		//this.ctx.save();
+		this.isTarget = false;
+		for (var column = 0; column < this.resolution; column++) 
+		{
+			this.drawSpriteColumn(player, map, column, columnProps[column], sprites);
+		}
+		//this.ctx.restore();
+	},
+
+	setSpriteDistances : function(objects, player)
+	{
+		for(i = 0; i < objects.length; i++)
+		{
+			obj = objects[i];
+			//if(obj) obj.distanceFromPlayer = 
+		}
+	},
+
+	drawMiniMap : function(map, player) 
+	{
+		var ctx = this.ctx,
+			mapWidth = this.width * .25,
+			mapHeight = mapWidth,
+			x = this.width - mapWidth - 20,
+			y = 20,
+			blockWidth = mapWidth / map.size,
+			blockHeight = mapHeight / map.size,
+			playerX = player.x / map.size * mapWidth, // coords on map
+			playerY = player.y / map.size * mapWidth,
+			origFillStyle = ctx.fillStyle,
+			wallIndex,
+			triangleX = x + playerX,
+			triangleY = y + playerY;
+
+		ctx.save();
+
+		ctx.globalAlpha = .3;
+		ctx.fillRect(x, y, mapWidth, mapHeight);
+		ctx.globalAlpha = .4;
+
+		ctx.fillStyle = '#ffffff';
+
+		for (var row = 0; row < map.size; row++) {
+			for (var col = 0; col < map.size; col++) {
+
+				wallIndex = row * map.size + col;
+
+				if (map.wallGrid[wallIndex]) {
+					ctx.fillRect(x + (blockWidth * col), y + (blockHeight * row), blockWidth, blockHeight);
+				}
+
+			}
+		}
+
+		ctx.save();
+
+		for (var i = 0; i < map.objects.length; i++){
+			if(map.objects[i]){
+					ctx.fillStyle = map.objects[i].color || 'blue';
+					ctx.globalAlpha = .8;
+					ctx.fillRect(x + (blockWidth * map.objects[i].x) + blockWidth * .25, y + (blockHeight * map.objects[i].y) + blockWidth * .25, blockWidth * .5, blockHeight * .5);
+			}
+		}
+		
+			ctx.restore();
+	 
+
+		//player triangle
+		ctx.globalAlpha = 1;
+		ctx.fillStyle = '#FF0000';
+		ctx.moveTo(triangleX,triangleY);
+		ctx.translate(triangleX,triangleY);
+		
+		ctx.rotate(player.direction - Math.PI * .5);
+		ctx.beginPath();
+		ctx.lineTo(-2, -3); // bottom left of triangle
+		ctx.lineTo(0, 2); // tip of triangle
+		ctx.lineTo(2,-3); // bottom right of triangle
+		ctx.fill();
+
+
+		ctx.restore();
 	},
 
 	drawColumn : function(column, ray, angle, map) 
 	{
-		var ctx = this.ctx;
-		var texture = map.wallTexture;
-		var left = Math.floor(column * this.spacing);
-		var width = Math.ceil(this.spacing);
-		var hit = -1;
-	
+		var ctx = this.ctx,
+			//wallTexture = map.wallTexture,
+			//floorTexture = map.floorTexture,
+			left = Math.floor(column * this.spacing),
+			width = Math.ceil(this.spacing),
+			hit = -1,
+			objects = [],
+			hitDistance;
+
 		while (++hit < ray.length && ray[hit].height <= 0);
 
-		for (var s = ray.length - 1; s >= 0; s--) 
-		{
+		for (var s = ray.length - 1; s >= 0; s--) {
 			var step = ray[s];
-			var rainDrops = Math.pow(Math.random(), 1) * s;
-			var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance);
+			var rainDrops = Math.pow(Math.random(), 3) * s;
+			var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance),
+			/*textureX,*/wall;
 
 			if (s === hit) 
 			{
-				//var textureX = Math.floor(texture.width * step.offset);
-				var textureX = Math.floor(32 * step.offset);				
-				var wall = this.project(step.height, angle, step.distance);
+				//textureX = Math.floor(wallTexture.width * step.offset);
+				wall = this.project(step.height, angle, step.distance);
 
-				//Graphics.context.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
-				//Graphics.drawRect(left, wall.top, width, wall.height, 0.95, 0.95, 0.95, 
-                //                 1 - Math.max((step.distance + step.shading) / this.lightRange - map.light, 0));					
-              	//Graphics.drawRect(left, wall.top, 5, 5, 0, 0, 0, 1);
-              
-              // SHADED
-              /*
-              	Graphics.enableBlur(10, 0, 0, 0, 1);
-      			Graphics.drawRect(left, wall.top+wall.height, 2, 2, 0, 0, 0, 1);
-              	Graphics.disableBlur();
-              	Graphics.drawRect(left, wall.top, width+2, wall.height+2, 0.79, 0.79, 0.79, 1);              
-                */
-              
-              	Graphics.enableBlur(20, 1, 0, 0, 1);
-      			Graphics.drawRect(left, wall.top, 2, Math.sin(Core.totalTime*12), 1, 0, 0, 1);
-              	//Graphics.drawRect(left, wall.top, width+2, wall.height+2, 1, 0, 0, 1);              
-              	Graphics.drawRect(left, wall.top+wall.height, 2, 12, 1, 0, 0, 1);              
-              	Graphics.disableBlur();
+				//ctx.globalAlpha = 1;
+				//ctx.drawImage(wallTexture.image, textureX, 0, 1, wallTexture.height, left, wall.top, width, wall.height);
+				//ctx.fillStyle = '#000000';
+				//ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
+				//ctx.fillRect(left, wall.top, width, wall.height);
+				
+				
+				Graphics.drawRect(left, wall.top, width, wall.height, 0.6, 0.6, 0.6, 1.0); // original working
+				
+				//Graphics.enableBlur(20, 1, 0, 0, 1);
+				//Graphics.drawRect(left, wall.top, 4, 4, 1, 0, 0, 1);	
+				//Graphics.drawRect(left, wall.top+wall.height, 4, 4, 1, 0, 0, 1);	
+				//Graphics.disableBlur();
+				
+				
+				hitDistance = step.distance;
+			} 
+			else if(step.object)
+			{
+				objects.push({
+					object: step.object,
+					distance: step.distance,
+					offset: step.offset,
+					angle: angle
+				});
 			}
+			//ctx.fillStyle = '#ffffff';
+			//ctx.globalAlpha = 0.15;
+			//while (--rainDrops > 0) ctx.fillRect(left, Math.random() * rain.top, 1, rain.height);
 		}
+	
+		var ret = {	objects: objects, hit: hitDistance };
+		return ret;
 	},
 
 	project : function(height, angle, distance) 
@@ -301,15 +624,66 @@ var Renderer = Entity.extend({
 		var z = distance * Math.cos(angle);
 		var wallHeight = this.height * height / z;
 		var bottom = this.height / 2 * (1 + 1 / z);
-				
 		return {
-				top: bottom - wallHeight,
-				height: wallHeight
+			top: bottom - wallHeight,
+			height: wallHeight
 		};
+	},
+
+	projectSprite : function(height, distance) 
+	{
+		var z = distance;
+		var wallHeight = this.height * height / z;
+		var bottom = this.height / 2 * (1 + 1 / z);
+		return {
+			top: bottom - wallHeight,
+			height: wallHeight
+		};
+	},
+
+	toggleFullscreen : function()
+	{
+		/*
+		if(this.fullscreen)
+		{
+			pointerRelease();
+			this.fullscreen = false;
+		}
+		else 
+		{
+			//todo: make this not rely on globals
+			lockPointer(display, controls.onMouse.bind(controls, player));
+			this.fullscreen = true;
+		}
+		*/		
 	}
 });
 		  
-//------------------------------------------------------------------------
+
+var ObjectsManager = Entity.extend({
+
+	collection : null,
+
+	constructor : function()
+	{
+		this.callParent();
+		this.collection = [];
+	},
+
+	update : function(delta)
+	{
+		this.callParent(delta);
+		
+		map.objects.forEach(function(item)
+		{
+			//item.logic && item.logic();
+			// execute update or whatever
+		});
+	}
+
+});
+		  
+//-----------------------------------------------------------------------------------------------
 
 
 var StateGame = State.extend({
@@ -317,6 +691,7 @@ var StateGame = State.extend({
 	renderer : null,
 	map : null,
 	player : null,
+	//objects : null,
 		
     constructor : function()
     {
@@ -333,6 +708,18 @@ var StateGame = State.extend({
 		this.map.randomize();
 		this.player = new Player(8.3, 8.2, Math.PI - 0.3);		
 		this.player.map = this.map;
+		//this.objects = new ObjectsManager();
+		
+		this.map.addObject(
+		{
+				color: 'brown',
+				//texture: new Bitmap('img/cowboy.png', 639, 1500),
+				height: 0.7,
+				width: 0.5,
+				floorOffset: 10,
+				speed: 0.1,
+				//logic: badGuyLogic()
+		}, 7, 7);		
 	},
 	
 	update : function (delta)
@@ -340,7 +727,8 @@ var StateGame = State.extend({
 		this.callParent(delta);		
 		
 		this.player.update(delta);
-      	this.map.update(delta);		
+      	this.map.update(delta);	
+		//this.objects.update(delta);
 	},
 	
 	draw : function()
@@ -348,12 +736,12 @@ var StateGame = State.extend({
 		this.callParent();		
 		Graphics.drawFullScreenRect(0, 0, 0, 1);
 		//Graphics.drawFullScreenRect(1, 1, 1, 1);      // SHADED
-		this.renderer.draw(this.player, this.map);	
+		this.renderer.draw(this.player, this.map/*, this.objects*/);	
 	}
 	
 });
 
-Core.init(320, 480); 
+Core.init(160, 320); 
 Core.setState(new StateGame());
 Core.loadAndRun();
 
