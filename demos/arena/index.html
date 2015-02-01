@@ -8,10 +8,10 @@
         </style>
         <script src="js/base.js"></script>
         <script src="js/micron.js"></script>
+		<script src="js/pointlocker.js"></script>
     </head>
     <body>
-	
-        <script type="text/javascript">
+		<script type="text/javascript">
 
 // Based on this: http://www.playfuljs.com/a-first-person-engine-in-265-lines/
 // And this: http://nicmendoza.github.io/playfuljs-demos/raycaster
@@ -34,6 +34,7 @@ var Player = Entity.extend({
 		this.y = y;		
 		this.direction = direction;
 		this.map = map;
+		Input.addInputReceiver(this);
     },
 	
     rotate : function(angle) 
@@ -47,22 +48,44 @@ var Player = Entity.extend({
 		var dy = Math.sin(direction) * distance;
 		if (this.map.get(this.x + dx, this.y) <= 0) this.x += dx;
 		if (this.map.get(this.x, this.y + dy) <= 0) this.y += dy;
-		this.paces += distance;
+		this.steps += distance;
 	},
 
 	shoot : function()
 	{
 		//this.map.onPlayerShoot(this.x, this.y, this.direction);
+		Camera.shake(0.1, 4.1);
+	},
+
+	onClickInput : function(x, y)
+	{
+		/*if(!flag)*/ 
+		
+		if(x > 0 && x < Graphics.width && y > 0 && y < Graphics.height)
+		{		
+			lockPointer(Graphics.canvas, this.onPointerMove.bind(this)); //.bind(this.player)); // document.getElementById('display')
+		}
+		else
+		{
+			pointerRelease();
+		}		
 	},
 	
+	onPointerMove : function(coords)
+	{
+		this.direction -= coords.x * -0.0030; //-0.0012;
+	},
+
 	update : function(delta)
 	{
-		if (Input.isKeyPressed(Input.KEY_LEFT)) 	this.rotate(-Math.PI * delta);
+		this.callParent(delta);
+	
+		if (Input.isKeyPressed(Input.KEY_LEFT))		this.rotate(-Math.PI * delta);
 		if (Input.isKeyPressed(Input.KEY_RIGHT)) 	this.rotate(Math.PI * delta);
-		if (Input.isKeyPressed(Input.KEY_W)) 		this.walk(3 * delta, this.direction);
-		if (Input.isKeyPressed(Input.KEY_S)) 		this.walk(-3 * delta, this.direction);
-		if (Input.isKeyPressed(Input.KEY_A)) 		this.walk(3 * delta, this.direction - Math.PI/2);
-		if (Input.isKeyPressed(Input.KEY_D)) 		this.walk(3 * delta, this.direction + Math.PI/2);
+		if (Input.isKeyPressed(Input.KEY_W)) 		this.walk(3.5 * delta, this.direction);
+		if (Input.isKeyPressed(Input.KEY_S)) 		this.walk(-3.5 * delta, this.direction);
+		if (Input.isKeyPressed(Input.KEY_A)) 		this.walk(3.5 * delta, this.direction - Math.PI/2);
+		if (Input.isKeyPressed(Input.KEY_D)) 		this.walk(3.5 * delta, this.direction + Math.PI/2);
 		if (Input.isKeyPressed(Input.KEY_SPACE))	this.shoot();
 	},
 	
@@ -163,7 +186,6 @@ var Map = Entity.extend({
         this.set(this.size - 3, 2, 1);      
         this.set(7, 4, 1);
         this.set(3, 11, 1);
-        this.set(3, 12, 1);
         this.set(4, 8, 1);
         this.set(5, 9, 1);		
 	},
@@ -233,15 +255,14 @@ var Map = Entity.extend({
 });
 	
 
-
 	
 var Renderer = Entity.extend({ 
 
 	resolution : 320,
-	fov : 1.2, // in radians
+	fov : 1.2, // 1.2, // in radians
 	range : 18,
 	lightRange : 5,
-	isTarget : false,
+	isTarget : false,	
 
 	constructor : function(resolution, fov)
 	{
@@ -251,24 +272,16 @@ var Renderer = Entity.extend({
 		this.resolution = resolution;
 		this.spacing = this.width / resolution;
 		this.fov = fov;
-		//this.range = 14; //MOBILE ? 8 : 14;
-		//this.lightRange = 5;
 		this.scale = (this.width + this.height) / 1200; // 1200????
 		
 		this.ctx = Graphics.context;
 	},
 
-	//Camera.prototype.onKey = function(val,e){
-	//if(e.keyCode === 70){
-	//	this.toggleFullscreen();
-	//}
-	//}
-
-	draw : function(player, map/*, objects*/) 
+	draw : function(player, map) 
 	{
-		this.drawSky(player.direction, map.skybox, map.light);
+		//this.drawSky(player.direction, map.skybox, map.light);
 		this.drawColumns(player, map/*, objects*/);
-		this.drawWeapon(player.weapon, player.paces);
+		this.drawWeapon(player.weapon, player.steps);
 		//this.drawMiniMap(map, player);
 		this.drawCrosshair();
 	},
@@ -277,33 +290,39 @@ var Renderer = Entity.extend({
 	{
 		var width = this.width * (CIRCLE / this.fov);
 		var left = -width * direction / CIRCLE;
-		
-		this.ctx.save();
+					
 		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
-		if (left < width - this.width) 
-		{
-			//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
-		}
-		if (ambient > 0) 
-		{
-			this.ctx.fillStyle = '#ffffff';
-			this.ctx.globalAlpha = ambient * 0.1;
-			this.ctx.fillRect(0, this.height * 0.5, this.width, this.height * 0.5);
-		}
-		this.ctx.restore();
-		
+		//if (left < width - this.width) 
+		//{
+		//	//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
+		//}
+			
+		/*	
+		var grad = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
+		grad.addColorStop(0, "rgb(96,96,96)");
+		grad.addColorStop(1, "rgb(107, 107, 107)");		
+		this.ctx.fillStyle = grad;
+		this.ctx.fillRect(0, 0, Graphics.width, Graphics.height);		
+
+			
+		var grad2 = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
+		grad2.addColorStop(0, "rgb(15, 15, 15)");
+		grad2.addColorStop(1, "rgb(56, 56 ,56)");
+		this.ctx.fillStyle = grad2;
+		this.ctx.fillRect(0, Graphics.height/2, Graphics.width, Graphics.height/2);		
+	*/	
 		//Graphics.drawFullScreenRect(0.3, 0.3, 0.3, 1.0);
 	},
 
 	drawColumns : function(player, map/*, objects*/) 
-	{
-		this.ctx.save();
+	{	
+		this.ctx.save();				
 		var allObjects = [];
-		for (var column = 0; column < this.resolution; column++) {
+		for (var column = 0; column < this.resolution; column++) 
+		{
 			var angle = this.fov * (column / this.resolution - 0.5);
 			var ray = map.cast(player, player.direction + angle, this.range);
 			var columnProps = this.drawColumn(column, ray, angle, map);
-
 			allObjects.push(columnProps);
 		}
 		this.ctx.restore();
@@ -312,18 +331,22 @@ var Renderer = Entity.extend({
 		this.ctx.restore();
 	},
 
-	drawWeapon : function(weapon, paces) 
+	drawWeapon : function(weapon, steps) 
 	{
-		var bobX = Math.cos(paces * 2) * this.scale * 6;
-		var bobY = Math.sin(paces * 4) * this.scale * 6;
-		var left = this.width * 0.55 + bobX;
-		var top = this.height * 0.6 + bobY;
+		var bobX = Math.cos(steps * 2) * this.scale * 6;
+		var bobY = Math.sin(steps * 4) * this.scale * 6;
+		
+		var left = Graphics.width * 0.65 + bobX; //this.width * 0.55 + bobX;
+		var top = Graphics.height * 0.75 + bobY; //this.height * 0.6 + bobY;
+		var weaponWidth = 200;
+		var weaponHeight = 200;
 		//this.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
+		Graphics.drawRect(left, top, weaponWidth * this.scale, weaponHeight * this.scale, 1, 1, 1, 1);
 	},
 	
 	drawCrosshair : function()
 	{
-		var size = Utils.scalePercentHeight(2);
+		var size = Utils.scalePercentHeight(1);
 		var centerX = Graphics.width/2;
 		var centerY = Graphics.height/2;
 		var color = { r:1, g:1, b:1, a:1 };
@@ -336,12 +359,11 @@ var Renderer = Entity.extend({
 			//color.b = 0.0;
 			//color.r = 0;
 			//color = { r:1, g:0, b:0, a:1 };
-			size *= 1.5;
+			//size *= 1.25;
 			//console.log("looool");
 		}
-		
-		Graphics.drawLine(centerX, centerY - size, centerX, centerY + size, color.r, color.g, color.b, color.a, 1);
-		Graphics.drawLine(centerX - size, centerY, centerX + size, centerY, color.r, color.g, color.b, color.a, 1);		
+	
+		Graphics.drawRegularPolygon(centerX, centerY, 6, size, color.r, color.g, color.b, color.a, "stroke");
 	},
 	
 	drawSpriteColumn : function(player,map,column,columnProps,sprites) 
@@ -368,15 +390,9 @@ var Renderer = Entity.extend({
 			//	return sprite === obj.object;
 			//})[0];
 			//if(!mappedColumnObj)return;
-
-			//sprite.render.width =20;
 			
 			//determine if sprite should be drawn based on current column position and sprite width
 			spriteIsInColumn =  left > sprite.render.cameraXOffset - ( sprite.render.width / 2 ) && left < sprite.render.cameraXOffset + ( sprite.render.width / 2 );
-
-			//console.log(spriteIsInColumn, left, sprite.render);//cameraXOffset, sprite.render.width, sprite.render.height);
-			//console.log(sprite.render); asd
-			//console.log(spriteIsInColumn);
 			
 			if(spriteIsInColumn)
 			{
@@ -388,21 +404,15 @@ var Renderer = Entity.extend({
 
 				var brightness = Math.max(sprite.distanceFromPlayer / this.lightRange - map.light, 0) * 100;
 				
-				Graphics.drawRect(left, sprite.render.top, columnWidth, sprite.render.height, 1, 1, 1, 1);	// ORIGINAL WORKING				
-								
+				Graphics.drawRect(left, sprite.render.top, columnWidth, sprite.render.height, 0.5, 0, 0.8, 1);	// ORIGINAL WORKING				
+				
 				// TODO: PUT THAT 3 AS A PARAMETER
 				if(Math.abs(Graphics.width/2 - left) < 3)
 				{
 					this.isTarget = true; 
 				}
-				//sprite.texture.image.style.webkitFilter = 'brightness(' + brightness + '%)';
-				//sprite.texture.image.style.filter = 'brightness(' + brightness  + '%)';				
-				//console.log(left, sprite.render.top, columnWidth, sprite.render.height);
-				//Graphics.drawRect(
 				//ctx.drawImage(sprite.texture.image, textureX, 0, 1, sprite.texture.height, left, sprite.render.top, width, sprite.render.height);						
-				//debugger;
 				//ctx.fillRect(left, sprite.render.top, columnWidth, sprite.render.height);
-				//debugger;
 			}			
 		};
 	},
@@ -451,10 +461,6 @@ var Renderer = Entity.extend({
 				firstColumn: firstColumn,
 				top: top
 			};
-			// temp render red dot at item position
-			//camera.ctx.fillStyle = 'red';
-			//camera.ctx.fillRect(sprite.render.cameraXOffset, camera.height / 2, 3, 3);
-
 			return sprite;
 		})
 		// sort sprites in distance order
@@ -471,18 +477,11 @@ var Renderer = Entity.extend({
 			return 0;
 		});
 
-		//if(sprites.length > 1 )
-		//{
-		//	//debugger;
-		//}
-
-		//this.ctx.save();
 		this.isTarget = false;
 		for (var column = 0; column < this.resolution; column++) 
 		{
 			this.drawSpriteColumn(player, map, column, columnProps[column], sprites);
 		}
-		//this.ctx.restore();
 	},
 
 	setSpriteDistances : function(objects, player)
@@ -490,76 +489,9 @@ var Renderer = Entity.extend({
 		for(i = 0; i < objects.length; i++)
 		{
 			obj = objects[i];
-			//if(obj) obj.distanceFromPlayer = 
 		}
 	},
-
-	drawMiniMap : function(map, player) 
-	{
-		var ctx = this.ctx,
-			mapWidth = this.width * .25,
-			mapHeight = mapWidth,
-			x = this.width - mapWidth - 20,
-			y = 20,
-			blockWidth = mapWidth / map.size,
-			blockHeight = mapHeight / map.size,
-			playerX = player.x / map.size * mapWidth, // coords on map
-			playerY = player.y / map.size * mapWidth,
-			origFillStyle = ctx.fillStyle,
-			wallIndex,
-			triangleX = x + playerX,
-			triangleY = y + playerY;
-
-		ctx.save();
-
-		ctx.globalAlpha = .3;
-		ctx.fillRect(x, y, mapWidth, mapHeight);
-		ctx.globalAlpha = .4;
-
-		ctx.fillStyle = '#ffffff';
-
-		for (var row = 0; row < map.size; row++) {
-			for (var col = 0; col < map.size; col++) {
-
-				wallIndex = row * map.size + col;
-
-				if (map.wallGrid[wallIndex]) {
-					ctx.fillRect(x + (blockWidth * col), y + (blockHeight * row), blockWidth, blockHeight);
-				}
-
-			}
-		}
-
-		ctx.save();
-
-		for (var i = 0; i < map.objects.length; i++){
-			if(map.objects[i]){
-					ctx.fillStyle = map.objects[i].color || 'blue';
-					ctx.globalAlpha = .8;
-					ctx.fillRect(x + (blockWidth * map.objects[i].x) + blockWidth * .25, y + (blockHeight * map.objects[i].y) + blockWidth * .25, blockWidth * .5, blockHeight * .5);
-			}
-		}
-		
-			ctx.restore();
-	 
-
-		//player triangle
-		ctx.globalAlpha = 1;
-		ctx.fillStyle = '#FF0000';
-		ctx.moveTo(triangleX,triangleY);
-		ctx.translate(triangleX,triangleY);
-		
-		ctx.rotate(player.direction - Math.PI * .5);
-		ctx.beginPath();
-		ctx.lineTo(-2, -3); // bottom left of triangle
-		ctx.lineTo(0, 2); // tip of triangle
-		ctx.lineTo(2,-3); // bottom right of triangle
-		ctx.fill();
-
-
-		ctx.restore();
-	},
-
+	
 	drawColumn : function(column, ray, angle, map) 
 	{
 		var ctx = this.ctx,
@@ -578,27 +510,25 @@ var Renderer = Entity.extend({
 			var rainDrops = Math.pow(Math.random(), 3) * s;
 			var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance),
 			/*textureX,*/wall;
-
+	
 			if (s === hit) 
-			{
+			{			
 				//textureX = Math.floor(wallTexture.width * step.offset);
 				wall = this.project(step.height, angle, step.distance);
-
-				//ctx.globalAlpha = 1;
 				//ctx.drawImage(wallTexture.image, textureX, 0, 1, wallTexture.height, left, wall.top, width, wall.height);
-				//ctx.fillStyle = '#000000';
 				//ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
-				//ctx.fillRect(left, wall.top, width, wall.height);
 				
+				//textureX = Math.floor(128 * step.offset);
+				//if(textureX === 0)
+				//{
+				//	Graphics.drawRect(left, wall.top, width, wall.height, 1, 1, 1, 1);
+				//}
 				
-				Graphics.drawRect(left, wall.top, width, wall.height, 0.6, 0.6, 0.6, 1.0); // original working
+				var w = Utils.scalePercentWidth(0.5);
+				Graphics.drawRect(left, wall.top, w, w/4, 1, 1, 1, 1);
+				Graphics.drawRect(left, wall.top+wall.height, w, w/4, 1, 1, 1, 1);
 				
-				//Graphics.enableBlur(20, 1, 0, 0, 1);
-				//Graphics.drawRect(left, wall.top, 4, 4, 1, 0, 0, 1);	
-				//Graphics.drawRect(left, wall.top+wall.height, 4, 4, 1, 0, 0, 1);	
-				//Graphics.disableBlur();
-				
-				
+				//Graphics.drawRect(left, wall.top, width, wall.height, 0.3, 0.3, 0.3, 1.0); // original working				
 				hitDistance = step.distance;
 			} 
 			else if(step.object)
@@ -639,27 +569,11 @@ var Renderer = Entity.extend({
 			top: bottom - wallHeight,
 			height: wallHeight
 		};
-	},
-
-	toggleFullscreen : function()
-	{
-		/*
-		if(this.fullscreen)
-		{
-			pointerRelease();
-			this.fullscreen = false;
-		}
-		else 
-		{
-			//todo: make this not rely on globals
-			lockPointer(display, controls.onMouse.bind(controls, player));
-			this.fullscreen = true;
-		}
-		*/		
 	}
+
 });
 		  
-
+/*
 var ObjectsManager = Entity.extend({
 
 	collection : null,
@@ -680,8 +594,8 @@ var ObjectsManager = Entity.extend({
 			// execute update or whatever
 		});
 	}
-
 });
+*/
 		  
 //-----------------------------------------------------------------------------------------------
 
@@ -691,57 +605,58 @@ var StateGame = State.extend({
 	renderer : null,
 	map : null,
 	player : null,
-	//objects : null,
 		
     constructor : function()
     {
         this.callParent();
-        //Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
+        Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
 		//Graphics.autoClearScreen = false;
     },
 
 	init : function ()
 	{
 		this.callParent();
-		this.renderer = new Renderer(160, 0.8);
-		this.map = new Map(16);
+		this.renderer = new Renderer(160, 1.8);
+		this.map = new Map(12);
 		this.map.randomize();
 		this.player = new Player(8.3, 8.2, Math.PI - 0.3);		
 		this.player.map = this.map;
-		//this.objects = new ObjectsManager();
 		
 		this.map.addObject(
 		{
 				color: 'brown',
 				//texture: new Bitmap('img/cowboy.png', 639, 1500),
-				height: 0.7,
-				width: 0.5,
+				height: 0.97,
+				width: 0.25,
 				floorOffset: 10,
 				speed: 0.1,
-				//logic: badGuyLogic()
 		}, 7, 7);		
 	},
+	
+	//onPause : function(flag)
+	//{
+	//	this.callParent(flag);		
+	//},
 	
 	update : function (delta)
 	{
 		this.callParent(delta);		
 		
 		this.player.update(delta);
-      	this.map.update(delta);	
-		//this.objects.update(delta);
+      	this.map.update(delta);			
 	},
 	
 	draw : function()
 	{
 		this.callParent();		
-		Graphics.drawFullScreenRect(0, 0, 0, 1);
-		//Graphics.drawFullScreenRect(1, 1, 1, 1);      // SHADED
-		this.renderer.draw(this.player, this.map/*, this.objects*/);	
+		Graphics.drawFullScreenRect(0.5, 0.5, 0.5, 1);
+		this.renderer.draw(this.player, this.map);	
 	}
 	
 });
 
-Core.init(160, 320); 
+Core.init(1400, 800); 
+//Core.init(320, 480); 
 Core.setState(new StateGame());
 Core.loadAndRun();
 
