@@ -105,7 +105,6 @@ var MapObject = Base.extend({
 	
 	constructor : function(object, x, y)
 	{
-		object.img = Graphics.getImage(object.texture);
 		for(var prop in object)
 		{
 			this[prop] = object[prop];
@@ -122,9 +121,9 @@ var Map = Entity.extend({
 
 	size : 16,
 	wallGrid : null,
-	skybox : null,
-	wall : null, //exture
-	floor : null, //Texture
+	//skybox
+	//wallTexture
+	//floorTexture
 	light : 0,
 	objects : null,
 	
@@ -137,10 +136,6 @@ var Map = Entity.extend({
 		//this.skybox = new Bitmap('img/deathvalley_panorama.jpg', 4000, 1290);
 		//this.wallTexture = new Bitmap('img/wall_texture.jpg', 1024, 1024);
 		//this.floorTexture = new Bitmap('img/floor_texture.jpg', 391,392);
-		
-		this.wall = Graphics.getImage("wall-conc");
-		this.skybox = Graphics.getImage("bgr");
-		
 		this.light = 0;
 		this.objects = [];
 	},
@@ -266,10 +261,9 @@ var Renderer = Entity.extend({
 
 	resolution : 320,
 	fov : 1.2, // 1.2, // in radians
-	range : 14,
+	range : 18,
 	lightRange : 5,
 	isTarget : false,	
-	scale : 1,
 
 	constructor : function(resolution, fov)
 	{
@@ -277,16 +271,16 @@ var Renderer = Entity.extend({
 		this.width = Graphics.width; //canvas.width = window.innerWidth;
 		this.height = Graphics.height; //canvas.height = window.innerHeight;
 		this.resolution = resolution;
-		this.spacing = Graphics.width / resolution;
+		this.spacing = this.width / resolution;
 		this.fov = fov;
-		//this.scale = (this.width + this.height) / 1200; // 1200????
+		this.scale = (this.width + this.height) / 1200; // 1200????
 		
 		this.ctx = Graphics.context;
 	},
 
 	draw : function(player, map) 
 	{
-		this.drawSky(player.direction, map.skybox, map.light);
+		//this.drawSky(player.direction, map.skybox, map.light);
 		this.drawColumns(player, map/*, objects*/);
 		this.drawWeapon(player.weapon, player.steps);
 		//this.drawMiniMap(map, player);
@@ -295,49 +289,35 @@ var Renderer = Entity.extend({
 	
 	drawSky : function(direction, sky, ambient) 
 	{
-		var width = Graphics.width * (CIRCLE / this.fov);
+		var width = this.width * (CIRCLE / this.fov);
 		var left = -width * direction / CIRCLE;
 					
 		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
-		//drawSprite (img : [Image], x, y, width, height, angle, scaleX, scaleY, alpha)
-		//Graphics.drawSprite(sky, 0, 0, 200, 200, 0, 1, 1, 1); //width, this.height, 0, 1, 1);
-
 		//if (left < width - this.width) 
 		//{
 		//	//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
 		//}
 			
-		
-		
+		/*	
 		var grad = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
-		grad.addColorStop(0, "rgb(105,1,2)");
-		grad.addColorStop(1, "rgb(237, 28, 37)");		
+		grad.addColorStop(0, "rgb(96,96,96)");
+		grad.addColorStop(1, "rgb(107, 107, 107)");		
 		this.ctx.fillStyle = grad;
 		this.ctx.fillRect(0, 0, Graphics.width, Graphics.height);		
 
-				
+			
 		var grad2 = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
-		grad2.addColorStop(0, "rgb(1, 1, 1)");
-		grad2.addColorStop(1, "rgb(16, 16 ,16)");
+		grad2.addColorStop(0, "rgb(15, 15, 15)");
+		grad2.addColorStop(1, "rgb(56, 56 ,56)");
 		this.ctx.fillStyle = grad2;
 		this.ctx.fillRect(0, Graphics.height/2, Graphics.width, Graphics.height/2);		
-		
-		
-		//Graphics.drawSprite(sky, left, 0, width, this.height, 0, 1, 1, 1);
-		//Graphics.drawSprite(sky, left, 0, width*2, -50, 0, 1, 1, 1); //width, this.height, 0, 1, 1);
-		//if (left < width - this.width) 
-		//{
-		//	//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);			
-		//	Graphics.drawSprite(sky, left + width, 0, width*2, this.height, 0, 1, 1, 1);
-		//}
-		
-		
-		//Graphics.drawFullScreenRect(0, 0, 0, 1);
+	*/	
+		//Graphics.drawFullScreenRect(0.3, 0.3, 0.3, 1.0);
 	},
 
 	drawColumns : function(player, map/*, objects*/) 
 	{	
-		//this.ctx.save();				
+		this.ctx.save();				
 		var allObjects = [];
 		for (var column = 0; column < this.resolution; column++) 
 		{
@@ -346,10 +326,10 @@ var Renderer = Entity.extend({
 			var columnProps = this.drawColumn(column, ray, angle, map);
 			allObjects.push(columnProps);
 		}
-		//this.ctx.restore();
-		//this.ctx.save();
+		this.ctx.restore();
+		this.ctx.save();
 		this.drawSprites(player,map,allObjects);
-		//this.ctx.restore();
+		this.ctx.restore();
 	},
 
 	drawWeapon : function(weapon, steps) 
@@ -357,14 +337,12 @@ var Renderer = Entity.extend({
 		var bobX = Math.cos(steps * 2) * this.scale * 6;
 		var bobY = Math.sin(steps * 4) * this.scale * 6;
 		
-		var left = Graphics.width * 0.75 + bobX; //this.width * 0.55 + bobX;
-		var top = Graphics.height * 0.95 + bobY; //this.height * 0.6 + bobY;
-		var weaponWidth = 64; //Graphics.width/2; //64;
-		var weaponHeight = 64; //Graphics.height/2; //64;
+		var left = Graphics.width * 0.65 + bobX; //this.width * 0.55 + bobX;
+		var top = Graphics.height * 0.75 + bobY; //this.height * 0.6 + bobY;
+		var weaponWidth = 200;
+		var weaponHeight = 200;
 		//this.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
-		//Graphics.drawRect(left, top, weaponWidth * this.scale, weaponHeight * this.scale, 1, 1, 1, 1);
-		//console.log(Graphics.getImage("gun1"));
-		Graphics.drawSprite(Graphics.getImage("gun1"), left, top, weaponWidth, weaponHeight, 0, 6, 6);
+		Graphics.drawRect(left, top, weaponWidth * this.scale, weaponHeight * this.scale, 1, 1, 1, 1);
 	},
 	
 	drawCrosshair : function()
@@ -395,7 +373,7 @@ var Renderer = Entity.extend({
 			left = Math.floor(column * this.spacing),
 			width = Math.ceil(this.spacing),
 			angle = this.fov * (column / this.resolution - 0.5),
-			columnWidth = this.width / this.resolution + 1,
+			columnWidth = this.width / this.resolution,
 			sprite,props,obj,textureX,height,projection, mappedColumnObj,spriteIsInColumn,top;
 
 		//todo: make rays check for objects, and return those that it actually hit
@@ -419,17 +397,28 @@ var Renderer = Entity.extend({
 			
 			if(spriteIsInColumn)
 			{
-				//var img = Graphics.getImage(sprite.texture); //new Sprite(sprite.texture);				
-				//textureX = Math.floor( sprite.texture.width / sprite.render.numColumns * ( column - sprite.render.firstColumn ) );// ORIGINAL
-				//textureX = Math.floor( img.width / sprite.render.numColumns * ( column - sprite.render.firstColumn ) );				 // LAST WORKING
-				textureX = Math.floor( sprite.img.width / sprite.render.numColumns * ( column - sprite.render.firstColumn ) );				 // LAST WORKING				
-				//textureX = Math.floor( 32 / sprite.render.numColumns * (column - sprite.render.firstColumn) ); // bullshit :D
+				//textureX = 1; //Math.floor( sprite.texture.width / sprite.render.numColumns * ( column - sprite.render.firstColumn ) );
+				textureX = Math.floor( 32 / sprite.render.numColumns * (column - sprite.render.firstColumn) );
 
-				//this.ctx.fillStyle = 'blue';
-				//this.ctx.globalAlpha = 1;
-				//this.ctx.fillRect(left, top , 10, sprite.render.height);
+				this.ctx.fillStyle = 'blue';
+				this.ctx.globalAlpha = 1;
+				this.ctx.fillRect(left, top , 10, sprite.render.height);
 
 				//var brightness = Math.max(sprite.distanceFromPlayer / this.lightRange - map.light, 0) * 100;
+				//var a = Math.sin(Core.totalTime * textureX);
+				//Graphics.drawRect(left, sprite.render.top + (a*5) + Graphics.height*0.2, columnWidth, sprite.render.height * a, 0.5, 0, 0.8, 1);	
+				//Graphics.drawRect(left, sprite.render.top + (a*5) + Graphics.height*0.2, columnWidth, sprite.render.height * a, 0, 0, 0, 1);	
+	
+				//var h = Math.sin(2 - textureX * Core.totalTime) * 32;
+				//Graphics.drawRect(left, sprite.render.top - h/2, columnWidth, /*sprite.render.height/2*/ h * 4, 0, 0, 0, 1);			
+				
+
+				var a = Math.sin(Core.totalTime * textureX);
+				//Graphics.drawRect(left, sprite.render.top, 10, 100, 0, 0, 0, a);			
+				Graphics.drawRect(left, sprite.render.top+a*5, columnWidth, sprite.render.height, 0, 0, 0,1);			
+				
+				if(Math.abs(16 - textureX) < 3)
+					Graphics.drawRect(left, sprite.render.top+sprite.render.height/3, 10, 10, 1, 0, 0, a);			
 				
 				//Graphics.drawRect(left, sprite.render.top, columnWidth, sprite.render.height, 0.5, 0, 0.8, 1);	// ORIGINAL WORKING			
 				
@@ -438,14 +427,6 @@ var Renderer = Entity.extend({
 				{
 					this.isTarget = true; 
 				}
-				
-				//console.log(sprite);asd
-				//var alpha = 1 - (sprite.distanceFromPlayer / 14);
-				
-
-				//Graphics.drawRect(left, sprite.render.top, columnWidth, sprite.render.height, 0, 0, 0, 1);	// ORIGINAL WORKING			
-				Graphics.drawSpriteCropped(sprite.img, left, sprite.render.top, columnWidth, sprite.render.height, 0, 1, 1, 1.0, textureX, 0, 1, sprite.img.height);
-				//Graphics.drawSprite(img, left, sprite.render.top, columnWidth, sprite.render.height, 0, 1, 1);
 				//ctx.drawImage(sprite.texture.image, textureX, 0, 1, sprite.texture.height, left, sprite.render.top, width, sprite.render.height);						
 				//ctx.fillRect(left, sprite.render.top, columnWidth, sprite.render.height);
 			}			
@@ -547,25 +528,23 @@ var Renderer = Entity.extend({
 			/*textureX,*/wall;
 	
 			if (s === hit) 
-			{	
-				//console.log(this.wall);
-				textureX = Math.floor(map.wall.width * step.offset);
+			{			
+				//textureX = Math.floor(wallTexture.width * step.offset);
 				wall = this.project(step.height, angle, step.distance);
 				//ctx.drawImage(wallTexture.image, textureX, 0, 1, wallTexture.height, left, wall.top, width, wall.height);
 				//ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
-				//var alpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);				
-				var alpha = 1 - (step.distance / 14);
-				//var alpha = 1;
-				//var w = Utils.scalePercentWidth(0.5);
-				//Graphics.drawRect(left, wall.top, w, w/4, 1, 1, 1, 1);
-				//Graphics.drawRect(left, wall.top+wall.height, w, w/4, 1, 1, 1, 1);
 				
-				Graphics.drawRect(left, wall.top, width, wall.height, 0, 0, 0, 1.0); // original working				
-				Graphics.drawSpriteCropped(map.wall, left, wall.top, width, wall.height, 0, 1, 1, alpha, textureX, 0, 1, map.wall.height);
-
-				// GROUND REFLECTIONS!
-				Graphics.drawSpriteCropped(map.wall, left, wall.top, width, wall.height*2, 0, 1, 1, 0.022, textureX, 0, 1, map.wall.height);
+				//textureX = Math.floor(128 * step.offset);
+				//if(textureX === 0)
+				//{
+				//	Graphics.drawRect(left, wall.top, width, wall.height, 1, 1, 1, 1);
+				//}
 				
+				var w = Utils.scalePercentWidth(0.5);
+				Graphics.drawRect(left, wall.top, w, w/4, 1, 1, 1, 1);
+				Graphics.drawRect(left, wall.top+wall.height, w, w/4, 1, 1, 1, 1);
+				
+				//Graphics.drawRect(left, wall.top, width, wall.height, 0.3, 0.3, 0.3, 1.0); // original working				
 				hitDistance = step.distance;
 			} 
 			else if(step.object)
@@ -647,15 +626,13 @@ var StateGame = State.extend({
     {
         this.callParent();
         //Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
-		Graphics.autoClearScreen = false;
-		Graphics.pixelify(true);
+		//Graphics.autoClearScreen = false;
     },
 
 	init : function ()
 	{
 		this.callParent();
-
-		this.renderer = new Renderer(160, 1.2);
+		this.renderer = new Renderer(140, 1.8);
 		this.map = new Map(12);
 		this.map.randomize();
 		this.player = new Player(8.3, 8.2, Math.PI - 0.3);		
@@ -665,9 +642,8 @@ var StateGame = State.extend({
 		{
 				//color: 'brown',
 				//texture: new Bitmap('img/cowboy.png', 639, 1500),
-				texture: "enemy",
-				height: 1,
-				width: 0.5,
+				height: 0.7,
+				width: 0.15,
 				//floorOffset: 10,
 				speed: 0.1,
 		}, 7, 7);		
@@ -676,9 +652,8 @@ var StateGame = State.extend({
 		{
 				//color: 'brown',
 				//texture: new Bitmap('img/cowboy.png', 639, 1500),
-				texture: "enemy",
-				height: 1,
-				width: 1,
+				height: 0.4,
+				width: 0.35,
 				//floorOffset: 10,
 				speed: 0.1,
 		}, 3, 7);		
@@ -701,19 +676,15 @@ var StateGame = State.extend({
 	draw : function()
 	{
 		this.callParent();		
-		//Graphics.drawFullScreenRect(0.5, 0.5, 0.5, 0.1);
+		Graphics.drawFullScreenRect(0.5, 0.5, 0.5, 1);
 		this.renderer.draw(this.player, this.map);	
 	}
 	
 });
 
-Core.init(640, 480); 
+Core.init(1400, 800); 
 //Core.init(320, 480); 
 Core.setState(new StateGame());
-Core.addAsset([ "enemy", 		"gfx/enemy1.png",
-				"gun1", 		"gfx/gun1.png",
-				"wall-conc",	"gfx/wall-conc.jpg" ]);
-				//"bgr",			"gfx/bgr.jpg" ]);
 Core.loadAndRun();
 
         </script>
