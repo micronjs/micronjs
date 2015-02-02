@@ -910,17 +910,15 @@ Core = Base.extend({
         // todo: load other type of assets
         var path;
         var empty = true;
-        for(var key in this.assetsMap)
+        for(var key in this.assetsMap) /* jshint -W089 */
         {
-            if(
-                this.assetsMap.hasOwnProperty(key) &&
+            path = this.assetsMap[key];		
+            if(this.assetsMap.hasOwnProperty(key) &&
                 (Utils.checkExtension(path, ".jpg") ||
                 Utils.checkExtension(path, ".png") ||
-                Utils.checkExtension(path, ".svg"))
-            )
+                Utils.checkExtension(path, ".svg")))
             {
-                empty = false;
-                path = this.assetsMap[key];
+                empty = false;                
                 Graphics.loadImage(key, path);
             }
         }
