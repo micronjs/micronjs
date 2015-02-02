@@ -220,9 +220,9 @@ Graphics = Base.extend({
     loadImage : function(alias, path)
     {
         // if the image was loaded already, return it and dont load it again! (quick and simple texture manager)
-        if(this.images[path] === null)
+        if(Utils.isEmpty(this.images[path]))
         {
-            this.images[path] = [];
+            this.images[path] = new Image();
             this.images[path].src = path;
             this.images[path].addEventListener("load", this.onImageLoaded.bind(this));
             this.imagesMap[alias] = path;
@@ -236,10 +236,10 @@ Graphics = Base.extend({
     getImage : function(path)
     {
         // Step 1: look for the path
-        if(this.images[path] === null)
+        if(Utils.isEmpty(this.images[path]))
         {
             // Step 2: look for the alias. If the alias is found, return the image using the alias.
-            if(this.imagesMap[path] !== null)
+            if(!Utils.isEmpty(this.imagesMap[path]))
             {
                 return this.images[this.imagesMap[path]];
             }

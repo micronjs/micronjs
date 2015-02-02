@@ -871,7 +871,6 @@ Core = Base.extend({
         this.currentState = null;
         //delete this.currentState;
         this.currentState = state;
-        this.currentState.init();
         this._calculateResize();
     },
 
@@ -912,13 +911,13 @@ Core = Base.extend({
         var empty = true;
         for(var key in this.assetsMap) /* jshint -W089 */
         {
-            path = this.assetsMap[key];		
+            path = this.assetsMap[key];
             if(this.assetsMap.hasOwnProperty(key) &&
                 (Utils.checkExtension(path, ".jpg") ||
                 Utils.checkExtension(path, ".png") ||
                 Utils.checkExtension(path, ".svg")))
             {
-                empty = false;                
+                empty = false;
                 Graphics.loadImage(key, path);
             }
         }

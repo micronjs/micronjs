@@ -547,7 +547,6 @@ Core = Base.extend({
         }
         this.currentState = null;
         this.currentState = state;
-        this.currentState.init();
         this._calculateResize();
     },
     getFPS: function() {
@@ -570,9 +569,9 @@ Core = Base.extend({
         var path;
         var empty = true;
         for (var key in this.assetsMap) {
+            path = this.assetsMap[key];
             if (this.assetsMap.hasOwnProperty(key) && (Utils.checkExtension(path, ".jpg") || Utils.checkExtension(path, ".png") || Utils.checkExtension(path, ".svg"))) {
                 empty = false;
-                path = this.assetsMap[key];
                 Graphics.loadImage(key, path);
             }
         }
@@ -968,8 +967,8 @@ Graphics = Base.extend({
         Core.onImageLoaded();
     },
     loadImage: function(alias, path) {
-        if (this.images[path] === null) {
-            this.images[path] = [];
+        if (Utils.isEmpty(this.images[path])) {
+            this.images[path] = new Image();
             this.images[path].src = path;
             this.images[path].addEventListener("load", this.onImageLoaded.bind(this));
             this.imagesMap[alias] = path;
@@ -978,8 +977,8 @@ Graphics = Base.extend({
         }
     },
     getImage: function(path) {
-        if (this.images[path] === null) {
-            if (this.imagesMap[path] !== null) {
+        if (Utils.isEmpty(this.images[path])) {
+            if (!Utils.isEmpty(this.imagesMap[path])) {
                 return this.images[this.imagesMap[path]];
             } else {
                 console.log("[Graphics] The image " + path + " is not loaded. " + "Check if it was added on the asset list (addAsset).");
