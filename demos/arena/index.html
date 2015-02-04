@@ -73,7 +73,7 @@ var Player = Entity.extend({
 	
 	onPointerMove : function(coords)
 	{
-		this.direction -= coords.x * -0.0030; //-0.0012;
+		this.direction -= coords.x * -0.0010; //-0.0012;
 	},
 
 	update : function(delta)
@@ -297,14 +297,14 @@ var Renderer = Entity.extend({
 	{
 		var width = Graphics.width * (CIRCLE / this.fov);
 		var left = -width * direction / CIRCLE;
-					
+			
+		//	OOOOLD
 		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
 		//drawSprite (img : [Image], x, y, width, height, angle, scaleX, scaleY, alpha)
 		//Graphics.drawSprite(sky, 0, 0, 200, 200, 0, 1, 1, 1); //width, this.height, 0, 1, 1);
-
 		//if (left < width - this.width) 
 		//{
-		//	//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
+		//	this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
 		//}
 			
 		
@@ -322,17 +322,18 @@ var Renderer = Entity.extend({
 		this.ctx.fillStyle = grad2;
 		this.ctx.fillRect(0, Graphics.height/2, Graphics.width, Graphics.height/2);		
 		
-		
-		//Graphics.drawSprite(sky, left, 0, width, this.height, 0, 1, 1, 1);
-		//Graphics.drawSprite(sky, left, 0, width*2, -50, 0, 1, 1, 1); //width, this.height, 0, 1, 1);
-		//if (left < width - this.width) 
-		//{
-		//	//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);			
-		//	Graphics.drawSprite(sky, left + width, 0, width*2, this.height, 0, 1, 1, 1);
-		//}
-		
-		
-		//Graphics.drawFullScreenRect(0, 0, 0, 1);
+		// WORKING
+		/*
+		//Graphics.drawSprite(sky, left, 0, width, this.height/2, 0, 1, 1, 1);
+		Graphics.drawSprite(sky, left, 0, width*2, 1, 0, 1, 1, 0.5); //width, this.height, 0, 1, 1);
+		if (left < width - this.width) 
+		{
+			//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);			
+			//Graphics.drawSprite(sky, left + width, 0, width*2, this.height/2, 0, 1, 1, 1);
+		}
+				
+		Graphics.drawFullScreenRect(0, 0, 0, 0.3);
+		*/
 	},
 
 	drawColumns : function(player, map/*, objects*/) 
@@ -357,14 +358,14 @@ var Renderer = Entity.extend({
 		var bobX = Math.cos(steps * 2) * this.scale * 6;
 		var bobY = Math.sin(steps * 4) * this.scale * 6;
 		
-		var left = Graphics.width * 0.75 + bobX; //this.width * 0.55 + bobX;
+		var left = Graphics.width * 0.96 + bobX; //this.width * 0.55 + bobX;
 		var top = Graphics.height * 0.95 + bobY; //this.height * 0.6 + bobY;
 		var weaponWidth = 64; //Graphics.width/2; //64;
 		var weaponHeight = 64; //Graphics.height/2; //64;
 		//this.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
 		//Graphics.drawRect(left, top, weaponWidth * this.scale, weaponHeight * this.scale, 1, 1, 1, 1);
 		//console.log(Graphics.getImage("gun1"));
-		Graphics.drawSprite(Graphics.getImage("gun1"), left, top, weaponWidth, weaponHeight, 0, 6, 6);
+		Graphics.drawSprite(Graphics.getImage("gun1"), left, top, weaponWidth, weaponHeight, 0, 8, 8);
 	},
 	
 	drawCrosshair : function()
@@ -647,7 +648,7 @@ var StateGame = State.extend({
     {
         this.callParent();
         //Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 5);
-		Graphics.autoClearScreen = false;
+		Graphics.autoClearScreen = true;
 		Graphics.pixelify(true);
     },
 
@@ -667,7 +668,7 @@ var StateGame = State.extend({
 				//texture: new Bitmap('img/cowboy.png', 639, 1500),
 				texture: "enemy",
 				height: 1,
-				width: 0.5,
+				width: 1,
 				//floorOffset: 10,
 				speed: 0.1,
 		}, 7, 7);		
@@ -711,9 +712,9 @@ Core.init(640, 480);
 //Core.init(320, 480); 
 Core.setState(new StateGame());
 Core.addAsset([ "enemy", 		"gfx/enemy1.png",
-				"gun1", 		"gfx/gun1.png",
-				"wall-conc",	"gfx/wall-conc.jpg" ]);
-				//"bgr",			"gfx/bgr.jpg" ]);
+				"gun1", 		"gfx/gun3.png",
+				"wall-conc",	"gfx/wall-conc.jpg", // ]);
+				"bgr",			"gfx/bgr.jpg" ]);
 Core.loadAndRun();
 
         </script>
