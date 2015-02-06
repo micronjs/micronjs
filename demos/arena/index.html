@@ -13,6 +13,18 @@
     <body>
 		<script type="text/javascript">
 
+		
+// TODO: 
+// add a global object, containing info about: isTarget, current target, etc
+// add an ID to map objects/enemies
+// callback to game when an enemy is killed/object destroyed
+// add objects (exploding barrel, chest, etc)
+// weapons + weapon stuff
+// enemy ai
+// game modes
+// different map sprites
+// FINISH THIS SHIT!
+		
 // Based on this: http://www.playfuljs.com/a-first-person-engine-in-265-lines/
 // And this: http://nicmendoza.github.io/playfuljs-demos/raycaster
 var CIRCLE = Math.PI * 2;
@@ -55,15 +67,15 @@ var Player = Entity.extend({
 	{
 		//this.map.onPlayerShoot(this.x, this.y, this.direction);
 		Camera.shake(0.1, 4.1);
+		// dispersion factor!
+		this.direction += Utils.randRange(-0.016*2, 0.016*4);
 	},
 
 	onClickInput : function(x, y)
 	{
-		/*if(!flag)*/ 
-		
 		if(x > 0 && x < Graphics.width && y > 0 && y < Graphics.height)
 		{		
-			lockPointer(Graphics.canvas, this.onPointerMove.bind(this)); //.bind(this.player)); // document.getElementById('display')
+			lockPointer(Graphics.canvas, this.onPointerMove.bind(this));
 		}
 		else
 		{
@@ -73,7 +85,7 @@ var Player = Entity.extend({
 	
 	onPointerMove : function(coords)
 	{
-		this.direction -= coords.x * -0.0010; //-0.0012;
+		this.direction -= coords.x * -0.001; //-0.0030; //-0.0012;
 	},
 
 	update : function(delta)
@@ -92,7 +104,7 @@ var Player = Entity.extend({
 	
 	draw : function()
 	{
-		// todo: hud
+		// todo: hud, weapon!
 	}
 });
 	
@@ -124,6 +136,7 @@ var Map = Entity.extend({
 	wallGrid : null,
 	skybox : null,
 	wall : null, //exture
+	wall2 : null, //exture
 	floor : null, //Texture
 	light : 0,
 	objects : null,
@@ -139,6 +152,7 @@ var Map = Entity.extend({
 		//this.floorTexture = new Bitmap('img/floor_texture.jpg', 391,392);
 		
 		this.wall = Graphics.getImage("wall-conc");
+		this.wall2 = Graphics.getImage("wall-conc2");		
 		this.skybox = Graphics.getImage("bgr");
 		
 		this.light = 0;
@@ -194,6 +208,7 @@ var Map = Entity.extend({
         this.set(3, 11, 1);
         this.set(4, 8, 1);
         this.set(5, 9, 1);		
+
 	},
 
 	cast : function(point, angle, range, objects) 
@@ -265,7 +280,7 @@ var Map = Entity.extend({
 var Renderer = Entity.extend({ 
 
 	resolution : 320,
-	fov : 1.2, // 1.2, // in radians
+	fov : 1.2, // in radians
 	range : 14,
 	lightRange : 5,
 	isTarget : false,	
@@ -274,8 +289,8 @@ var Renderer = Entity.extend({
 	constructor : function(resolution, fov)
 	{
 		this.callParent();	
-		this.width = Graphics.width; //canvas.width = window.innerWidth;
-		this.height = Graphics.height; //canvas.height = window.innerHeight;
+		this.width = Graphics.width;
+		this.height = Graphics.height;
 		this.resolution = resolution;
 		this.spacing = Graphics.width / resolution;
 		this.fov = fov;
@@ -287,7 +302,7 @@ var Renderer = Entity.extend({
 	draw : function(player, map) 
 	{
 		this.drawSky(player.direction, map.skybox, map.light);
-		this.drawColumns(player, map/*, objects*/);
+		this.drawColumns(player, map);
 		this.drawWeapon(player.weapon, player.steps);
 		//this.drawMiniMap(map, player);
 		this.drawCrosshair();
@@ -353,6 +368,7 @@ var Renderer = Entity.extend({
 		//this.ctx.restore();
 	},
 
+	// move this and drawCrosshair to player's hud rendereing
 	drawWeapon : function(weapon, steps) 
 	{
 		var bobX = Math.cos(steps * 2) * this.scale * 6;
@@ -530,7 +546,7 @@ var Renderer = Entity.extend({
 	
 	drawColumn : function(column, ray, angle, map) 
 	{
-		var ctx = this.ctx,
+		var //ctx = this.ctx,
 			//wallTexture = map.wallTexture,
 			//floorTexture = map.floorTexture,
 			left = Math.floor(column * this.spacing),
@@ -543,12 +559,14 @@ var Renderer = Entity.extend({
 
 		for (var s = ray.length - 1; s >= 0; s--) {
 			var step = ray[s];
-			var rainDrops = Math.pow(Math.random(), 3) * s;
-			var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance),
-			/*textureX,*/wall;
-	
+			//var rainDrops = Math.pow(Math.random(), 3) * s;
+			//var rain = (rainDrops > 0) && this.project(0.1, angle, step.distance),
+			/*textureX,*/
+			var wall;
+
 			if (s === hit) 
 			{	
+				//console.log(map.get(Math.floor(ray[hit].x), Math.floor(ray[hit].y)));					
 				//console.log(this.wall);
 				textureX = Math.floor(map.wall.width * step.offset);
 				wall = this.project(step.height, angle, step.distance);
@@ -712,8 +730,9 @@ Core.init(640, 480);
 //Core.init(320, 480); 
 Core.setState(new StateGame());
 Core.addAsset([ "enemy", 		"gfx/enemy1.png",
-				"gun1", 		"gfx/gun3.png",
+				"gun1", 		"gfx/gun1.png",
 				"wall-conc",	"gfx/wall-conc.jpg", // ]);
+				"wall-conc2",	"gfx/wall-conc2.jpg", // ]);				
 				"bgr",			"gfx/bgr.jpg" ]);
 Core.loadAndRun();
 
