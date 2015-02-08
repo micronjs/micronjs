@@ -17,6 +17,9 @@ functionality for collision detection, however it is a bit shitty.
 ---
 
     path : String
+	
+If the sprite was created using the image's path, this will contain the path. 
+If it was created using	the alias, this will be its alias.
 
 ---
 
@@ -78,7 +81,7 @@ Useful both for circle based collisions and to get the image center.
     constructor (pathOrAlias) 		
     
 The path or **alias** to the already loaded image. 
-If should survive having an empty path (however it won't draw anything).
+It should survive having an empty path (however it won't draw anything).
 
 ---
 
@@ -93,13 +96,16 @@ Display the object's bounding area and other info.
 ---
 
     update (delta)
-		
+
+Override to do funny things. Also: this updates the bounding rectangle or circle.
+	
 ---
 
     recalculate ()
 
-Force recalculate the object's bounding area.
-		
+Force recalculate the object's bounding area. It is done automatically, 
+but it is useful to force it after changing the image source (for example).
+
 ---
 
     setSource (pathOrAlias)
@@ -122,8 +128,9 @@ When the UV are resetted, it will point to the default {0, 0, 1, 1} - the full i
 
     collides (other : Sprite) : Boolean 	
     
-Checks whether this sprite collides with other.
-    
+Checks whether this sprite collides with other. Works more accurately when both use
+the same bounding volume (either both are rectangles or circles).
+
 ---
 
     isPointInRect (x, y)			
