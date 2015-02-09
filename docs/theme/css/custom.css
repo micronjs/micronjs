@@ -1,0 +1,63 @@
+body {
+    padding-top: 50px;
+}
+
+h1 .fa {
+    font-size: .8em;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+.toc {
+    position: fixed;
+    top: 50px;
+    left:0;
+    bottom: 0;
+    background: #222;
+    width: 300px;
+    overflow: auto;
+}
+
+.toctree-wrapper {
+    list-style-type: none;
+    padding: 16px;
+    color: #ABABAB;
+}
+
+.toctree-wrapper ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toctree-wrapper li {
+    padding-left: 16px;
+}
+
+.toctree-wrapper > li > a {
+    color: #EEEEEE;
+}
+
+.toctree-l3 > a {
+    color: #2980B9;
+}
+
+.toctree-l2 li a:visited {
+    color: #2980B9;
+}
+
+.toctree-l2 li .toctree-l4,
+.toctree-l2 li .toctree-l4:visited {
+    color: #C78A67;
+    font-size: 0.8em;
+}
+
+.toctree-wrapper span {
+    display: block;
+    border-bottom: 1px solid #565656;
+}
+
+
+

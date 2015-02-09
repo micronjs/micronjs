@@ -1,4 +1,4 @@
-# Pool : Entity
+# <i class="fa fa-book"></i> Pool : Entity
 
 <span class="label label-info">Class</span>
 
@@ -8,9 +8,13 @@ Pools are extremely simple... erh... pools of [**Entities**](entity.md). When ma
 
 ## Methods
 
+### constructor
+
     constructor ()
 
 ---
+
+### addToPool
 
     addToPool (object, amount)
 
@@ -19,6 +23,8 @@ Just put any poolable object and how many "unique" objects you want.
 
 ---
 
+### spawn
+
     spawn (amount)
 
 Determine how many death objects should be respawned. 
@@ -26,9 +32,13 @@ It will spawn as many as possible. If there won't be enough, it will do nothing.
 
 ---
 
+### spawn
+
     update (delta)
 
 ---
+
+### draw
 
     draw ()
 

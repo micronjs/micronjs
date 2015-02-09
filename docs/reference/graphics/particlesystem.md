@@ -1,4 +1,4 @@
-# ParticleSystem : Pool
+# <i class="fa fa-book"></i> ParticleSystem : Pool
 
 <span class="label label-info">Class</span>
 
@@ -9,8 +9,12 @@ As you see, the ParticleSystem is a Pool object, in order to reuse the same part
 					
 ## Methods
 
+### constructor
+
     constructor ()
 
 ---
+
+### spawn
 
     spawn (x, y, amount)

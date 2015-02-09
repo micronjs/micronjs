@@ -1,4 +1,4 @@
-# Camera
+# <i class="fa fa-book"></i> Camera
 
 <span class="label label-warning">Singleton</span><span class="label label-info">Class</span>
 
@@ -9,35 +9,51 @@ just extend the Camera class and then override the Camera object. Easy!
 
 ## Members
 
+### x
+
     x : Number
 
 The camera's position.
 
 ---
 
+### y
+
     y : Number
 
 ---
+
+### shaking
 
     shaking : false
 
 ---
 
+### shakeStrength
+
     shakeStrength : Number
 
 ---
+
+### shakeTime
 
     shakeTime : Number
 
 ---
 
+### fading
+
     fading : Boolean
 
 ---
 
+### overlayColor
+
     overlayColor : {r,g,b,a}
 
 ---
+
+### drawOverlay
 
     drawOverlay : Boolean
 
@@ -45,17 +61,25 @@ The camera's position.
 
 ## Methods
 
+### constructor
+
     constructor ()
 
 ---
+
+### shake
 
     shake (time, strength, shakeEndCallback)
 
 ---
 
+### stopShake
+
     stopShake ()
 
 ---
+
+### fade
 
     fade ( fromColor {r,g,b,a}, toColor {r,g,b,a}, time, [easing=Utils.E_LINEAR_IN], [fadeEndCallback=Utils.emptyFunc()] )
 
@@ -66,24 +90,36 @@ The camera's position.
 
 ---
 
+### update
+
     update ( delta )
 
 ---
+
+### draw
 
     draw ()
 
 ---
 
+### getX
+
     getX () : number
 
 ---
+
+### getY
 
     getY () : number
 
 ---
 
+### setOverlayColor
+
     setOverlayColor (r, g, b, a)
 
 ---
+
+### clearOverlayColor
 
     clearOverlayColor ()

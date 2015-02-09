@@ -1,4 +1,4 @@
-# Atlas : Sprite
+# <i class="fa fa-book"></i> Atlas : Sprite
 
 <span class="label label-info">Class</span> 
 
@@ -8,18 +8,24 @@ performance for your game. However, having atlases is always good, so here you a
 functionality for collision detection, however it is a bit shitty.
     
 ## Methods
-	
+
+### constructor
+
     constructor (pathOrAlias) 	
 
 The path or **alias** of the already loaded image.
 
 ---
+
+### getImage
 		
     getImage (x, y, w, h) : Sprite
     
 Return a new up-to-date Sprite with the base texture of the atlas and the provided uv info.
 
 ---
+
+### drawTile
 
     drawTile (x, y, w, h, ux, uy, uw, uh)		
 		
