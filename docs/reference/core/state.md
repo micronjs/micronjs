@@ -1,4 +1,4 @@
-# State : Entity
+# <i class="fa fa-book"></i> State : Entity
 
 <span class="label label-info">Class</span> 
 
@@ -10,9 +10,13 @@ since this is the one called when all resources are ready.
 		
 ## Methods
 	
+### constructor	
+
     constructor ()
      
 ---
+ 
+ ### init
  
     init () 				
     
@@ -20,6 +24,8 @@ Override to create here the objects that require fully loaded resources.
 Everything else can go to the constructor.
 
 ---
+
+### onPause
 
     onPause (flag)	
     			

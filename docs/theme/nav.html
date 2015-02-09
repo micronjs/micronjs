@@ -15,39 +15,18 @@
             <a href="{{ homepage_url }}" class="pull-left" style="margin-right: 3px">
                 <img src="{{ base_url }}/img/icon_small.png" alt="{{ site_name }}" />
             </a>
-            <a class="navbar-brand" href="{{ homepage_url }}">
-                {{ site_name }}
-            </a>
+            <a class="navbar-brand" href="{{ homepage_url }}">{{ site_name }}</a>
         </div>
 
         <!-- Expanded navigation -->
         <div class="navbar-collapse collapse">
             <!-- Main navigation -->
             <ul class="nav navbar-nav">
-            {% for nav_item in nav %}
-            {% if nav_item.title == 'Input' or nav_item.title == 'Utils' %}
-                <li {% if nav_item.children[0].active %}class="active"{% endif %}>
-                <a href="{{ nav_item.children[0].url }}">{{ nav_item.children[0].title }}</a>
+                <li>
+                    <a href="{{ base_url }}/editor">
+                        Editor
+                    </a>
                 </li>
-            {% else %}
-            {%if nav_item.children %}
-                <li class="dropdown{% if nav_item.active %} active{% endif %}">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ nav_item.title }} <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                    {% for nav_item in nav_item.children %}
-                        <li {% if nav_item.active %}class="active"{% endif %}>
-                            <a href="{{ nav_item.url }}">{{ nav_item.title }}</a>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </li>
-            {% else %}
-                <li {% if nav_item.active %}class="active"{% endif %}>
-                    <a href="{{ nav_item.url }}">{{ nav_item.title }}</a>
-                </li>
-            {% endif %}
-            {% endif %}
-            {% endfor %}
             </ul>
 
             <!-- Search, Navigation and Repo links -->
@@ -57,12 +36,28 @@
                     <a href="#searchModal" data-toggle="modal"><i class="fa fa-search"></i> Search</a>
                 </li>
                 {% endif %}
-
+                <li {% if not previous_page %}class="disabled"{% endif %}>
+                <a rel="next" {% if previous_page %}href="{{ previous_page.url }}"{% endif %}>
+                <i class="fa fa-arrow-left"></i> Previous
+                </a>
+                </li>
+                <li {% if not next_page %}class="disabled"{% endif %}>
+                <a rel="prev" {% if next_page %}href="{{ next_page.url }}"{% endif %}>
+                Next <i class="fa fa-arrow-right"></i>
+                </a>
+                </li>
+                {% if repo_url %}
                 <li>
-                    <a href="{{ base_url }}/editor">
-                        Editor
+                    <a href="{{ repo_url }}">
+                        {% if repo_name == 'GitHub' %}
+                        <i class="fa fa-github"></i>
+                        {% elif repo_name == 'Bitbucket' %}
+                        <i class="fa fa-bitbucket"></i>
+                        {% endif %}
+                        {{ repo_name }}
                     </a>
                 </li>
+                {% endif %}
             </ul>
         </div>
     </div>

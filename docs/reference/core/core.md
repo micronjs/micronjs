@@ -1,4 +1,4 @@
-# Core
+# <i class="fa fa-book"></i> Core
 
 <span class="label label-warning">Singleton</span> 
 
@@ -7,6 +7,8 @@ You won't likely have to modify this class.
     
 ## Members
 
+### currentState
+
     currentState : State
     
 		
@@ -14,23 +16,31 @@ The current [State](state.md) in execution.
    
 ---
 
+### width
+
     width : Number
     
 <span class="label label-danger">read-only</span> 
 
 ---
-   
+  
+### height
+
     height : Number
     
 <span class="label label-danger">read-only</span>
 
 ---
-		
+	
+### storage
+
     storage : Boolean
     
 <span class="label label-danger">read-only</span> If localStorage is available, this flag is true.
     
 ---
+
+### fps
 
     fps : Number
     
@@ -38,15 +48,21 @@ The current [State](state.md) in execution.
     
 ---
 
-fpsCounter : Number
+### fpsCounter
+
+    fpsCounter : Number
 
 ---
+
+### totalTime
 
     totalTime : Number
 
 Total time elapsed since the game started. Only counts when the game is not paused.
     
 ---
+
+### delta
     
     delta : Number
 
@@ -54,6 +70,8 @@ Total time elapsed since the game started. Only counts when the game is not paus
 	
 ---
 	
+### timeScale
+
     timeScale : Number
 			
 This value controls how fast or slow things are updated. 1 is the default value.
@@ -61,18 +79,26 @@ This value controls how fast or slow things are updated. 1 is the default value.
 **NOTE**: Bigger values will make things move faster, smaller values will make it move slower. 0 is totally paused.
     
 ---
+
+### date
     
     date : Date
 
 ---
 
+### dateNow
+
     dateNow : Date
 
 ---
 
+### dateThen
+
     dateThen : Date
 
 ---
+
+### loaded
 
     loaded : Boolean
     
@@ -80,15 +106,21 @@ This value controls how fast or slow things are updated. 1 is the default value.
 
 ---
 
+### assets
+
     assets : Object
  			
 All the assets loaded. Kept in case someone wants just to iterate through assets quickly.
     
 ---
 
+### assetsMap
+
     assetsMap : Object
 
 ---
+
+### assetsLoaded
 
     assetsLoaded : Number
 
@@ -100,17 +132,25 @@ Pass the size the game should have on the screen. It will be rescaled and recent
     
 ---
 
+### update
+
     update (delta)
    
 --- 
+
+### delta
 
     draw ()
 
 ---
 
+### run
+
     run ()
 
 ---
+
+### setState
 
     setState (state)			
 
@@ -118,9 +158,13 @@ Switch the current state. It will delete the previous one, but not the underlayi
     
 ---
 
+### getFPS
+
     getFPS ()
     
 ---
+
+### addAsset
 
     addAsset (pathOrArray)			
     
@@ -128,18 +172,26 @@ Example: `Core.addAsset([ "empty", "gfx/empty.jpg" ]);` The first parameter is t
 
 ---
 
+### loadAndRun
+
     loadAndRun ()				
     
 Call after adding all your assets to start executing the current state.
     
 ---
 
+### hasStorageSupport
+
     hasStorageSupport ()
     
 ---
 
+### saveToStorage
+
     saveToStorage (object, value)
     
 ---
+
+### readFromStorage
 
     readFromStorage (object)

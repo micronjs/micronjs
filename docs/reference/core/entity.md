@@ -1,4 +1,4 @@
-# Entity
+# <i class="fa fa-book"></i> Entity
 
 <span class="label label-info">Class</span>
 
@@ -10,13 +10,19 @@ For everything else, you should extend from <i>Base</i>.
 
 ## Members
 
+### name
+
     name : String
 
 ---
 
+### entities
+
     entities : Array
 
 ---
+
+### inUse
 
     inUse : true
 
@@ -26,9 +32,13 @@ This is true to keep consistency with non-pooled object. And yes, this flag is u
 
 ## Methods
 
+### constructor
+
     constructor (name)
 
 ---
+
+### spawn
 
     spawn ()
 
@@ -36,28 +46,43 @@ Override when pooling.
 
 ---
 
+### add
+
     add (entity)
 
 ---
+
+### remove
 
     remove (entity)
 
 ---
 
+
+### removeAll
+
     removeAll ()
 
 ---
+
+### clone
 
     clone ()
 
 ---
 
+### update
+
     update (delta)
 
 ---
 
+### draw
+
     draw ()
 
 ---
+
+### destroy
 
     destroy ()

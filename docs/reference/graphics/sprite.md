@@ -1,4 +1,4 @@
-# Sprite : Entity
+# <i class="fa fa-book"></i> Sprite : Entity
 
 <span class="label label-info">Class</span> 
 

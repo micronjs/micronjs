@@ -1,4 +1,4 @@
-# Input
+# <i class="fa fa-book"></i> Input
 
 <span class="label label-warning">Singleton</span> 
 
@@ -11,11 +11,15 @@ You can register objects to the input system to receive "touch" events.
 
 ## Members
 
+### isClick
+
     isClick : Boolean			
 
 <span class="label label-danger">read-only</span>
 
 ---
+
+### clickPosition
 
     clickPosition : object{ x, y }	
 
@@ -23,17 +27,23 @@ You can register objects to the input system to receive "touch" events.
 
 ---
 
+### mousePosition
+
     mousePosition : { x, y }	
 
 <span class="label label-danger">read-only</span>
 
 ---
 
+### inputObjectsRegistered
+
     inputObjectsRegistered : Array	
 
 <span class="label label-danger">read-only</span>
 
 ---
+
+### supportsMultitouch
 
     supportsMultitouch : false	
 
@@ -54,9 +64,13 @@ KEY_Z KEY_NUM0 KEY_NUM1 KEY_NUM2 KEY_NUM3 KEY_NUM4 KEY_NUM5 KEY_NUM6 KEY_NUM7 KE
 
 ## Methods	
 
+### checkMulitouchSupport
+
     checkMulitouchSupport () : Boolean
 	
 ---
+
+### addInputReceiver
 	
     addInputReceiver (object)			
 	
@@ -73,32 +87,48 @@ onClickInput : function(x, y){
 ```
 ---
 
+### isKeyPressed
+
     isKeyPressed (key) : bool
 	
 ---
+
+### isMousePressed
 	
     isMousePressed () : bool
 	
 ---	
+
+### isMouseReleased
     
 	isMouseReleased () : bool
 	
 ---	
 
+### generateClick
+
     generateClick (xpos, ypos)
 
 ---
+
+### releaseClick
 	
     releaseClick ()
 
 ---	
+
+### mouseMoved
 	
     mouseMoved (x, y)
 
 ---	
+
+### getMousePosition
 	
     getMousePosition () : object{x, y}
 
 ---
+
+### getMousePositionInWorld
 	
     getMousePositionInWorld () : object{x, y}
