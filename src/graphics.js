@@ -505,11 +505,11 @@ var Sprite = Entity.extend({
             this.width = 0;
             this.height = 0;
         }
-        this.radius = Math.min(this.width, this.height);
+        this.radius = Math.max(this.width, this.height) / 2.0;
         this.scale = { x: 1.0, y: 1.0 };
         this.rect = { x : this.x, y : this.y, w : this.width, h : this.height };
         this.uv = { x: this.x, y: this.y, w: this.width, h: this.height };
-        this.center = { x: this.x + this.width / 2, y: this.y + this.height / 2 };
+        this.center = { x: this.x + this.width / 2.0, y: this.y + this.height / 2.0 };
     },
 
     draw : function()
@@ -561,8 +561,8 @@ var Sprite = Entity.extend({
         this.rect.y = this.y /*-(this.height/2))*/ * this.scale.y;
         this.rect.w = this.width * this.scale.x;
         this.rect.h = this.height * this.scale.y;
-        this.center.x = this.x + this.width / 2;
-        this.center.y = this.y + this.height / 2;
+        this.center.x = this.x + this.width / 2.0;
+        this.center.y = this.y + this.height / 2.0;
     },
 
     setSource : function(path)
@@ -579,13 +579,13 @@ var Sprite = Entity.extend({
             this.width = 0;
             this.height = 0;
         }
-        this.radius = Math.min(this.width, this.height);
+        this.radius = Math.max(this.width, this.height) / 2.0;
         this.rect.w = this.width;
         this.rect.h = this.height;
         this.uv.w = this.width;
         this.uv.h = this.height;
-        this.center.x = this.x + this.width / 2;
-        this.center.y = this.y + this.height / 2;
+        this.center.x = this.x + this.width / 2.0;
+        this.center.y = this.y + this.height / 2.0;
     },
 
     setUV : function(x, y, w, h)
@@ -617,10 +617,10 @@ var Sprite = Entity.extend({
         if(this.radius !== 0.0 && other.radius !== 0.0)
         {
             distance = Utils.distance(
-                this.x + this.width / 2,
-                this.y + this.height / 2,
-                other.x + other.width / 2,
-                other.y + other.height / 2
+                this.x + this.width / 2.0,
+                this.y + this.height / 2.0,
+                other.x + other.width / 2.0,
+                other.y + other.height / 2.0
             );
             if(distance <= (this.radius + other.radius))
             {
