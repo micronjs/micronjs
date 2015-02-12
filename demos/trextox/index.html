@@ -6,8 +6,8 @@
         <style>
             body {background-color:black}
         </style>
-        <script src="js/base.js"></script>
-        <script src="js/micron.js"></script>
+        <script src="../../build/base.js"></script>
+        <script src="../../build/micron.js"></script>        
     </head>
     <body>
         <script type="text/javascript">
@@ -362,7 +362,7 @@ var MapGame = Entity.extend({
 			{
 				if(this.blocks[i][j] !== null)
 				{
-					this.blocks[i][j].y -= (i / 8) * 5;
+					this.blocks[i][j].y -= (i / 8) * 15;
 					Utils.tween(this.blocks[i][j], "y", j, (i/8), Utils.E_BOUNCE_OUT);
 				}
 			}
@@ -439,6 +439,8 @@ var StateGame = State.extend({
 		{
 			Core.saveToStorage("Trextrox.highScore", 0);
 		}
+		
+		Graphics.autoClearScreen = false;
     },
 
 	// initialize whatever has to be initialized
@@ -534,7 +536,9 @@ var StateGame = State.extend({
 	{
 		LEVEL_SPEED = 0.1;
 		TOTAL_LINES = 0;
-		Core.setState(new StateGame());
+		var game = new StateGame();
+		game.init();
+		Core.setState(game); // temporal fix for incredibly stupid bug
 	},
 
 	update : function (delta)
@@ -555,7 +559,7 @@ var StateGame = State.extend({
 
 	draw : function ()
 	{
-		Graphics.drawFullScreenRect(0, 0, 0, 1.0);			
+		Graphics.drawFullScreenRect(0, 0, 0, 0.1);			
 		this.callParent();
 		this.map.draw();
 		this.currentPiece.draw();
@@ -587,10 +591,10 @@ var StateGame = State.extend({
 });
 
 //---------------------------------------------------------------------------------------------
-
+// Remove this crap or not?
 var StateMenu = State.extend({
 
-	mainLabel : null, // Label example
+	//mainLabel : null, // Label example
 	
     constructor : function()
     {
@@ -603,11 +607,11 @@ var StateMenu = State.extend({
 	{
 		this.callParent();
 		
-		this.mainLabel = new Label(' T  R  E  X  T  R  O  X');
-		this.mainLabel.size = 19;
-		this.mainLabel.y = APP_HEIGHT / 2 + 19;
-		this.mainLabel.font = 'monospace';
-		this.add(this.mainLabel);
+		//this.mainLabel = new Label(' T  R  E  X  T  R  O  X');
+		//this.mainLabel.size = 19;
+		//this.mainLabel.y = APP_HEIGHT / 2 + 19;
+		//this.mainLabel.font = 'monospace';
+		//this.add(this.mainLabel);
 	},
 
 	update : function (delta)
@@ -636,14 +640,23 @@ var StateMenu = State.extend({
 		}
 		
 		this.callParent();
+		
+		
+		//this.mainLabel = new Label(' T  R  E  X  T  R  O  X');
+		//this.mainLabel.size = 19;
+		//this.mainLabel.y = APP_HEIGHT / 2 + 19;
+		//this.mainLabel.font = 'monospace';
+		//this.add(this.mainLabel);
+		
+		Graphics.drawText(' T  R  E  X  T  R  O  X', 0, APP_HEIGHT / 2 + 19, 1, 1, 1, 1, 19, 'monospace');
 		Graphics.drawText('Press ENTER to begin', APP_WIDTH * 0.1, APP_HEIGHT * 0.9, 0.7, 0.6, 0.67, 0.6, 18, 'monospace');		
 	}
 
 });
 
 Core.init(APP_WIDTH, APP_HEIGHT);
-Core.setState(new StateMenu());
-//Core.addAsset([	'empty', 'img/empty.jpg' ]);
+Core.setState(new StateGame());
+//Core.addAsset([	'empty', 'gfx/empty.jpg' ]);
 Core.loadAndRun();
 
         </script>
