@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Hello Physics with Matter.js!</title>
+        <style>
+            body {background-color:black}
+        </style>
+        <script src="../../build/base.js"></script>
+        <script src="../../build/micron.js"></script>        
+		<script src="js/matter-0.8.0.js"></script>		
+    </head>
+    <body>
+        <script type="text/javascript">
+
+
+// Matter.js module aliases
+var Engine 	= Matter.Engine,
+    World 	= Matter.World,
+    Bodies 	= Matter.Bodies;
+
+//console.log(Engine, World);
+		
+var PhysicsSprite = Sprite.extend({
+
+	body : null,
+
+	constructor : function(img, x, y)
+	{
+		this.callParent(img);
+		this.recalculate();
+		this.x = x;
+		this.y = y;
+		this.body = Bodies.rectangle(this.x, this.y, this.width, this.height);
+		//this.phys = Bodies.circle(this.x, this.y, Math.max(this.width, this.height) / 2);
+	},
+	
+	update : function(delta)
+	{
+		this.callParent(delta);
+		this.x = this.body.position.x;
+		this.y = this.body.position.y;
+		this.angle = this.body.angle;
+		
+		/*
+		var mouse = Input.getMousePositionInWorld();		
+		if(this.isPointInCircle (mouse.x, mouse.y)) 
+		{
+			this.alpha = 0.1;
+		}
+		else
+		{
+			this.alpha = 1;
+		}
+		*/
+	}	
+
+});
+		
+StateGame = State.extend({ 
+
+	bgr : null,
+	boxes : null,
+	ground : null,
+	engine : null,
+
+    constructor : function()
+    {
+        this.callParent();				
+    },
+
+    init : function()
+    {
+		this.callParent();
+		Input.addInputReceiver(this);
+		
+    	this.bgr = { r:Utils.randRange(0.0, 0.9), g:Utils.randRange(0.0, 0.9), b:Utils.randRange(0.0, 0.9) };
+		this.engine = Engine.create();
+
+		this.boxes = [];
+		this.addBox(400, 200);
+		this.addBox(450, 50);
+		
+		this.ground = Bodies.rectangle(200, 610, 810, 60, { isStatic: true });
+		World.add(this.engine.world, this.ground);
+		Utils.invokeRepeating(this.onChangeSomething.bind(this), 2);
+    },
+
+	onChangeSomething : function()
+	{
+		//Matter.Body.translate(this.boxes[0].body, {x: 0, y:-300}); 
+		Matter.Body.applyForce(this.boxes[0].body, {x:0, y:0}, {x:0.2, y:-0.1});
+	},
+	
+	addBox : function(x, y)
+	{
+		var box = new PhysicsSprite('box', x, y);
+		this.boxes.push(box);
+		this.add(box);
+		World.add(this.engine.world, box.body);
+	},
+	
+	onClickInput : function(x, y)
+	{ 
+		if(x > 0 && x < Graphics.width && y > 0 && y < Graphics.height)
+		{ 
+			this.addBox(x-40, y-40); // 40 = half of image's width. I could avoid hardcoding it, but, oh why.
+		}
+	},
+	
+    update : function(delta)
+    {
+		Engine.update(this.engine, delta*1000);	
+        this.callParent(delta);
+    },
+
+    draw : function()
+    {
+        Graphics.drawFullScreenRect(this.bgr.r, this.bgr.g, this.bgr.b, 1.0);				
+		Graphics.drawRect(this.ground.position.x, this.ground.position.y, 810, 60, this.bgr.r+0.2, this.bgr.g+0.2, this.bgr.b+0.2, 1);		
+        this.callParent();			
+		Graphics.drawText("Click to see magic", 200, 10, 1, 1, 1, Math.sin(Core.totalTime), 24);
+    }
+		
+});			
+
+Core.init(1200, 800);
+Core.setState(new StateGame()); 
+Core.addAsset([	'box', 'gfx/box.png' ]);
+Core.loadAndRun();
+
+        </script>
+    </body>
+</html>
