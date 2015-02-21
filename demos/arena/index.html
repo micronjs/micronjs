@@ -29,6 +29,81 @@
 // And this: http://nicmendoza.github.io/playfuljs-demos/raycaster
 var CIRCLE = Math.PI * 2;
 	  	  
+		  
+var Weapon = Sprite.extend({
+
+	isShooting : false,
+
+	// todo: add values here like recoil, etc
+	constructor : function(img)
+	{
+		this.callParent(img);
+
+		var weaponWidth = 32; //Graphics.width/2; //64;
+		var weaponHeight = 32; //Graphics.height/2; //64;		
+		this.width = weaponWidth;
+		this.height = weaponHeight;
+		this.scale.x = 8;
+		this.scale.y = 8;
+		
+	},
+	
+	draw : function(steps)
+	{
+		if(!this.isShooting)
+		{
+			var bobX = Math.cos(steps * 2) * 6;
+			var bobY = Math.sin(steps * 4) * 6;
+		
+			var left = Graphics.width * 0.80 + bobX; //this.width * 0.55 + bobX;
+			var top = Graphics.height * 0.80 + bobY; //this.height * 0.6 + bobY;
+			//this.ctx.drawImage(weapon.image, left, top, weapon.width * this.scale, weapon.height * this.scale);
+			//Graphics.drawRect(left, top, weaponWidth * this.scale, weaponHeight * this.scale, 1, 1, 1, 1);
+			//console.log(Graphics.getImage("gun1"));
+			//Graphics.drawSprite(Graphics.getImage("gun1"), left, top, weaponWidth, weaponHeight, 0, 8, 8);
+			this.x = left;
+			this.y = top;
+		}
+		this.callParent();
+		//},	
+	},
+	
+	shoot : function()
+	{
+		var recoil = 0;
+		
+		if(!this.isShooting)
+		{
+			this.isShooting = true;
+			
+			this.scale.x = 12;
+			this.scale.y = 12;
+			this.x = Graphics.width * 0.90;
+			//this.y = Graphics.width * 0.84 + Math.sin(4) * 6;
+			
+			Utils.tween(this, "x", Graphics.width * 0.80, 0.15, Utils.E_LINEAR_OUT, this.onEndShooting.bind(this));
+			//Utils.tween(this, "y", Graphics.width * 0.80, 0.18, Utils.E_LINEAR_OUT); //, this.onEndShooting.bind(this));
+			
+			Utils.tween(this.scale, "x", 8, 0.12, Utils.E_LINEAR_OUT, this.onEndShooting.bind(this));
+			Utils.tween(this.scale, "y", 8, 0.13, Utils.E_LINEAR_OUT);
+			
+			Camera.shake(0.1, 4.1);
+			// dispersion factor!
+			recoil = Utils.randRange(-0.016*2, 0.016*4);			
+		}
+		
+		return recoil;
+	},
+	
+	onEndShooting : function()
+	{
+		this.isShooting = false;
+		console.log("lol");
+	}
+
+});		  
+
+
 var Player = Entity.extend({
 
 	x : 0,
@@ -37,6 +112,7 @@ var Player = Entity.extend({
 	weapon : null,
 	steps : 0,
 	map : null,
+	weapon : null,
 	
 	constructor : function(x, y, direction, map)
 	{
@@ -47,6 +123,7 @@ var Player = Entity.extend({
 		this.direction = direction;
 		this.map = map;
 		Input.addInputReceiver(this);
+		this.weapon = new Weapon('gun1');
     },
 	
     rotate : function(angle) 
@@ -65,10 +142,19 @@ var Player = Entity.extend({
 
 	shoot : function()
 	{
-		//this.map.onPlayerShoot(this.x, this.y, this.direction);
-		Camera.shake(0.1, 4.1);
-		// dispersion factor!
-		this.direction += Utils.randRange(-0.016*2, 0.016*4);
+		/*
+		if(this.isShooting === false)
+		{
+			this.isShooting = true;
+			
+		
+			//this.map.onPlayerShoot(this.x, this.y, this.direction);
+			Camera.shake(0.1, 4.1);
+			// dispersion factor!
+			this.direction += Utils.randRange(-0.016*2, 0.016*4);
+		}
+		*/
+		this.direction += this.weapon.shoot();
 	},
 
 	onClickInput : function(x, y)
@@ -85,7 +171,7 @@ var Player = Entity.extend({
 	
 	onPointerMove : function(coords)
 	{
-		this.direction -= coords.x * -0.001; //-0.0030; //-0.0012;
+		this.direction -= coords.x * -0.0008; //-0.0030; //-0.0012;
 	},
 
 	update : function(delta)
@@ -100,11 +186,16 @@ var Player = Entity.extend({
 		if (Input.isKeyPressed(Input.KEY_D)) 		this.walk(2.5 * delta, this.direction + Math.PI/2);
 		if (Input.isKeyPressed(Input.KEY_SPACE) || Input.isMousePressed())	this.shoot();
 		if (Input.isKeyPressed(Input.KEY_ESC))		pointerRelease()
+		
+		this.weapon.update(delta);		
 	},
 	
 	draw : function()
 	{
 		// todo: hud, weapon!
+		//drawWeapon : function(weapon, steps) 
+		//{
+		this.weapon.draw(this.steps);		
 	}
 });
 	
@@ -303,7 +394,7 @@ var Renderer = Entity.extend({
 	{
 		this.drawSky(player.direction, map.skybox, map.light);
 		this.drawColumns(player, map);
-		this.drawWeapon(player.weapon, player.steps);
+		//this.drawWeapon(player.weapon, player.steps);
 		//this.drawMiniMap(map, player);
 		this.drawCrosshair();
 	},
@@ -368,6 +459,7 @@ var Renderer = Entity.extend({
 		//this.ctx.restore();
 	},
 
+	/*
 	// move this and drawCrosshair to player's hud rendereing
 	drawWeapon : function(weapon, steps) 
 	{
@@ -383,6 +475,7 @@ var Renderer = Entity.extend({
 		//console.log(Graphics.getImage("gun1"));
 		Graphics.drawSprite(Graphics.getImage("gun1"), left, top, weaponWidth, weaponHeight, 0, 8, 8);
 	},
+	*/
 	
 	drawCrosshair : function()
 	{
@@ -722,6 +815,7 @@ var StateGame = State.extend({
 		this.callParent();		
 		//Graphics.drawFullScreenRect(0.5, 0.5, 0.5, 0.1);
 		this.renderer.draw(this.player, this.map);	
+		this.player.draw();
 	}
 	
 });
