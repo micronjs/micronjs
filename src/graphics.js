@@ -265,7 +265,7 @@ Graphics = Base.extend({
         if(this.autoClearScreen)
         {
             this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        }		
+        }
         this.context.save();
         this.context.translate(-Camera.getX(), -Camera.getY());
         this.context.scale(this.scaleRatio, this.scaleRatio);
@@ -553,6 +553,9 @@ var Sprite = Entity.extend({
 
     recalculate : function()
     {
+		// todo: add scale to this!
+        this.center.x = this.x + this.width / 2.0;
+        this.center.y = this.y + this.height / 2.0;	
         if(!this.useBoundingBox)
         {
             return;
@@ -561,8 +564,6 @@ var Sprite = Entity.extend({
         this.rect.y = this.y /*-(this.height/2))*/ * this.scale.y;
         this.rect.w = this.width * this.scale.x;
         this.rect.h = this.height * this.scale.y;
-        this.center.x = this.x + this.width / 2.0;
-        this.center.y = this.y + this.height / 2.0;
     },
 
     setSource : function(path)

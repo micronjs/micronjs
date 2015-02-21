@@ -1162,7 +1162,7 @@ var Sprite = Entity.extend({
             this.width = 0;
             this.height = 0;
         }
-        this.radius = Math.min(this.width, this.height);
+        this.radius = Math.max(this.width, this.height) / 2;
         this.scale = {
             x: 1,
             y: 1
@@ -1200,6 +1200,8 @@ var Sprite = Entity.extend({
         this.recalculate();
     },
     recalculate: function() {
+        this.center.x = this.x + this.width / 2;
+        this.center.y = this.y + this.height / 2;
         if (!this.useBoundingBox) {
             return;
         }
@@ -1207,8 +1209,6 @@ var Sprite = Entity.extend({
         this.rect.y = this.y * this.scale.y;
         this.rect.w = this.width * this.scale.x;
         this.rect.h = this.height * this.scale.y;
-        this.center.x = this.x + this.width / 2;
-        this.center.y = this.y + this.height / 2;
     },
     setSource: function(path) {
         this.path = path;
@@ -1220,7 +1220,7 @@ var Sprite = Entity.extend({
             this.width = 0;
             this.height = 0;
         }
-        this.radius = Math.min(this.width, this.height);
+        this.radius = Math.max(this.width, this.height) / 2;
         this.rect.w = this.width;
         this.rect.h = this.height;
         this.uv.w = this.width;
