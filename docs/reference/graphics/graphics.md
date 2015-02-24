@@ -4,6 +4,12 @@
 
 The heavy rendering part of Micron. **Graphics** groups all the drawXXX methods, as well as image loading and manipulation.
 
+**IMPORTANT**: there are several considerations you should know:
+
+* Color (**r, g, b, a** components for **Red**, **Green**, **Blue** and **Alpha**) are always normalized values between 0..1.
+* Position: all the values you pass as position coordinates (**x, y**) are from the **upper left corner** of the image or primitive.
+* Rotation and scale: the values passed for rotation and scaling are considered from the **center** of the image or primitive.
+
 ## Members
 
 ### canvas
