@@ -164,7 +164,7 @@ gulp.task('commit', function () {
 
     return gulp.src('micronjs.github.io/')
         .pipe(git.add({ cwd: 'micronjs.github.io' }))
-        .pipe(git.commit('Update ' + (new Date), { cwd: 'micronjs.github.io', args: '--allow-empty' }))
+        .pipe(git.commit('Update ' + (new Date), { cwd: 'micronjs.github.io', args: '--allow-empty --amend' }))
         .on('end', function () {
             push();
         });
