@@ -151,7 +151,7 @@ gulp.task('commit', function () {
     function push () {
         var deferred = Q.defer();
 
-        git.push('origin', 'master', { cwd: 'micronjs.github.io' }, function(err) {
+        git.push('origin', 'master', { cwd: 'micronjs.github.io', args: " -f" }, function(err) {
             if (err) {
                 return deferred.reject(err);
             }
