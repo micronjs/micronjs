@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Animation tests</title>
+        <style>
+            body {background-color:black}
+        </style>
+        <script src="../../build/base.js"></script>
+        <script src="../../build/micron.js"></script>        		
+		<script src="js/animation.js"></script>
+    </head>
+    <body>	
+        <script type="text/javascript">
+
+
+var StateGame = State.extend({
+
+	enemy : null,
+  	enemyAnimator : null,
+
+    constructor : function()
+    {
+        this.callParent();
+        Camera.fade( {r:0, g:0, b:0, a:1}, {r:0, g:0, b:0, a:0}, 1);
+		Graphics.pixelify(true);
+    },
+
+    init : function()
+    {
+		this.enemy = new Sprite('enemy');
+		this.enemy.x = this.enemy.y = 50;
+		this.enemy.scale.x = this.enemy.scale.y = 4;
+		this.add(this.enemy);
+				
+		// name, loopable, easing
+		var testClip = new AnimClip("test", true, true); // change the last two parameters to see what happens
+		testClip.addKey('actor', 3.5, 6, 'x', 200); // there is no need to sort by time: it works properly! (althouth it is easier to visualize them in order)		
+		testClip.addKey('actor', 1, 3, 'x', 100, Utils.E_BOUNCE_OUT);
+		//testClip.addKeyCall('actor', 0.3, 0.9, ' // FINISH ME
+		testClip.addKey('actor', 4.1, 5, 'y', 150, Utils.E_BOUNCE_OUT);
+
+		this.enemyAnimator = new Animator();		
+		this.enemyAnimator.addClip(testClip, {'actor': this.enemy});
+		this.enemyAnimator.play("test");
+		this.add(this.enemyAnimator);
+		//console.log(this.enemyAnimator);
+		
+    },
+
+    update : function(delta)
+    {
+        this.callParent(delta);
+    },
+
+    draw : function()
+    {
+        Graphics.drawFullScreenRect(0.4, 0.5, 0.6, 1.0);
+        this.callParent();		
+    }
+
+});
+
+Core.init(320, 240);
+Core.setState(new StateGame());
+Core.addAsset([	'enemy', 'gfx/enemy.png' ]);
+Core.loadAndRun();		
+		
+        </script>
+    </body>
+</html>
