@@ -41,6 +41,12 @@ var AnimKeyCall = Base.extend({
 		{    
 			this.params = params;
 		}
+	},
+	
+	exec : function(who)
+	{
+		console.log(this.params);
+		who[this.func].apply(who, this.params); //.bind(who);
 	}
 });
 
@@ -77,22 +83,28 @@ var AnimClip = Base.extend({
 		this.frames = [];
 	},
 
+	_checkLastFrameTime : function(time)
+	{
+		if(time > this.lastFrameTime)
+		{
+			this.lastFrameTime = time;			
+		}	
+	},
+		
 	// TODO: it should be possible to do something like 'actor.scale' in order to access sub-objects!!!
 	addKey : function(actor, startTime, stopTime, property, value, easing)
 	{
 		var key = new AnimKey(actor, startTime, stopTime, property, value, easing);		
 		this.frames.push(key);		
-		
-		if(stopTime > this.lastFrameTime)
-		{
-			this.lastFrameTime = stopTime;			
-		}
+		this._checkLastFrameTime(stopTime);
 	},
 	
-	addKeyCall : function()
+	addKeyCall : function(actor, time, func, params)
 	{
 		// TODO		
-		//var key = new AnimKeyCall(...)
+		var key = new AnimKeyCall(actor, time, func, params);
+		this.frames.push(key);	
+		this._checkLastFrameTime(time);		
 	},
 	
 	// deletes all the keys from the given timestamp.
@@ -145,7 +157,11 @@ var AnimClip = Base.extend({
 						this.animator.onActorUpdate(this.frames[i].object, this.frames[i].property, this.frames[i].destination);
 					}
 				}
-				// TODO: add here AnimKeyCall!
+				else if(this.frames[i] instanceof AnimKeyCall)
+				{
+					var actor = this.animator.getActor(this.frames[i].object);
+					this.frames[i].exec(actor);
+				}
 			}
 		}
 		
