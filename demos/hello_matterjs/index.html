@@ -117,14 +117,14 @@ StateGame = State.extend({
     draw : function()
     {
         Graphics.drawFullScreenRect(this.bgr.r, this.bgr.g, this.bgr.b, 1.0);				
-		Graphics.drawRect(this.ground.position.x, this.ground.position.y, 810, 60, this.bgr.r+0.2, this.bgr.g+0.2, this.bgr.b+0.2, 1);		
+		Graphics.drawRect(this.ground.position.x-200, this.ground.position.y, 810, 60, this.bgr.r+0.2, this.bgr.g+0.2, this.bgr.b+0.2, 1);		
         this.callParent();			
 		Graphics.drawText("Click to see magic", 200, 10, 1, 1, 1, Math.sin(Core.totalTime), 24);
     }
 		
 });			
 
-Core.init(1200, 800);
+Core.init(680, 640);
 Core.setState(new StateGame()); 
 Core.addAsset([	'box', 'gfx/box.png' ]);
 Core.loadAndRun();
