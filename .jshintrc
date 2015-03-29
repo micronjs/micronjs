@@ -84,6 +84,10 @@
         "Utils" : true,
         "Camera" : true,
         "Entity" : true,
-        "Pool" : true
+        "Pool" : true,
+		"AnimKey" : true,
+		"AnimKeyCall" : true,
+		"AnimClip" : true,
+		"Animator" : true
     }
 }

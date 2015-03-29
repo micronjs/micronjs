@@ -16,9 +16,12 @@ pages:
 - [reference/graphics/particlebase.md, Graphics, Pariclebase]
 - [reference/graphics/particlecircle.md, Graphics, ParticleCircle]
 - [reference/graphics/particlesystem.md, Graphics, ParticleSystem]
+- [reference/animation/animkey.md, Animation, AnimKey]
+- [reference/animation/animkeycall.md, Animation, AnimKeyCall]
+- [reference/animation/animclip.md, Animation, AnimClip]
+- [reference/animation/animator.md, Animation, Animator]
 - [reference/sound/sound.md, Sound, Sound]
 - [reference/sound/song.md, Sound, Song]
 - [reference/utils.md, Utils]
-
 theme: cosmo
 theme_dir: docs/theme

@@ -1413,6 +1413,173 @@ var ParticleSystem = Pool.extend({
     }
 });
 
+var AnimKey = TweenObject.extend({
+    stopTime: 0,
+    constructor: function(obj, startTime, stopTime, property, value, easing) {
+        this.callParent(obj, property, value, startTime, easing);
+        this.timeStop = stopTime;
+    }
+});
+
+var AnimKeyCall = Base.extend({
+    object: null,
+    time: 0,
+    func: Utils.emptyFunc,
+    params: null,
+    constructor: function(obj, time, func, params) {
+        this.object = obj;
+        this.time = time;
+        this.func = func;
+        this.params = [];
+        if (!Utils.isEmpty(params)) {
+            this.params = params;
+        }
+    },
+    exec: function(who) {
+        console.log(this.params);
+        who[this.func].apply(who, this.params);
+    }
+});
+
+var NEXT_FRAME_INCREMENT_TIME = .016;
+
+var AnimClip = Base.extend({
+    name: "",
+    loop: false,
+    ease: false,
+    frames: null,
+    lastFrameTime: 0,
+    currentTime: 0,
+    animator: null,
+    constructor: function(name, loop, ease) {
+        this.name = name;
+        if (!Utils.isEmpty(loop)) {
+            this.loop = loop;
+        }
+        if (!Utils.isEmpty(ease)) {
+            this.ease = ease;
+        }
+        this.frames = [];
+    },
+    _checkLastFrameTime: function(time) {
+        if (time > this.lastFrameTime) {
+            this.lastFrameTime = time;
+        }
+    },
+    addKey: function(actor, startTime, stopTime, property, value, easing) {
+        var key = new AnimKey(actor, startTime, stopTime, property, value, easing);
+        this.frames.push(key);
+        this._checkLastFrameTime(stopTime);
+    },
+    addKeyCall: function(actor, time, func, params) {
+        var key = new AnimKeyCall(actor, time, func, params);
+        this.frames.push(key);
+        this._checkLastFrameTime(time);
+    },
+    removeKeys: function(startTime) {},
+    run: function(delta) {
+        if (this.currentTime > this.lastFrameTime) {
+            if (this.loop) {
+                this.reset();
+            } else {
+                return;
+            }
+        }
+        this.currentTime += delta;
+        var shouldIncreaseFrame = false;
+        for (var i = 0; i < this.frames.length; i++) {
+            var timeDelta = this.frames[i].time - this.currentTime;
+            if (timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME) {
+                shouldIncreaseFrame = true;
+                if (this.frames[i] instanceof AnimKey) {
+                    if (this.ease) {
+                        var actor = this.animator.getActor(this.frames[i].object);
+                        Utils.tween(actor, this.frames[i].property, this.frames[i].destination, this.frames[i].time - this.frames[i].stopTime, this.frames[i].easing);
+                    } else {
+                        this.animator.onActorUpdate(this.frames[i].object, this.frames[i].property, this.frames[i].destination);
+                    }
+                } else if (this.frames[i] instanceof AnimKeyCall) {
+                    var actor = this.animator.getActor(this.frames[i].object);
+                    this.frames[i].exec(actor);
+                }
+            }
+        }
+        if (shouldIncreaseFrame) {
+            this.currentTime += NEXT_FRAME_INCREMENT_TIME;
+        }
+    },
+    reset: function() {
+        this.currentTime = 0;
+    },
+    destroy: function() {
+        this.frames = [];
+    }
+});
+
+var Animator = Entity.extend({
+    playing: false,
+    paused: false,
+    clips: null,
+    currentAnim: "",
+    constructor: function() {
+        this.callParent();
+        this.clips = {};
+    },
+    addClip: function(animClip, actorsMap) {
+        animClip.animator = this;
+        this.clips[animClip.name] = {
+            clip: animClip,
+            actors: actorsMap
+        };
+    },
+    remove: function(animClip) {
+        if (!Utils.isEmpty(this.animations[animClip.name])) {
+            delete this.clips[animClip.name];
+        }
+    },
+    removeAll: function() {
+        this.stop();
+        this.clips = {};
+    },
+    getActor: function(actorName) {
+        if (this.playing || this.paused) {
+            var actors = this.clips[this.currentAnim].actors;
+            for (var actor in actors) {
+                if (actor == actorName) {
+                    return actors[actor];
+                }
+            }
+        }
+        return null;
+    },
+    onActorUpdate: function(actor, property, value) {
+        var actor = this.getActor(actor);
+        if (!Utils.isEmpty(actor)) {
+            actor[property] = value;
+        }
+    },
+    play: function(name) {
+        this.playing = true;
+        this.paused = false;
+        this.currentAnim = name;
+        this.clips[this.currentAnim].clip.reset();
+    },
+    pause: function() {
+        this.paused = !this.paused;
+    },
+    stop: function() {
+        this.playing = false;
+        this.paused = false;
+        this.currentAnim = "";
+    },
+    update: function(delta) {
+        if (this.playing && !this.paused) {
+            this.clips[this.currentAnim].clip.run(delta);
+        }
+    },
+    destroy: function() {}
+});
+
 var SoundDef = Base.extend({
     soundSupported: false,
     constructor: function() {

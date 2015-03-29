@@ -17,6 +17,7 @@ var paths = {
         './src/core.js',
         './src/input.js',
         './src/graphics.js',
+        './src/animation.js',		
         './src/sound.js'
     ],
 

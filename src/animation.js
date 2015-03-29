@@ -1,4 +1,7 @@
 
+// Animation.js
+// This is WIP.
+
 // A quite complex key for a frame. We need:
 // - obj: the actor name upon we will do things
 // - startTime: the time at which this key will start
@@ -101,7 +104,6 @@ var AnimClip = Base.extend({
 	
 	addKeyCall : function(actor, time, func, params)
 	{
-		// TODO		
 		var key = new AnimKeyCall(actor, time, func, params);
 		this.frames.push(key);	
 		this._checkLastFrameTime(time);		
@@ -120,7 +122,7 @@ var AnimClip = Base.extend({
 		{
 			if(this.loop)
 			{
-				this.reset(); // NOTE: should restore ALL the values of the first frame when going back to the first one?????
+				this.reset(); // NOTE: should we restore ALL the values of the first frame when going back to the first one?????
 			}
 			else
 			{
@@ -136,7 +138,7 @@ var AnimClip = Base.extend({
 		{
 			var timeDelta = this.frames[i].time - this.currentTime;
 			
-			if(timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME) //this.frames[i].time > this.currentTime  
+			if(timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME)
 			{
 				shouldIncreaseFrame = true;
 				
@@ -144,7 +146,6 @@ var AnimClip = Base.extend({
 				// if easing is enabled for this animation, create a new tween!
 				// if animator is empty, it means you fucked it up and you must create a one and add this clip to it :D								
 				// if the keyframe is a call, then execute the callback
-
 				if(this.frames[i] instanceof AnimKey)
 				{				
 					if(this.ease)
@@ -216,6 +217,7 @@ var Animator = Entity.extend({
 
 	removeAll : function()
 	{
+		this.stop();
 		this.clips = {};
 	},
 
