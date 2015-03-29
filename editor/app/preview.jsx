@@ -11,7 +11,7 @@ var GamePreview = React.createClass({
                 </head>
                 <body>
 
-                    <script src="../demos/hello_world/js/base.js"></script>
+                    <script src="../build/base.js"></script>
                     <script src="../build/micron.js"></script>
                     <script dangerouslySetInnerHTML={{__html: this.props.code}}></script>
                 </body>
