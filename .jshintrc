@@ -85,6 +85,7 @@
         "Camera" : true,
         "Entity" : true,
         "Pool" : true,
+        "TweenObject" : true,
 		"AnimKey" : true,
 		"AnimKeyCall" : true,
 		"AnimClip" : true,

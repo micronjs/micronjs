@@ -1489,17 +1489,18 @@ var AnimClip = Base.extend({
         var shouldIncreaseFrame = false;
         for (var i = 0; i < this.frames.length; i++) {
             var timeDelta = this.frames[i].time - this.currentTime;
+            var actor;
             if (timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME) {
                 shouldIncreaseFrame = true;
                 if (this.frames[i] instanceof AnimKey) {
                     if (this.ease) {
-                        var actor = this.animator.getActor(this.frames[i].object);
+                        actor = this.animator.getActor(this.frames[i].object);
                         Utils.tween(actor, this.frames[i].property, this.frames[i].destination, this.frames[i].time - this.frames[i].stopTime, this.frames[i].easing);
                     } else {
                         this.animator.onActorUpdate(this.frames[i].object, this.frames[i].property, this.frames[i].destination);
                     }
                 } else if (this.frames[i] instanceof AnimKeyCall) {
-                    var actor = this.animator.getActor(this.frames[i].object);
+                    actor = this.animator.getActor(this.frames[i].object);
                     this.frames[i].exec(actor);
                 }
             }
@@ -1545,7 +1546,7 @@ var Animator = Entity.extend({
         if (this.playing || this.paused) {
             var actors = this.clips[this.currentAnim].actors;
             for (var actor in actors) {
-                if (actor == actorName) {
+                if (actor === actorName) {
                     return actors[actor];
                 }
             }
@@ -1553,9 +1554,9 @@ var Animator = Entity.extend({
         return null;
     },
     onActorUpdate: function(actor, property, value) {
-        var actor = this.getActor(actor);
-        if (!Utils.isEmpty(actor)) {
-            actor[property] = value;
+        var actorObject = this.getActor(actor);
+        if (!Utils.isEmpty(actorObject)) {
+            actorObject[property] = value;
         }
     },
     play: function(name) {
