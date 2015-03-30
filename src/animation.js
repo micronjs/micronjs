@@ -37,7 +37,7 @@ var AnimKeyCall = Base.extend({
         this.func = func;
         this.params = [];
 
-        if (!Utils.isEmpty(params)) {
+        if(!Utils.isEmpty(params)) {
             this.params = params;
         }
     },
@@ -70,11 +70,11 @@ var AnimClip = Base.extend({
     constructor: function (name, loop, ease) {
         this.name = name;
 
-        if (!Utils.isEmpty(loop)) {
+        if(!Utils.isEmpty(loop)) {
             this.loop = loop;
         }
 
-        if (!Utils.isEmpty(ease)) {
+        if(!Utils.isEmpty(ease)) {
             this.ease = ease;
         }
 
@@ -82,7 +82,7 @@ var AnimClip = Base.extend({
     },
 
     _checkLastFrameTime: function (time) {
-        if (time > this.lastFrameTime) {
+        if(time > this.lastFrameTime) {
             this.lastFrameTime = time;
         }
     },
@@ -107,8 +107,8 @@ var AnimClip = Base.extend({
     },
 
     run: function (delta) {
-        if (this.currentTime > this.lastFrameTime) {
-            if (this.loop) {
+        if(this.currentTime > this.lastFrameTime) {
+            if(this.loop) {
                 this.reset();   // NOTE: should we restore ALL the values of the
                                 // first frame when going back to the first one?????
             }
@@ -121,20 +121,20 @@ var AnimClip = Base.extend({
 
         // find next frames to execute
         var shouldIncreaseFrame = false;
-        for (var i = 0; i < this.frames.length; i++) {
+        for(var i = 0; i < this.frames.length; i++) {
             var timeDelta = this.frames[i].time - this.currentTime;
 
             var actor;
-            if (timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME) {
+            if(timeDelta > 0 && timeDelta < NEXT_FRAME_INCREMENT_TIME) {
                 shouldIncreaseFrame = true;
 
                 // TRIGGER THE OBJECT FRAME!!!
                 // if easing is enabled for this animation, create a new tween!
                 // if animator is empty, it means you fucked it up and you must create a one and add this clip to it :D
                 // if the keyframe is a call, then execute the callback
-                if (this.frames[i] instanceof AnimKey) /* jshint -W073 */
+                if(this.frames[i] instanceof AnimKey) /* jshint -W073 */
                 {
-                    if (this.ease) {
+                    if(this.ease) {
                         actor = this.animator.getActor(this.frames[i].object);
                         Utils.tween(actor,
                             this.frames[i].property,
@@ -148,14 +148,14 @@ var AnimClip = Base.extend({
                             this.frames[i].destination);
                     }
                 }
-                else if (this.frames[i] instanceof AnimKeyCall) {
+                else if(this.frames[i] instanceof AnimKeyCall) {
                     actor = this.animator.getActor(this.frames[i].object);
                     this.frames[i].exec(actor);
                 }
             }
         }
 
-        if (shouldIncreaseFrame) {
+        if(shouldIncreaseFrame) {
             this.currentTime += NEXT_FRAME_INCREMENT_TIME;
         }
     },
@@ -192,7 +192,7 @@ var Animator = Entity.extend({
     },
 
     remove: function (animClip) {
-        if (!Utils.isEmpty(this.animations[animClip.name])) {
+        if(!Utils.isEmpty(this.animations[animClip.name])) {
             delete this.clips[animClip.name];//wot
         }
     },
@@ -205,11 +205,11 @@ var Animator = Entity.extend({
     // The Animator is the actual piece of the puzzle that knows which "actors" must be updated for the animation
     // So... this will return you whatever you put in the actors map under the given "actorName" string.
     getActor: function (actorName) {
-        if (this.playing || this.paused) {
+        if(this.playing || this.paused) {
             var actors = this.clips[this.currentAnim].actors;
-            for (var actor in actors) /* jshint -W073 */
+            for(var actor in actors) /* jshint -W073 */
             {
-                if (actor === actorName) {
+                if(actor === actorName) {
                     return actors[actor];
                 }
             }
@@ -219,7 +219,7 @@ var Animator = Entity.extend({
 
     onActorUpdate: function (actor, property, value) {
         var actorObject = this.getActor(actor);
-        if (!Utils.isEmpty(actorObject)) {
+        if(!Utils.isEmpty(actorObject)) {
             actorObject[property] = value;
         }
     },
@@ -245,7 +245,7 @@ var Animator = Entity.extend({
     },
 
     update: function (delta) {
-        if (this.playing && !this.paused) {
+        if(this.playing && !this.paused) {
             this.clips[this.currentAnim].clip.run(delta);
         }
     },
