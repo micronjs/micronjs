@@ -1,0 +1,7 @@
+
+
+var BLOCKSIZE 	= 50;
+var PLAYERSIZE 	= 20;
+
+var APP_WIDTH	= 640;
+var APP_HEIGHT	= 480;
