@@ -11,9 +11,9 @@
 // - easing: any easing function to use (if easing)
 var AnimKey = TweenObject.extend({ 
 
-	stopTime : 0.0,
+    stopTime : 0.0,
 
-	// TODO: check that stopTime is bigger than time!!!
+    // TODO: check that stopTime is bigger than time!!!
     constructor : function(obj, startTime, stopTime, property, value, easing)
     {
         this.callParent(obj, property, value, startTime, easing);
@@ -70,7 +70,7 @@ var AnimClip = Base.extend({
     lastFrameTime : 0.0,
     currentTime : 0.0,
     animator : null, // parent animator object, added by the animator itself 
-                     // (good luck trying to use a clip without an actual animator)
+    // (good luck trying to use a clip without an actual animator) - sad tab for stupid jshint :(
     
     constructor : function(name, loop, ease)
     {
@@ -126,7 +126,7 @@ var AnimClip = Base.extend({
             if(this.loop)
             {
                 this.reset();   // NOTE: should we restore ALL the values of the 
-                                // first frame when going back to the first one?????
+                // first frame when going back to the first one????? - another sad tab panda :(
             }
             else
             {

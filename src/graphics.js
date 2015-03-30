@@ -102,34 +102,34 @@ Camera = Entity.extend({
         this.callParent();
     },
 
-        getX : function()
-        {
-            return Math.round(this.x + this.shakeOffset.x);
-        },
+    getX : function()
+    {
+        return Math.round(this.x + this.shakeOffset.x);
+    },
 
-        getY : function()
-        {
-            return Math.round(this.y + this.shakeOffset.y);
-        },
+    getY : function()
+    {
+        return Math.round(this.y + this.shakeOffset.y);
+    },
 
-        setOverlayColor : function(r, g, b, a)
-        {
-            this.overlayColor.r = r;
-            this.overlayColor.g = g;
-            this.overlayColor.b = b;
-            this.overlayColor.a = a;
-            this.drawOverlay = true;
-        },
+    setOverlayColor : function(r, g, b, a)
+    {
+        this.overlayColor.r = r;
+        this.overlayColor.g = g;
+        this.overlayColor.b = b;
+        this.overlayColor.a = a;
+        this.drawOverlay = true;
+    },
 
-        clearOverlayColor : function()
-        {
-            this.overlayColor.r = 0;
-            this.overlayColor.g = 0;
-            this.overlayColor.b = 0;
-            this.overlayColor.a = 0;
-            this.drawOverlay = false;
-            this.fading = false;
-        }
+    clearOverlayColor : function()
+    {
+        this.overlayColor.r = 0;
+        this.overlayColor.g = 0;
+        this.overlayColor.b = 0;
+        this.overlayColor.a = 0;
+        this.drawOverlay = false;
+        this.fading = false;
+    }
 });
 
 var Camera = new Camera();
@@ -553,7 +553,7 @@ var Sprite = Entity.extend({
 
     recalculate : function()
     {
-		// todo: add scale to this!
+        // todo: add scale to this!
         this.center.x = this.x + this.width / 2.0;
         this.center.y = this.y + this.height / 2.0;	
         if(!this.useBoundingBox)

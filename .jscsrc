@@ -1,6 +1,5 @@
 {
     "requireLineFeedAtFileEnd": true,
-    "requireSpaceBeforeBlockStatements": true,
     "requireCurlyBraces": [
         "if",
         "else",

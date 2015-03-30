@@ -114,7 +114,7 @@ var UtilsDef = Base.extend({
 
             if(this.isEmpty(this._tweens[i].object) || this.isEmpty(this._tweens[i].object[this._tweens[i].property]))
 			{
-				// I assume that if the object was deleted, we shouldn't execute the tween.
+                // I assume that if the object was deleted, we shouldn't execute the tween.
                 this._tweens.indexOf(this._tweens[i]); // note: this might fuck up all, be careful
                 this._tweens.splice(index, 1);
             }
@@ -503,7 +503,7 @@ var UtilsDef = Base.extend({
         return c / 2 * ((postFix) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
     },
 
-   /* About the parameters:
+    /* About the parameters:
     * t = elapsed time
     * b = initial position (beginning)
     * c = delta position (final - initial) (change)
