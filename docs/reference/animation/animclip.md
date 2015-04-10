@@ -4,7 +4,7 @@
 
 An AnimClip is a single animation: a collection of keyframes. This keyframes are just
 duration values wrapping something that happens to objects: can be done using easing or not.
-Can be a valur of a property, or a callback to function. A single animation clip can contain
+Can be a value of a property, or a callback to function. A single animation clip can contain
 the data for a single animation, ie. "walking", "dying", etc.
 
 Note that the actor defined here is always an string (an id, a name) to make the animclips
