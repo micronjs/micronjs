@@ -17,7 +17,7 @@ var paths = {
         './src/core.js',
         './src/input.js',
         './src/graphics.js',
-        './src/animation.js',		
+        './src/animation.js',
         './src/sound.js'
     ],
 
@@ -28,26 +28,28 @@ gulp.task('default', ['test']);
 gulp.task('test', ['jscs', 'jshint']);
 gulp.task('build', ['compress', 'build-editor']);
 
-gulp.task('build-editor', function () {
-    return runSequence(
+gulp.task('build-editor', function (done) {
+    runSequence(
         'browserify',
         'usemin',
-        'copy-glyphicons'
+        'copy-glyphicons',
+        done
     );
 });
 
-gulp.task('publish-docs', function () {
-    return runSequence(
+gulp.task('publish-docs', function (done) {
+    runSequence(
         'clean-clone',
         'clone',
         'clean-clone-content',
+        'build-editor',
         'mkdocs',
         'copy-doc',
-        'build-editor',
         'copy-editor',
         'copy-build',
         'copy-demos',
-        'commit'
+        'commit',
+        done
     );
 });
 gulp.task('start', ['watch']);
