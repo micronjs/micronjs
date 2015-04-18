@@ -98,7 +98,6 @@ var Weapon = Sprite.extend({
 	onEndShooting : function()
 	{
 		this.isShooting = false;
-		console.log("lol");
 	}
 
 });		  
@@ -403,24 +402,12 @@ var Renderer = Entity.extend({
 	{
 		var width = Graphics.width * (CIRCLE / this.fov);
 		var left = -width * direction / CIRCLE;
-			
-		//	OOOOLD
-		//this.ctx.drawImage(sky.image, left, 0, width, this.height);
-		//drawSprite (img : [Image], x, y, width, height, angle, scaleX, scaleY, alpha)
-		//Graphics.drawSprite(sky, 0, 0, 200, 200, 0, 1, 1, 1); //width, this.height, 0, 1, 1);
-		//if (left < width - this.width) 
-		//{
-		//	this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
-		//}
-			
-		
 		
 		var grad = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
 		grad.addColorStop(0, "rgb(105,1,2)");
 		grad.addColorStop(1, "rgb(237, 28, 37)");		
 		this.ctx.fillStyle = grad;
 		this.ctx.fillRect(0, 0, Graphics.width, Graphics.height);		
-
 				
 		var grad2 = this.ctx.createLinearGradient(0, 0, 0, Graphics.height);
 		grad2.addColorStop(0, "rgb(1, 1, 1)");
@@ -428,18 +415,9 @@ var Renderer = Entity.extend({
 		this.ctx.fillStyle = grad2;
 		this.ctx.fillRect(0, Graphics.height/2, Graphics.width, Graphics.height/2);		
 		
-		// WORKING
-		/*
-		//Graphics.drawSprite(sky, left, 0, width, this.height/2, 0, 1, 1, 1);
-		Graphics.drawSprite(sky, left, 0, width*2, 1, 0, 1, 1, 0.5); //width, this.height, 0, 1, 1);
-		if (left < width - this.width) 
-		{
-			//this.ctx.drawImage(sky.image, left + width, 0, width, this.height);			
-			//Graphics.drawSprite(sky, left + width, 0, width*2, this.height/2, 0, 1, 1, 1);
-		}
-				
-		Graphics.drawFullScreenRect(0, 0, 0, 0.3);
-		*/
+		Graphics.drawSprite(sky, left, 0, width*2, 1, 0, 1, 1, 0.65); //width, this.height, 0, 1, 1);
+		//Graphics.drawFullScreenRect(0, 0, 0, 0.3);
+		
 	},
 
 	drawColumns : function(player, map/*, objects*/) 
