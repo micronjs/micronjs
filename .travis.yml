@@ -1,4 +1,6 @@
 language: nodejs
+before_install:
+  npm install -g npm@'>=1.4.3'
 before_script:
 - npm install
 - sudo apt-get -y install python-software-properties
