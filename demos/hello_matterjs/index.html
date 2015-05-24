@@ -7,8 +7,8 @@
             body {background-color:black}
         </style>
         <script src="../../build/base.js"></script>
-        <script src="../../build/micron.js"></script>        
-        <script src="js/matter-0.8.0.js"></script>      
+        <script src="../../build/micron.js"></script>
+        <script src="js/matter-0.8.0.js"></script>
     </head>
     <body>
         <script type="text/javascript">
@@ -29,7 +29,7 @@ var PhysicsSprite = Sprite.extend({
         this.recalculate();
         this.x = x;
         this.y = y;
-        
+
         if(Utils.isEmpty(isCircle))
         {
             this.body = Bodies.rectangle(this.x, this.y, this.width, this.height);
@@ -39,16 +39,16 @@ var PhysicsSprite = Sprite.extend({
             this.body = Bodies.circle(this.x, this.y, Math.max(this.width, this.height) / 2.0);
         }
     },
-    
+
     update : function(delta)
     {
         this.callParent(delta);
         this.x = this.body.position.x - this.width/2;
         this.y = this.body.position.y - this.height/2;
-        this.angle = this.body.angle;               
+        this.angle = this.body.angle;
         /*
-        var mouse = Input.getMousePositionInWorld();        
-        if(this.isPointInCircle (mouse.x, mouse.y)) 
+        var mouse = Input.getMousePositionInWorld();
+        if(this.isPointInCircle (mouse.x, mouse.y))
         {
             this.alpha = 0.1;
         }
@@ -58,66 +58,66 @@ var PhysicsSprite = Sprite.extend({
         }
         */
     },
-    
-    
+
+
     draw : function()
     {
         this.callParent();
-        
-        var vertices = [];        
+
+        var vertices = [];
         for(var i = 0; i < this.body.vertices.length; i++)
         {
             vertices.push(this.body.vertices[i].x);
-            vertices.push(this.body.vertices[i].y);            
-        }        
-        Graphics.drawPolygon(vertices, 0, 0, 1, 1, 1, 1, "stroke");        
+            vertices.push(this.body.vertices[i].y);
+        }
+        Graphics.drawPolygon(vertices, 0, 0, 1, 1, 1, 1, "stroke");
     }
-    
+
 
 });
-        
-StateGame = State.extend({ 
+
+StateGame = State.extend({
 
     bgr : null,
     boxes : null,
     ground : null,
     engine : null,
-    
+
     constructor : function()
     {
-        this.callParent();              
+        this.callParent();
     },
 
     init : function()
     {
         this.callParent();
         Input.addInputReceiver(this);
-        
+
         this.bgr = { r:Utils.randRange(0.0, 0.9), g:Utils.randRange(0.0, 0.9), b:Utils.randRange(0.0, 0.9) };
         this.engine = Engine.create();
-        
+
         // setting up the worlds bounds
         this.engine.world.bounds.min = { x: 0, y: 0 };
         this.engine.world.bounds.max = { x: 200000, y: 200000 };
-        
+
         this.boxes = [];
         this.addBox(400, 200, "box");
         this.addBox(450, 50, "box");
         this.addBox(252, -10, "blue", true);
-        
+
         this.addBox(50, 10, "long");
-        
+
         this.ground = Bodies.rectangle(100, 610, 810, 60, { isStatic: true });
         World.add(this.engine.world, this.ground);
-        Utils.invokeRepeating(this.onChangeSomething.bind(this), 3.2);        
+        Utils.invokeRepeating(this.onChangeSomething.bind(this), 3.2);
     },
 
     onChangeSomething : function()
     {
-        //Matter.Body.translate(this.boxes[0].body, {x: 0, y:-300}); 
+        //Matter.Body.translate(this.boxes[0].body, {x: 0, y:-300});
         Matter.Body.applyForce(this.boxes[0].body, {x:0, y:0}, {x:0.2, y:-0.1});
     },
-    
+
     addBox : function(x, y, t, circle)
     {
         var box = new PhysicsSprite(t, x, y, circle);
@@ -125,48 +125,48 @@ StateGame = State.extend({
         this.add(box);
         World.add(this.engine.world, box.body);
     },
-    
+
     onClickInput : function(x, y)
-    { 
+    {
         if(x > 0 && x < Graphics.width && y > 0 && y < Graphics.height)
-        { 
+        {
             this.addBox(x, y, "orange"); // 40 = half of image's width. I could avoid hardcoding it, but, oh why.
         }
     },
-    
+
     update : function(delta)
     {
         // slowmotion tests
         //Core.timeScale = 0.3;
         //this.engine.timeScale = Core.timeScale;
-        Engine.update(this.engine, delta*1000); 
+        Engine.update(this.engine, delta*1000);
         this.callParent(delta);
     },
 
     draw : function()
     {
-        Graphics.drawFullScreenRect(this.bgr.r, this.bgr.g, this.bgr.b, 1.0);               
-        
-        var vertices = [];        
+        Graphics.drawFullScreenRect(this.bgr.r, this.bgr.g, this.bgr.b, 1.0);
+
+        var vertices = [];
         for(var i = 0; i < this.ground.vertices.length; i++)
         {
             vertices.push(this.ground.vertices[i].x);
-            vertices.push(this.ground.vertices[i].y);            
-        }        
-        Graphics.drawPolygon(vertices, 0, 0, 1, 1, 1, 0.4); //, "stroke");        
-        
-        
-        this.callParent();          
+            vertices.push(this.ground.vertices[i].y);
+        }
+        Graphics.drawPolygon(vertices, 0, 0, 1, 1, 1, 0.4); //, "stroke");
+
+
+        this.callParent();
         Graphics.drawText("Click to see magic", 200, 10, 1, 1, 1, Math.sin(Core.totalTime), 24);
     }
-        
-});         
+
+});
 
 Core.init(680, 640);
-Core.setState(new StateGame()); 
+Core.setState(new StateGame());
 Core.addAsset([ 'box',      'gfx/box.png',
                 'long',     'gfx/long.png',
-                'blue',     'gfx/blue.png',                
+                'blue',     'gfx/blue.png',
                 'orange',   'gfx/orange.png' ]);
 Core.loadAndRun();
 
