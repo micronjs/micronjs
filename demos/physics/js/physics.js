@@ -333,7 +333,7 @@ var PhysicsDef = Entity.extend({
         this.gravity.y = y;
     },
 
-    axisIntersect(min0, max0, min1, max1, d)
+    axisIntersect : function(min0, max0, min1, max1, d)
     {
         var d0 = max1 - min0;
         var d1 = max0 - min1;
@@ -355,7 +355,7 @@ var PhysicsDef = Entity.extend({
         return [true, d];
     },
 
-    testAABBvsAABB(first, second)
+    testAABBvsAABB : function(first, second)
     {
         var ret = {
             result : false,
@@ -399,7 +399,7 @@ var PhysicsDef = Entity.extend({
         return ret;
     },
 
-    testSPHEREvsSPHERE(first, second)
+    testSPHEREvsSPHERE : function(first, second)
     {
         var ret = {
             result : false,
@@ -434,7 +434,7 @@ var PhysicsDef = Entity.extend({
         return this.testAABBvsAABB(first, second);
     },
 
-	update : function(delta)
+    update : function(delta)
     {
         this.callParent(delta);
 
