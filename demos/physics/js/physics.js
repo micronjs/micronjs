@@ -1,22 +1,17 @@
 
-var V_AABB = 1000
-var V_SPHERE = 2000
-
 var Body = Entity.extend({
 
     group : "",
-    type : V_AABB,
+    type : "AABB",
     x : 0.0,
     y : 0.0,
     w : 1.0,
     h : 1.0,
     extents: null,
-    min : null,
-    max : null,
-    radius : 0.0,
+    radius : 1.0,
     mass : 1.0,
-    elasticity : 0.35,
-    friction : 0.92,
+    elasticity : 0.235,
+    friction : 0.9,  // todo: add perhaps airFriction???
     velocity : null,
     isDynamic : true,
     isSolid : true,
@@ -26,11 +21,8 @@ var Body = Entity.extend({
     constructor : function(group)
     {
         this.callParent();
-
         this.group = group || "default";
-        this.extents = { x: 0, y: 0 };
-        this.min = { x: 0, y: 0 };
-        this.max = { x: 0, y: 0 };
+        this.extents = { x: 0.5, y: 0.5 };
         this.velocity = { x: 0, y: 0 };
         this.skippedGroups = [];
         this.groupsOnCallbacks = {};
@@ -38,10 +30,23 @@ var Body = Entity.extend({
         Physics.addBody(this);
     },
 
-    // TEST ME! (and after doing destroy, please also null this object)
     destroy : function()
     {
         Physics.removeBody(this);
+    },
+
+    makeCircle : function(x, y, radius)
+    {
+        this.type = Physics.V_SPHERE;
+        this.setPosition(x, y);
+        this.setRadius(r);
+    },
+
+    makeRect : function(x, y, w, h)
+    {
+        this.type = Physics.V_AABB;
+        this.setPosition(x, y);
+        this.setSize(w, h);
     },
 
     // IMPORTANT! the position in physics object is stored FROM THE CENTER of the object! (perhaps this should be changed to match micron???)
@@ -59,13 +64,20 @@ var Body = Entity.extend({
         this.h = h;
     },
 
-    // TEST ME
+    setRadius : function(r)
+    {
+        this.extents.x = r;
+        this.extents.y = r;
+        this.w = r*2;
+        this.h = r*2;
+        this.radius = r;
+    },
+
 	skipGroup : function(otherGroup)
     {
         this.skippedGroups.push(otherGroup);
     },
 
-    // TEST ME
     skipSelfGroup : function(flag)
     {
         if(flag)
@@ -78,7 +90,6 @@ var Body = Entity.extend({
         }
     },
 
-    // TEST ME
     unskipGroup : function(otherGroup)
     {
         var index = this.skippedGroups.indexOf(otherGroup);
@@ -88,7 +99,6 @@ var Body = Entity.extend({
         }
     },
 
-    // TEST ME
     canSkip : function(otherGroup)
     {
         if(this.skippedGroups.indexOf(otherGroup) !== -1)
@@ -106,11 +116,11 @@ var Body = Entity.extend({
 
     intersects : function(other)
     {
-        if(this.type === V_SPHERE && other.type === V_SPHERE)
+        if(this.type === Physics.V_SPHERE && other.type === Physics.V_SPHERE)
         {
             return Physics.testSPHEREvsSPHERE(this, other);
         }
-        else if(this.type === V_AABB && other.type === V_AABB)
+        else if(this.type === Physics.V_AABB && other.type === Physics.V_AABB)
         {
             return Physics.testAABBvsAABB(this, other);
         }
@@ -150,7 +160,7 @@ var Body = Entity.extend({
 
         var n2 = (N.x * N.x) + (N.y * N.y);
 
-        if (n2 < 0.00001)
+        if (n2 < 0.0001)
         {
             return;
         }
@@ -175,7 +185,10 @@ var Body = Entity.extend({
         // this is fucking up everything, keep commented please
         //other.velocity.x -= ((1.0 + other.elasticity) * fRatio1) * Vn.x + Vt.x + other.friction;
         //other.velocity.y -= ((1.0 + other.elasticity) * fRatio1) * Vn.y + Vt.y + other.friction;
+    },
 
+    execCallback : function(other)
+    {
         if(other.group in this.groupsOnCallbacks)
         {
             this.groupsOnCallbacks[other.group](other); // execute the callback - if any
@@ -187,14 +200,14 @@ var Body = Entity.extend({
     {
         switch(this.type)
         {
-            case V_SPHERE:
+            case Physics.V_SPHERE:
                 //if(Vec3Distance(x, y, z, m_pos.x, m_pos.y, m_pos.z) > m_radius)
                 if(Math.sqrt((this.x - x) * (this.x - x) + (this.y - y) * (this.y - y2)) > this.radius)
                 {
                     return true;
                 }
             break;
-            case V_AABB:
+            case Physics.V_AABB:
             default:
                 var minx = this.x - this.extents.x,
                     miny = this.y - this.extents.y;
@@ -273,20 +286,30 @@ var Body = Entity.extend({
     update : function(delta)
     {
         this.callParent(delta);
+
         if(this.isDynamic && this.isSolid)
         {
-            this.velocity.x += Physics.gravity.x * this.friction;
-            this.velocity.y += Physics.gravity.y * this.friction * -1.0;
+            this.velocity.x += Physics.gravity.x;
+            this.velocity.y += Physics.gravity.y * -1.0;
 
             this.x += this.velocity.x * delta;
             this.y += this.velocity.y * delta;
+
+            this.velocity.x *= this.friction;
+            this.velocity.y *= this.friction;
         }
     },
 
-    // basic debug stuff
-    debugDraw : function(r, g, b, a)
+    drawDebug : function(r, g, b, a)
     {
-        Graphics.drawRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, r, g, b, a);
+        if(this.type === Physics.V_AABB)
+        {
+            Graphics.drawRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, r, g, b, a);
+        }
+        else if(this.type === Physics.V_SPHERE)
+        {
+            Graphics.drawCircle(this.x, this.y, this.radius, r, g, b, a);
+        }
     }
 
 });
@@ -296,6 +319,8 @@ var PhysicsDef = Entity.extend({
 
     gravity : null,
     bodies : null,
+    V_AABB : "AABB",
+    V_SPHERE : "SPHERE",
 
     constructor : function()
     {
@@ -304,7 +329,8 @@ var PhysicsDef = Entity.extend({
         this.bodies = [];
     },
 
-    addBody : function(body) // used automatically when creating a new body (to register itself). what happens when something is destroyed? > call destroy
+    // used automatically when creating a new body (to register itself). what happens when something is destroyed? > call destroy
+    addBody : function(body)
     {
         this.add(body);
         this.bodies.push(body);
@@ -316,7 +342,6 @@ var PhysicsDef = Entity.extend({
         return ret;
     },
 
-    // TEST ME
     removeBody : function(body)
     {
         var index = this.bodies.indexOf(body);
@@ -407,8 +432,6 @@ var PhysicsDef = Entity.extend({
             otherObj : {}
         }
 
-        (x * V.x) + (y * V.y)
-
         var pDist = {x: second.x - first.x, y: second.y - first.y };
         var dist2 = (pDist.x * pDist.x) + (pDist.y * pDist.y);
         var r = first.radius + second.radius;
@@ -419,7 +442,8 @@ var PhysicsDef = Entity.extend({
             return ret;
         }
 
-        pDist /= Math.sqrt(dist2);
+        pDist.x /= Math.sqrt(dist2);
+        pDist.y /= Math.sqrt(dist2);
 
         ret.thisObj     = { x: first.x + pDist.x * first.radius, y: first.y + pDist.y * first.radius }; //first->getPosition() + pDist * first->getRadius();
         ret.otherObj    = { x: second.x - pDist.x * second.radius, y: second.y - pDist.y * second.radius }; // second->getPosition() - pDist * second->getRadius();
@@ -447,14 +471,16 @@ var PhysicsDef = Entity.extend({
                 var first = this.bodies[i],
                     second = this.bodies[j];
 
-                    // FINISH THIS SHIT
-                //if(first.isDynamic && first.isSolid && !first.canSkip(second) && second.isSolid)
                 if(!first.canSkip(second.group))
                 {
                     var data = first.intersects(second);
                     if(data.result === true)
                     {
-                        first.processCollision(second, data);
+                        if(first.isSolid && second.isSolid)
+                        {
+                            first.processCollision(second, data);
+                        }
+                        first.execCallback(second);
                     }
                 }
             }
