@@ -1,0 +1,8 @@
+
+
+
+npm run publihs-docs < generate doc
+npm install < missing dependencies
+npm test < jshing
+npm run build < build shit
+npm start < watch

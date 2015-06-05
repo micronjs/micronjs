@@ -89,6 +89,8 @@
 		"AnimKey" : true,
 		"AnimKeyCall" : true,
 		"AnimClip" : true,
-		"Animator" : true
-    }
+		"Animator" : true,
+        "Physics" : true,
+        "Body" : true
+    } 
 }

@@ -16,6 +16,8 @@ pages:
 - [reference/graphics/particlebase.md, Graphics, Pariclebase]
 - [reference/graphics/particlecircle.md, Graphics, ParticleCircle]
 - [reference/graphics/particlesystem.md, Graphics, ParticleSystem]
+- [reference/physics/physics.md, Physics, Physics]
+- [reference/physics/body.md, Physics, Body]
 - [reference/animation/animkey.md, Animation, AnimKey]
 - [reference/animation/animkeycall.md, Animation, AnimKeyCall]
 - [reference/animation/animclip.md, Animation, AnimClip]

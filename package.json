@@ -1,6 +1,6 @@
 {
   "name": "micronjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Awesome js framework for 2d games/apps/experiments and more.",
   "main": "index.js",
   "directories": {
