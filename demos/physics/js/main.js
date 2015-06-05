@@ -14,15 +14,13 @@ var StateGame = State.extend({
     },
 
     init : function()
-    {
-
+    {    
         this.body = Physics.newBody();
         this.body.setSize(100, 100);
         this.body.mass = 1;
         this.body.x = 350;
         this.body.onCollision("ground", this.testCollision.bind(this) );
         this.friction = 0.01;
-        //this.body.isDynamic = false;
 
         this.circle = new Physics.newBody();
         this.circle.type = Physics.V_SPHERE;
@@ -60,6 +58,7 @@ var StateGame = State.extend({
         {
             this.ground.destroy();
             this.ground = null;
+            Core.pause(true);
         }
     },
 
@@ -80,32 +79,26 @@ var StateGame = State.extend({
     {
         var moved = false;
 
-        //this.body.resetVelocity();
-
         if(Input.isKeyPressed(Input.KEY_A))
         {
             moved = true;
-            //this.body.velocity.x = -50;
             this.body.addImpulse(-25, 0);
         }
         if(Input.isKeyPressed(Input.KEY_D))
         {
             moved = true;
-            //this.body.velocity.x = 50;
             this.body.addImpulse(25, 0);
         }
 
         if(Input.isKeyPressed(Input.KEY_S))
         {
             moved = true;
-            //this.body.velocity.y = 50;
             this.body.addImpulse(0, 25);
         }
 
         if(Input.isKeyPressed(Input.KEY_W))
         {
             moved = true;
-            //this.body.velocity.y = -50;
             this.body.addImpulse(0, -25);
         }
 
@@ -116,26 +109,13 @@ var StateGame = State.extend({
     {
         this.callParent(delta);
 
-        // TEST IMPULSES!
-        /*
-        if(Input.isKeyPressed(Input.KEY_A))          this.body.addImpulse(-50, 0); //this.body.velocity.x = -50;   // this.body.addImpulse(-5.0, 0.0);
-        else if(Input.isKeyPressed(Input.KEY_D))     this.body.velocity.x = 50;   // this.body.addImpulse(5.0, 0.0);
-        else if(Input.isKeyPressed(Input.KEY_S))     this.body.velocity.y = 50;   // this.body.addImpulse(0.0, 5.0);
-        else if(Input.isKeyPressed(Input.KEY_W))     this.body.velocity.y = -50;   // this.body.addImpulse(0.0, -5.0);
-        //else this.body.resetVelocity();
-        */
-
         if(Input.isKeyPressed(Input.KEY_SPACE))
         {
             this.gravityEnabled = !this.gravityEnabled;
             this.setGravity(this.gravityEnabled);
         }
 
-        if(!this.moveBody() && !this.gravityEnabled)
-        {
-          //  this.body.resetVelocity();
-        }
-
+        this.moveBody();
     },
 
     draw : function()
