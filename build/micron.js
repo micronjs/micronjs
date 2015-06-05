@@ -454,7 +454,7 @@ Core = Base.extend({
     currentState: null,
     width: 0,
     height: 0,
-    storage: false,
+    isStorageAvailable: false,
     fps: 0,
     fpsCounter: 0,
     elapsed: 0,
@@ -464,11 +464,10 @@ Core = Base.extend({
     date: null,
     dateNow: null,
     dateThen: null,
-    loaded: false,
     assets: null,
     assetsMap: null,
     assetsLoaded: 0,
-    pause: false,
+    isPaused: false,
     constructor: function() {},
     init: function(width, height) {
         this.width = width;
@@ -481,7 +480,7 @@ Core = Base.extend({
         this.date = new Date();
         this.dateThen = Date.now();
         this.dateNow = Date.now();
-        this.storage = this.hasStorageSupport();
+        this.isStorageAvailable = this.hasStorageSupport();
         this.assets = [];
         this.assetsMap = {};
     },
@@ -491,10 +490,20 @@ Core = Base.extend({
         Graphics.reposition(offsetX, offsetY);
     },
     _onBlur: function() {
-        this.pause = true;
+        this.isPaused = true;
         Input.resetAll();
         if (this.currentState !== null) {
             this.currentState.onPause(true);
+        }
+    },
+    pause: function(flag) {
+        if (flag) {
+            this._onBlur();
+        } else {
+            this.isPaused = false;
+            if (this.currentState !== null) {
+                this.currentState.onPause(false);
+            }
         }
     },
     update: function(delta) {
@@ -505,7 +514,7 @@ Core = Base.extend({
             this.fps = this.fpsCounter;
             this.fpsCounter = 0;
         }
-        if (!this.pause) {
+        if (!this.isPaused) {
             this.totalTime += delta;
             if (this.currentState !== null) {
                 this.currentState.update(delta * this.timeScale);
@@ -513,10 +522,7 @@ Core = Base.extend({
             Utils.update(delta * this.timeScale);
             Graphics.update(delta * this.timeScale);
         } else if (Input.isMousePressed()) {
-            this.pause = false;
-            if (this.currentState !== null) {
-                this.currentState.onPause(false);
-            }
+            this.pause(false);
         }
     },
     draw: function() {
@@ -525,8 +531,8 @@ Core = Base.extend({
             this.currentState.draw();
             Graphics.postDraw();
         }
-        if (this.pause) {
-            Graphics.drawFullScreenRect(0, 0, 0, .72);
+        if (this.isPaused) {
+            Graphics.drawRect(0, 0, Graphics.width, Graphics.height, 0, 0, 0, .72);
             Graphics.enableBlur(5, 1, 1, 1, 1);
             Graphics.drawRegularPolygon(Graphics.width / 2, Graphics.height / 2, 3, Utils.scalePercentWidth(25), 1, 1, 1, 1, "fill");
             Graphics.disableBlur();
@@ -586,14 +592,14 @@ Core = Base.extend({
             return false;
         }
     },
-    saveToStorage: function(object, value) {
-        if (this.storage) {
-            localStorage[object] = value;
+    saveToStorage: function(name, value) {
+        if (this.isStorageAvailable) {
+            localStorage[name] = value;
         }
     },
-    readFromStorage: function(object) {
-        if (this.storage) {
-            return localStorage[object];
+    readFromStorage: function(name) {
+        if (this.isStorageAvailable) {
+            return localStorage[name];
         }
         return null;
     },
@@ -911,7 +917,6 @@ var Camera = new Camera();
 Graphics = Base.extend({
     canvas: null,
     context: null,
-    initialized: false,
     images: null,
     imagesMap: null,
     scale: {
@@ -933,7 +938,6 @@ Graphics = Base.extend({
         this.canvas.height = height;
         this.canvas.style.position = "absolute";
         document.body.appendChild(this.canvas);
-        this.initialized = true;
         this.screenRect = this.canvas.getBoundingClientRect();
     },
     rescale: function(width, height) {
@@ -1046,7 +1050,7 @@ Graphics = Base.extend({
         }
     },
     drawFullScreenRect: function(r, g, b, a) {
-        this.drawRect(0, 0, this.width, this.height, r, g, b, a);
+        this.drawRect(Camera.getX(), Camera.getY(), this.width, this.height, r, g, b, a);
     },
     drawLine: function(x1, y1, x2, y2, r, g, b, a, lineWidth, round) {
         this.context.beginPath();
@@ -1580,6 +1584,377 @@ var Animator = Entity.extend({
     },
     destroy: function() {}
 });
+
+var Body = Entity.extend({
+    group: "",
+    type: "AABB",
+    x: 0,
+    y: 0,
+    w: 1,
+    h: 1,
+    extents: null,
+    radius: 1,
+    mass: 1,
+    elasticity: .235,
+    friction: .9,
+    velocity: null,
+    isDynamic: true,
+    isSolid: true,
+    skippedGroups: null,
+    groupsOnCallbacks: null,
+    constructor: function(group) {
+        this.callParent();
+        this.group = group || "default";
+        this.extents = {
+            x: .5,
+            y: .5
+        };
+        this.velocity = {
+            x: 0,
+            y: 0
+        };
+        this.skippedGroups = [];
+        this.groupsOnCallbacks = {};
+        Physics.addBody(this);
+    },
+    destroy: function() {
+        Physics.removeBody(this);
+    },
+    makeCircle: function(x, y, radius) {
+        this.type = Physics.V_SPHERE;
+        this.setPosition(x, y);
+        this.setRadius(radius);
+    },
+    makeRect: function(x, y, w, h) {
+        this.type = Physics.V_AABB;
+        this.setPosition(x, y);
+        this.setSize(w, h);
+    },
+    setPosition: function(x, y) {
+        this.x = x;
+        this.y = y;
+    },
+    setSize: function(w, h) {
+        this.extents.x = w / 2;
+        this.extents.y = h / 2;
+        this.w = w;
+        this.h = h;
+    },
+    setRadius: function(r) {
+        this.extents.x = r;
+        this.extents.y = r;
+        this.w = r * 2;
+        this.h = r * 2;
+        this.radius = r;
+    },
+    skipGroup: function(otherGroup) {
+        this.skippedGroups.push(otherGroup);
+    },
+    skipSelfGroup: function(flag) {
+        if (flag) {
+            this.skipGroup(this.group);
+        } else {
+            this.unskipGroup(this.group);
+        }
+    },
+    unskipGroup: function(otherGroup) {
+        var index = this.skippedGroups.indexOf(otherGroup);
+        if (index >= 0) {
+            this.bodies.splice(index, 1);
+        }
+    },
+    canSkip: function(otherGroup) {
+        if (this.skippedGroups.indexOf(otherGroup) !== -1) {
+            return true;
+        }
+        return false;
+    },
+    onCollision: function(group, callback) {
+        this.groupsOnCallbacks[group] = callback;
+    },
+    intersects: function(other) {
+        if (this.type === Physics.V_SPHERE && other.type === Physics.V_SPHERE) {
+            return Physics.testSPHEREvsSPHERE(this, other);
+        } else if (this.type === Physics.V_AABB && other.type === Physics.V_AABB) {
+            return Physics.testAABBvsAABB(this, other);
+        } else {
+            return Physics.testAABBvsSPHERE(this, other);
+        }
+    },
+    processCollision: function(other, data) {
+        var N = {
+            x: data.otherObj.x - data.thisObj.x,
+            y: data.otherObj.y - data.thisObj.y
+        };
+        var fRatio1, fRatio2;
+        var massRatio = this.calculateMassRatio(other, true);
+        if (!massRatio.result) {
+            return;
+        }
+        fRatio1 = massRatio.thisObj;
+        fRatio2 = massRatio.otherObj;
+        this.x += N.x * fRatio1;
+        this.y += N.y * fRatio1;
+        other.x -= N.x * fRatio2;
+        other.y -= N.y * fRatio2;
+        var xVel = {
+            x: this.velocity.x - other.velocity.x,
+            y: this.velocity.y - other.velocity.y
+        };
+        var nv = N.x * xVel.x + N.y * xVel.y;
+        if (nv > 0) {
+            return;
+        }
+        var n2 = N.x * N.x + N.y * N.y;
+        if (n2 < 1e-4) {
+            return;
+        }
+        massRatio = this.calculateMassRatio(other, false);
+        fRatio1 = massRatio.thisObj;
+        fRatio2 = massRatio.otherObj;
+        var fElasticity = this.elasticity;
+        var fFriction = this.friction;
+        var Vn = {
+            x: N.x * (nv / n2),
+            y: N.y * (nv / n2)
+        };
+        var Vt = {
+            x: xVel.x - Vn.x,
+            y: xVel.y - Vn.y
+        };
+        this.velocity.x -= (1 + this.elasticity) * fRatio1 * Vn.x + Vt.x + this.friction;
+        this.velocity.y -= (1 + this.elasticity) * fRatio1 * Vn.y + Vt.y + this.friction;
+    },
+    execCallback: function(other) {
+        if (other.group in this.groupsOnCallbacks) {
+            this.groupsOnCallbacks[other.group](other);
+        }
+    },
+    isPointInside: function(x, y) {
+        switch (this.type) {
+          case Physics.V_SPHERE:
+            if (Math.sqrt((this.x - x) * (this.x - x) + (this.y - y) * (this.y - y)) > this.radius) {
+                return true;
+            }
+            break;
+
+          case Physics.V_AABB:
+          default:
+            var minx = this.x - this.extents.x, miny = this.y - this.extents.y;
+            var maxx = this.x + this.extents.x, maxy = this.y + this.extents.y;
+            if (x >= minx && x <= maxx && y >= miny && y <= maxy) {
+                return true;
+            }
+            break;
+        }
+    },
+    calculateMassRatio: function(other, normalize) {
+        var ret = {
+            result: false,
+            thisObj: 0,
+            otherObj: 0
+        };
+        var fRatio1 = 0;
+        var fRatio2 = 0;
+        var m = this.mass + other.mass;
+        if (m < 1e-6) {
+            return ret;
+        } else if (other.mass < 1e-7 || other.isDynamic === false) {
+            fRatio1 = 1;
+            fRatio2 = 0;
+        } else if (this.mass < 1e-7 || this.isDynamic === false) {
+            fRatio1 = 0;
+            fRatio2 = 1;
+        } else {
+            if (normalize) {
+                fRatio1 = .5;
+                fRatio2 = 1 - fRatio1;
+            } else {
+                fRatio1 = other.mass / m;
+                fRatio2 = 1 - fRatio1;
+            }
+        }
+        ret.result = true;
+        ret.thisObj = fRatio1;
+        ret.otherObj = fRatio2;
+        return ret;
+    },
+    addImpulse: function(x, y) {
+        this.velocity.x += x / this.mass;
+        this.velocity.y += y / this.mass;
+    },
+    resetVelocity: function() {
+        this.velocity.x = 0;
+        this.velocity.y = 0;
+    },
+    update: function(delta) {
+        this.callParent(delta);
+        if (this.isDynamic && this.isSolid) {
+            this.velocity.x += Physics.gravity.x;
+            this.velocity.y += Physics.gravity.y * -1;
+            this.x += this.velocity.x * delta;
+            this.y += this.velocity.y * delta;
+            this.velocity.x *= this.friction;
+            this.velocity.y *= this.friction;
+        }
+    },
+    drawDebug: function(r, g, b, a) {
+        if (this.type === Physics.V_AABB) {
+            Graphics.drawRect(this.x - this.w / 2, this.y - this.h / 2, this.w, this.h, r, g, b, a);
+        } else if (this.type === Physics.V_SPHERE) {
+            Graphics.drawCircle(this.x, this.y, this.radius, r, g, b, a);
+        }
+    }
+});
+
+var PhysicsDef = Entity.extend({
+    gravity: null,
+    bodies: null,
+    V_AABB: "AABB",
+    V_SPHERE: "SPHERE",
+    constructor: function() {
+        this.callParent();
+        this.gravity = {
+            x: 0,
+            y: -10
+        };
+        this.bodies = [];
+    },
+    addBody: function(body) {
+        this.add(body);
+        this.bodies.push(body);
+    },
+    newBody: function(group) {
+        var ret = new Body(group);
+        return ret;
+    },
+    removeBody: function(body) {
+        var index = this.bodies.indexOf(body);
+        if (index >= 0) {
+            this.bodies.splice(index, 1);
+            this.remove(body);
+        }
+    },
+    setGravity: function(x, y) {
+        this.gravity.x = x;
+        this.gravity.y = y;
+    },
+    axisIntersect: function(min0, max0, min1, max1, d) {
+        var d0 = max1 - min0;
+        var d1 = max0 - min1;
+        if (d0 < 0 || d1 < 0) {
+            return [ false ];
+        }
+        if (d0 < d1) {
+            d = d0;
+        } else {
+            d = -d1;
+        }
+        return [ true, d ];
+    },
+    testAABBvsAABB: function(first, second) {
+        var ret = {
+            result: false,
+            thisObj: {},
+            otherObj: {}
+        };
+        var xMin0 = {
+            x: first.x - first.extents.x,
+            y: first.y - first.extents.y
+        };
+        var xMax0 = {
+            x: first.x + first.extents.x,
+            y: first.y + first.extents.y
+        };
+        var xMin1 = {
+            x: second.x - second.extents.x,
+            y: second.y - second.extents.y
+        };
+        var xMax1 = {
+            x: second.x + second.extents.x,
+            y: second.y + second.extents.y
+        };
+        var N = {
+            x: 0,
+            y: 0
+        };
+        var xAxis = this.axisIntersect(xMin0.x, xMax0.x, xMin1.x, xMax1.x, N.x);
+        var yAxis = this.axisIntersect(xMin0.y, xMax0.y, xMin1.y, xMax1.y, N.y);
+        if (!xAxis[0] || !yAxis[0]) {
+            return ret;
+        }
+        N.x = xAxis[1];
+        N.y = yAxis[1];
+        var mindist = Math.abs(N.x);
+        if (Math.abs(N.y) < mindist) {
+            mindist = Math.abs(N.y);
+            N.x = 0;
+        } else {
+            N.y = 0;
+        }
+        ret.result = true;
+        ret.thisObj = {
+            x: 0,
+            y: 0
+        };
+        ret.otherObj = N;
+        return ret;
+    },
+    testSPHEREvsSPHERE: function(first, second) {
+        var ret = {
+            result: false,
+            thisObj: {},
+            otherObj: {}
+        };
+        var pDist = {
+            x: second.x - first.x,
+            y: second.y - first.y
+        };
+        var dist2 = pDist.x * pDist.x + pDist.y * pDist.y;
+        var r = first.radius + second.radius;
+        var r2 = r * r;
+        if (dist2 > r2) {
+            return ret;
+        }
+        pDist.x /= Math.sqrt(dist2);
+        pDist.y /= Math.sqrt(dist2);
+        ret.thisObj = {
+            x: first.x + pDist.x * first.radius,
+            y: first.y + pDist.y * first.radius
+        };
+        ret.otherObj = {
+            x: second.x - pDist.x * second.radius,
+            y: second.y - pDist.y * second.radius
+        };
+        ret.result = true;
+        return ret;
+    },
+    testAABBvsSPHERE: function(first, second) {
+        return this.testAABBvsAABB(first, second);
+    },
+    update: function(delta) {
+        this.callParent(delta);
+        for (var i = 0; i < this.bodies.length; i++) {
+            for (var j = 0; j < this.bodies.length; j++) {
+                if (i === j) {
+                    continue;
+                }
+                var first = this.bodies[i], second = this.bodies[j];
+                if (!first.canSkip(second.group)) {
+                    var data = first.intersects(second);
+                    if (data.result === true) {
+                        if (first.isSolid && second.isSolid) {
+                            first.processCollision(second, data);
+                        }
+                        first.execCallback(second);
+                    }
+                }
+            }
+        }
+    }
+});
+
+var Physics = new PhysicsDef();
 
 var SoundDef = Base.extend({
     soundSupported: false,
