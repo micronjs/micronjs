@@ -10,7 +10,11 @@ The heavy rendering part of Micron. **Graphics** groups all the drawXXX methods,
 * Position: all the values you pass as position coordinates (**x, y**) are from the **upper left corner** of the image or primitive.
 * Rotation and scale: the values passed for rotation and scaling are considered from the **center** of the image or primitive.
 
+---
+
 ## Members
+
+---
 
 ### canvas
 
@@ -28,15 +32,11 @@ The basic ***canvas*** object. Feel free to manipulate it directly to suit your 
 
 ---
 
-### initialized
-
-    initialized : Boolean
-
----
-
 ### images
 
     images : Array
+
+The list of all the images loaded by Graphics. Useful to have access to the raw ImageElement data.
 
 ---
 
@@ -44,11 +44,7 @@ The basic ***canvas*** object. Feel free to manipulate it directly to suit your 
 
     imagesMap : {}
 
----
-
-### scale
-
-    scale : { x, y }
+Same as above, but in form of map.
 
 ---
 
@@ -56,11 +52,14 @@ The basic ***canvas*** object. Feel free to manipulate it directly to suit your 
 
     autoClearScreen : Boolean
 
-When true (which it is, by default), it will clear the screen automatically before drawing. If false, the user will have to do it manually.
+Flag. When true (which it is, by default), it will clear the screen automatically before drawing. If false, the user will have to do it manually.
+This is very useful to create several FX as blur (combined with drawing in full screen with low alpha values).
 
 ---
 
 ## Methods
+
+---
 
 ### init
 
@@ -82,7 +81,7 @@ If flag is **true**, all the textures will be displayed using nearest filtering.
 
     getWidth ()
 
-Return the width of your virtual window (the same value you provided in init).
+Return the width of your virtual window (the same value you provided in init). The same as Core.width.
 
 ---
 
@@ -160,6 +159,8 @@ For all the methods that have a "mode" parameter, it can always be either **"fil
 
     drawFullScreenRect (r,g,b,a)
 
+Draws a rectangle in fullscreen, no matter where the Camera is.
+
 ---
 
 ### drawLine
@@ -174,6 +175,8 @@ If round is not empty, it will be used to define lineCap.
 
     drawArc (x, y, radius, startAngle, endAngle, r, g, b, a, lineWidth, [mode="fill"])
 
+Draw an arc. Can be used to draw circles as well, but it is better to use drawCircle instead.
+
 ---
 
 ### drawCircle
@@ -184,10 +187,10 @@ If round is not empty, it will be used to define lineCap.
 
 ### drawSprite
 
-    drawSprite (img : [Image], x, y, width, height, angle, scaleX, scaleY, alpha)
+    drawSprite (path, x, y, width, height, angle, scaleX, scaleY, alpha)
 
-Note: if img is empty, the function will return.
-
+Path can be the full path to the image or the key used when the asset is loaded.
+    
 ---
 
 ### drawSpriteCropped

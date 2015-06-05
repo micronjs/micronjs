@@ -18,6 +18,8 @@ Frames can define custom easing functions and you can add AnimKey's or AnimKeyCa
 
 ## Members
 
+---
+
 ### name
 
 	name : String
@@ -60,6 +62,8 @@ I have no idea why you would want to mess with the current playback time, but he
 
 
 ## Methods
+
+---
 
 ### constructor
 

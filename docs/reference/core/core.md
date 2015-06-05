@@ -2,10 +2,13 @@
 
 <span class="label label-warning">Singleton</span> 
 
-The Core is the... core of the framework: it links all the submodules together. This is the one that controls the actual game and the state machine.
+The Core is the... core of the framework: it links all the submodules together. 
+This is the one that controls the actual game and the state machine.
 You won't likely have to modify this class.
     
 ## Members
+
+---
 
 ### currentState
 
@@ -32,9 +35,9 @@ The current [State](state.md) in execution.
 
 ---
 	
-### storage
+### isStorageAvailable
 
-    storage : Boolean
+    isStorageAvailable : Boolean
     
 <span class="label label-danger">read-only</span> If localStorage is available, this flag is true.
     
@@ -46,12 +49,6 @@ The current [State](state.md) in execution.
     
 <span class="label label-danger">read-only</span> Mean of frames per second in the last second.
     
----
-
-### fpsCounter
-
-    fpsCounter : Number
-
 ---
 
 ### totalTime
@@ -74,57 +71,43 @@ Total time elapsed since the game started. Only counts when the game is not paus
 
     timeScale : Number
 			
-This value controls how fast or slow things are updated. 1 is the default value.
+This value controls how fast or slow things are updated. 1.0 is the default value.
     
 **NOTE**: Bigger values will make things move faster, smaller values will make it move slower. 0 is totally paused.
+
+---
+
+### isPaused
+
+    isPaused : Boolean
     
----
-
-### date
+When this is **true**, the game is paused. False otherwise. Do not attempt to set this manually to pause the game, 
+you must use [Core.pause](core.md) instead.
     
-    date : Date
-
----
-
-### dateNow
-
-    dateNow : Date
-
----
-
-### dateThen
-
-    dateThen : Date
-
----
-
-### loaded
-
-    loaded : Boolean
-    
-<span class="label label-danger">read-only</span>
-
 ---
 
 ### assets
 
     assets : Object
  			
-All the assets loaded. Kept in case someone wants just to iterate through assets quickly.
+All the assets loaded. Kept in case someone wants just to iterate through assets quickly. 
+There is a map version available, smartly named assetsMap.
     
----
-
-### assetsMap
-
-    assetsMap : Object
-
 ---
 
 ### assetsLoaded
 
     assetsLoaded : Number
 
+The amount of assets loaded at any given time. When core executes init in your gamestate, this should be >= assets.length.
+    
+---
+    
 ## Methods	
+
+---
+
+### init
 
     init (width, height) 	
 
@@ -135,32 +118,49 @@ Pass the size the game should have on the screen. It will be rescaled and recent
 ### update
 
     update (delta)
-   
+
+Everything is updated from here: the gamestate, the fps counter, the tweens, etc. This is the source of them all.
+
 --- 
 
-### delta
+### draw
 
     draw ()
 
+Like update, draw is the source method for all draw calls to happen in micron. 
+If you need to do weird interstate drawing, pause or similar, this is your place.
+    
 ---
 
 ### run
 
     run ()
 
+An internal function, this is called by requestAnimFrame to update and draw everything. This is the heart of the loop.
+    
 ---
 
+### pause
+
+    pause (flag : Boolean)
+
+A handy method for pausing the game from code.    
+    
+---
+    
 ### setState
 
     setState (state)			
 
-Switch the current state. It will delete the previous one, but not the underlaying assets in Core.
+Switch the current state. It will delete the previous one, but not the underlaying assets in Core - you have to wipe them manually.
     
 ---
 
 ### getFPS
 
     getFPS ()
+    
+Return the current internal fps amount. Note that this is a bit innacurate. 
     
 ---
 
@@ -177,6 +177,7 @@ Example: `Core.addAsset([ "empty", "gfx/empty.jpg" ]);` The first parameter is t
     loadAndRun ()				
     
 Call after adding all your assets to start executing the current state.
+You can also call this without loading any asset - it will just start running your app/game/thing.
     
 ---
 
@@ -184,14 +185,20 @@ Call after adding all your assets to start executing the current state.
 
     hasStorageSupport ()
     
+Returns **true** if your browser supports local storage.
+    
 ---
 
 ### saveToStorage
 
-    saveToStorage (object, value)
+    saveToStorage (name, value)
+    
+A simple way to save things to local storage. Example: `Core.saveToStorage( "MyPlayer", { x: 10, y: 20, name: "Hodor" } ]);`    
     
 ---
 
 ### readFromStorage
 
-    readFromStorage (object)
+    readFromStorage (name)
+
+Returns the object/value by that name. If nothing is found by that name key, it returns **null**.

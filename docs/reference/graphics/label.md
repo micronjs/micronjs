@@ -2,11 +2,13 @@
 
 <span class="label label-info">Class</span>
 
-Labels are just a text sprite. Not like a bitmap font. Just a text. Sprite. 
+Labels are just a text sprite. Not like a bitmap font. Just a text. Sprite.
 It uses the canvas font rendering instead of a more traditional bitmap-font approach.
 Don't forget to manually setup the values for this object!
-		
-## Members	
+
+## Members
+
+---
 
 ### str
 
@@ -23,7 +25,7 @@ Don't forget to manually setup the values for this object!
 ### r
 
     r : Number
-		
+
 ---
 
 ### g
@@ -41,13 +43,17 @@ Don't forget to manually setup the values for this object!
 ### font
 
     font : String
-			
-## Methods	
+
+---
+
+## Methods
+
+---
 
 ### constructor
 
-    constructor (str)    				
-    
+    constructor (str)
+
 The initial text you would like to see on your label.
 
 ---

@@ -2,12 +2,14 @@
 
 <span class="label label-warning">Singleton</span><span class="label label-info">Class</span>
 
-The main and only camera singleton. Useful for doing things on the screen, like moving around, 
+The main and only camera singleton. Useful for doing things on the screen, like moving around,
 applying FX (**shake**, **fade-in/out** or adding an **overlay tint**).
-**NOTE:** if you want to replace the main camera by one of your own, 
+**NOTE:** if you want to replace the main camera by one of your own,
 just extend the Camera class and then override the Camera object. Easy!
 
 ## Members
+
+---
 
 ### x
 
@@ -21,11 +23,15 @@ The camera's position.
 
     y : Number
 
+Idem.
+
 ---
 
 ### shaking
 
     shaking : false
+
+If the shake FX is used, this will be true. Don't set to false to stop shaking, use **stopShake** instead.
 
 ---
 
@@ -45,11 +51,15 @@ The camera's position.
 
     fading : Boolean
 
+True when fading is in progress, false otherwise.
+
 ---
 
 ### overlayColor
 
     overlayColor : {r,g,b,a}
+
+A color used as full screen overlay. Useful for several FX (including fade in/out).
 
 ---
 
@@ -57,9 +67,13 @@ The camera's position.
 
     drawOverlay : Boolean
 
+Useful flag to enable/disable disable drawing the overlay object.
+
 ---
 
 ## Methods
+
+---
 
 ### constructor
 
@@ -69,7 +83,7 @@ The camera's position.
 
 ### shake
 
-    shake (time, strength, shakeEndCallback)
+    shake (time, strength, onShakeEndCallback)
 
 ---
 
@@ -106,11 +120,15 @@ The camera's position.
 
     getX () : number
 
+Getter for the camera X position. Wraps inside the shake offset, useful to know the accurate position.
+
 ---
 
 ### getY
 
     getY () : number
+
+Idem as above.
 
 ---
 

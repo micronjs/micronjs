@@ -6,6 +6,8 @@ The biggest module of Micron by far. Understanding its inner workings grant you 
 
 ## Methods
 
+---
+
 ### hasSound
 
     hasSound ()	: Boolean

@@ -9,6 +9,8 @@ Still, useful to build on top.
 			
 ## Members
 
+---
+
 ### wander
 
     wander : Number
@@ -62,8 +64,12 @@ Speed factor for each axis.
 ### b
     
     b : Number
+
+---
     
 ## Methods
+
+---
 
 ### constructor
 

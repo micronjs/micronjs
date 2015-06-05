@@ -8,13 +8,19 @@ will be tweened (if easing is enabled for the animation).
 
 ## Members
 
+---
+
 ### stopTime
 
     stopTime : Number
-
+    
 The time at which the keyframe will end.
 
+---
+
 ## Methods
+
+---
 
 ### constructor
 

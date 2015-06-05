@@ -10,17 +10,23 @@ just calling setUV and changing the proper values. Magic.
 
 ## Members
 
+---
+
 ### func
 
-func : Function
+    func : Function
 
 The function callback.
 
+---
+
 ## Methods
+
+---
 
 ### constructor
 
-constructor (obj : String, time : Number, func : Function, params : Array)
+    constructor (obj : String, time : Number, func : Function, params : Array)
 
 A quite simple key for calling any method of any of your actors.
 
@@ -29,9 +35,11 @@ A quite simple key for calling any method of any of your actors.
 * func: the function callback we will execute
 * params: extra magic, an array. The array can hold any data that your function accepts as parameters.
 
+---
+
 ### exec
 
-exec : (who)
+    exec : (who)
 
 "Who" is any object or class you use as your "actor". This basically performs a call
 on that object for the given method this key is holding.

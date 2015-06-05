@@ -7,9 +7,12 @@ You can register objects to the input system to receive "touch" events.
 
 
 **Example:** inside a class, do Input.addInputReceiver(this), and then override the method _onClickInput_.
-    
+
+---    
 
 ## Members
+
+---
 
 ### isClick
 
@@ -63,6 +66,8 @@ KEY_Z KEY_NUM0 KEY_NUM1 KEY_NUM2 KEY_NUM3 KEY_NUM4 KEY_NUM5 KEY_NUM6 KEY_NUM7 KE
 ---
 
 ## Methods	
+
+---
 
 ### checkMulitouchSupport
 

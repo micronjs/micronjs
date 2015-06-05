@@ -14,6 +14,8 @@ entity/state/whatever.
 
 ## Members
 
+---
+
 ### playing 
 
 	playing : Boolean
@@ -54,6 +56,8 @@ The name of the current animation player.
 	
 ## Methods
 
+---
+
 ### constructor
 
     constructor : function()
@@ -66,7 +70,7 @@ The name of the current animation player.
 
 Add a new clip to the animator object. Example:
 
-    this.animator.addClip(this.ninjaAnimationRun, { "actor" : this.ninjaObject } );
+    `this.animator.addClip(this.ninjaAnimationRun, { "actor" : this.ninjaObject } );`
 	
 ---	
 

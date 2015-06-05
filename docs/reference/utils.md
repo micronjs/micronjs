@@ -4,7 +4,11 @@
 
 Helper functions that simplify working with js.
 
+---
+
 ## Members
+
+---
 
     E_LINEAR_IN, E_LINEAR_OUT, E_LINEAR_INOUT, 
     E_SINE_IN, E_SINE_OUT, E_SINE_INOUT, 
@@ -28,6 +32,8 @@ One of the most important things of the Utils, are the tweens. Here is an exampl
 ---
 
 ## Methods
+
+---
 
 ### emptyFunc
 

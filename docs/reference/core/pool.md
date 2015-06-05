@@ -8,6 +8,8 @@ Pools are extremely simple... erh... pools of [**Entities**](entity.md). When ma
 
 ## Methods
 
+---
+
 ### constructor
 
     constructor ()
@@ -18,7 +20,7 @@ Pools are extremely simple... erh... pools of [**Entities**](entity.md). When ma
 
     addToPool (object, amount)
 
-Before pooling objects, you must first add the "model" ones. 
+Before pooling objects, you must first add the "model" ones.
 Just put any poolable object and how many "unique" objects you want.
 
 ---
@@ -27,7 +29,7 @@ Just put any poolable object and how many "unique" objects you want.
 
     spawn (amount)
 
-Determine how many death objects should be respawned. 
+Determine how many death objects should be respawned.
 It will spawn as many as possible. If there won't be enough, it will do nothing.
 
 ---

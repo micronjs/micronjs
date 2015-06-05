@@ -7,10 +7,14 @@ Also, this is like the shittiest name ever made. But hey, Audio was picked, so, 
 				
 ## Members
 
+---
+
 ### path
 
     path : String
- 
+
+The path to your audio file.
+
 ---
 
 ### loops
@@ -23,9 +27,13 @@ When true, it will keep looping until the end of days.
 		
 ## Methods
 
+---
+
 ### constructor
 
     constructor (path, loop)
+    
+Path: an string, path to your sound. Loop: boolean flag. True to make it loop.
     
 ---
 

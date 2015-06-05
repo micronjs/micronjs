@@ -9,6 +9,8 @@ functionality for collision detection, however it is a bit shitty.
     
 ## Methods
 
+---
+
 ### constructor
 
     constructor (pathOrAlias) 	
