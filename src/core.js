@@ -1,5 +1,5 @@
 /***
- * MICRON. Almar. 2014-2015. Core. Input. Graphics. Sound. And a lot of other things.
+ * MICRON. Almar. 2014-2015. Core. Input. Graphics. Physics!. Sound. And a lot of other things.
  ***/
 
 // Core.js
@@ -524,7 +524,7 @@ var UtilsDef = Base.extend({
      * [easing]: any of the easing functions
      * [func]: callback to execute when the tween is over.
     */
-    // todo: accept multliple parameters! (or something)
+    // todo: accept multiple parameters! (or something)
     tween : function(object, property, destination, time, easing, callback)
     {
         this._tweens.push(new TweenObject(object, property, destination, time, easing, callback));
@@ -712,7 +712,7 @@ Core = Base.extend({
     currentState : null,
     width : 0,
     height : 0,
-    storage : false,
+    isStorageAvailable : false,
     fps : 0,
     fpsCounter : 0,
     elapsed : 0,
@@ -722,11 +722,10 @@ Core = Base.extend({
     date : null,
     dateNow: null,
     dateThen : null,
-    loaded : false,
     assets : null, // keep it in case someone wants just to iterate through assets quickly
     assetsMap : null,
     assetsLoaded : 0,
-    pause : false,
+    isPaused : false,
 
     constructor : function()
     {
@@ -749,7 +748,7 @@ Core = Base.extend({
         this.dateThen 	= Date.now();
         this.dateNow 	= Date.now();
 
-        this.storage = this.hasStorageSupport();
+        this.isStorageAvailable = this.hasStorageSupport();
         this.assets = [];
         this.assetsMap = {};
     },
@@ -772,7 +771,7 @@ Core = Base.extend({
 
     _onBlur : function()
     {
-        this.pause = true;
+        this.isPaused = true;
         Input.resetAll();
 
         if(this.currentState !== null)
@@ -781,6 +780,22 @@ Core = Base.extend({
         }
     },
 
+    pause : function(flag)
+    {
+        if(flag)
+        {
+            this._onBlur();
+        }
+        else
+        {
+            this.isPaused = false;
+            if(this.currentState !== null)
+            {
+                this.currentState.onPause(false);
+            }            
+        }
+    },
+    
     //_onFocus : function()
     //{
     //	this.pause = false;
@@ -798,7 +813,7 @@ Core = Base.extend({
             this.fpsCounter = 0;
         }
 
-        if(!this.pause)
+        if(!this.isPaused)
         {
             this.totalTime += delta;
 
@@ -810,13 +825,10 @@ Core = Base.extend({
             Utils.update(delta * this.timeScale);
             Graphics.update(delta * this.timeScale);
         }
+        // todo: allow to override the pause behavior and render!!!
         else if(Input.isMousePressed())
 		{
-            this.pause = false;
-            if(this.currentState !== null)
-            {
-                this.currentState.onPause(false);
-            }
+            this.pause(false);
         }
     },
 
@@ -829,9 +841,9 @@ Core = Base.extend({
             Graphics.postDraw();
         }
 
-        if(this.pause)
+        if(this.isPaused)
         {
-            Graphics.drawFullScreenRect (0, 0, 0, 0.72);
+            Graphics.drawRect(0, 0, Graphics.width, Graphics.height, 0, 0, 0, 0.72);                        
             Graphics.enableBlur(5, 1, 1, 1, 1);
             Graphics.drawRegularPolygon (
                 Graphics.width / 2,
@@ -940,19 +952,19 @@ Core = Base.extend({
         }
     },
 
-    saveToStorage : function(object, value)
+    saveToStorage : function(name, value)
     {
-        if(this.storage)
+        if(this.isStorageAvailable)
         {
-            localStorage[object] = value;
+            localStorage[name] = value;
         }
     },
 
-    readFromStorage : function(object)
+    readFromStorage : function(name)
     {
-        if(this.storage)
+        if(this.isStorageAvailable)
         {
-            return localStorage[object];
+            return localStorage[name];
         }
         return null;
     },

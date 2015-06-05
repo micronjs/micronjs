@@ -1,5 +1,4 @@
 // Animation.js
-// This is WIP.
 
 // A quite complex key for a frame. We need:
 // - obj: the actor name upon we will do things

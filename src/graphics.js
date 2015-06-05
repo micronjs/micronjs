@@ -140,7 +140,6 @@ Graphics = Base.extend({
 
     canvas : null,
     context : null,
-    initialized : false,
     images : null,
     imagesMap : null,
     scale : { x:1, y:1 },
@@ -167,7 +166,6 @@ Graphics = Base.extend({
         this.canvas.height = height;
         this.canvas.style.position = "absolute";
         document.body.appendChild(this.canvas);
-        this.initialized = true;
         this.screenRect = this.canvas.getBoundingClientRect();
     },
 
@@ -351,7 +349,7 @@ Graphics = Base.extend({
 
     drawFullScreenRect : function(r, g, b, a)
     {
-        this.drawRect(0, 0, this.width, this.height, r, g, b, a);
+        this.drawRect(Camera.getX(), Camera.getY(), this.width, this.height, r, g, b, a);
     },
 
     drawLine : function(x1, y1, x2, y2, r, g, b, a, lineWidth, round)
