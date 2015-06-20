@@ -15,6 +15,3 @@ after_success:
 - git config --global user.name "DeployHook"
 - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && npm run
   publish-docs > /dev/null 2>&1
-env:
-  matrix:
-    secure: d+9qv3n0QSnDpIRTU0X+OhYC60pWEinCiEeegmvOpD7xaIL1W3UxKkkcZ9IeDI/+bTAPIdT/LoJGEmoLtuJs+VqC+WV0o2hLf7u6CyhMiQ8ZUvD1RMDwn6Ge/hHPEkhasnnd20JUWjZcPBk9Lj5u9O1mLACB2QaP06eMOO1gnkQ=
