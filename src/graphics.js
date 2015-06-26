@@ -5,7 +5,7 @@
 // Camera. It is a singleton.
 // todo: add "isRectVisible" and "isCircleVisible" to do auto-culling
 // todo: zoom?
-Camera = Entity.extend({
+Camera2d = Entity.extend({
 
     x : 0,
     y : 0,
@@ -132,7 +132,7 @@ Camera = Entity.extend({
     }
 });
 
-var Camera = new Camera();
+var Camera = new Camera2d();
 
 //-----------------------------------------------------------------------
 // The main rendering module.

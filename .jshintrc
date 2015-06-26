@@ -82,6 +82,7 @@
         "Input" : true,
         "Sound" : true,
         "Utils" : true,
+        "Camera2d" : true,
         "Camera" : true,
         "Entity" : true,
         "Pool" : true,
