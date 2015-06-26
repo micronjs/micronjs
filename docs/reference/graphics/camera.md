@@ -1,11 +1,12 @@
-# <i class="fa fa-book"></i> Camera
+# <i class="fa fa-book"></i> Camera2d
 
 <span class="label label-warning">Singleton</span><span class="label label-info">Class</span>
 
 The main and only camera singleton. Useful for doing things on the screen, like moving around,
 applying FX (**shake**, **fade-in/out** or adding an **overlay tint**).
 **NOTE:** if you want to replace the main camera by one of your own,
-just extend the Camera class and then override the Camera object. Easy!
+just extend the Camera2d class and then override the Camera object. Easy!
+And if you want to set a custom camera of your own, just set the Camera object. 
 
 ## Members
 
