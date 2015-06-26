@@ -812,7 +812,7 @@ addEventListener("keyup", function(e) {
     delete Input.keysDown[e.keyCode];
 }, false);
 
-Camera = Entity.extend({
+Camera2d = Entity.extend({
     x: 0,
     y: 0,
     shaking: false,
@@ -912,7 +912,7 @@ Camera = Entity.extend({
     }
 });
 
-var Camera = new Camera();
+var Camera = new Camera2d();
 
 Graphics = Base.extend({
     canvas: null,
