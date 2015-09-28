@@ -276,7 +276,7 @@ Graphics = Base.extend({
 
         if(Camera.fading || Camera.drawOverlay)
         {
-            this.drawFullScreenRect(
+            this.drawRect(Camera.x, Camera.y, this.width * 8, this.height * 8,
                 Camera.overlayColor.r,
                 Camera.overlayColor.g,
                 Camera.overlayColor.b,
@@ -553,7 +553,7 @@ var Sprite = Entity.extend({
     {
         // todo: add scale to this!
         this.center.x = this.x + this.width / 2.0;
-        this.center.y = this.y + this.height / 2.0;	
+        this.center.y = this.y + this.height / 2.0;
         if(!this.useBoundingBox)
         {
             return;

@@ -1006,7 +1006,7 @@ Graphics = Base.extend({
         this.context.restore();
         Camera.draw();
         if (Camera.fading || Camera.drawOverlay) {
-            this.drawFullScreenRect(Camera.overlayColor.r, Camera.overlayColor.g, Camera.overlayColor.b, Camera.overlayColor.a);
+            this.drawRect(Camera.x, Camera.y, this.width * 8, this.height * 8, Camera.overlayColor.r, Camera.overlayColor.g, Camera.overlayColor.b, Camera.overlayColor.a);
         }
     },
     _startDraw: function(mode, r, g, b, a) {
